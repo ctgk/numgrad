@@ -1,7 +1,7 @@
-pyboilerplate
-=============
+pygrad
+======
 
 .. toctree::
    :maxdepth: 4
 
-   pyboilerplate
+   pygrad

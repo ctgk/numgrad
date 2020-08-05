@@ -1,10 +1,10 @@
-pyboilerplate package
-=====================
+pygrad package
+==============
 
 Module contents
 ---------------
 
-.. automodule:: pyboilerplate
+.. automodule:: pygrad
    :members:
    :undoc-members:
    :show-inheritance:

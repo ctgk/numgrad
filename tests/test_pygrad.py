@@ -1,7 +1,7 @@
 import pytest
 
 
-def test_pyboilerplate():
+def test_ygrad():
     assert True
 
 
