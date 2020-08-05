@@ -11,6 +11,7 @@ from pygrad._types import _to_pygrad_type
     (1, int, True, 'x', TypeError),
     (1, pygrad.Float64, 1, 'x', TypeError),
     (1, pygrad.Float64, True, 2, TypeError),
+    (1, pygrad.Int64, True, 'x', pygrad.DifferentiationError),
 ])
 def test_array_init_error(value, dtype, is_differentiable, name, error):
     if error == 'NoError':

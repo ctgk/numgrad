@@ -2,6 +2,7 @@ import numpy as np
 import pytest
 
 import pygrad
+from pygrad._types import _is_int, _is_float
 
 
 @pytest.mark.parametrize('type_', [
@@ -16,6 +17,17 @@ import pygrad
 ])
 def test_issubclass_of_datatype(type_):
     assert issubclass(type_, pygrad.DataType)
+
+
+def test_is_int():
+    for cls_ in (pygrad.Int8, pygrad.Int16, pygrad.Int32, pygrad.Int64):
+        assert _is_int(cls_)
+
+
+def test_is_float():
+    for cls_ in (
+            pygrad.Float128, pygrad.Float16, pygrad.Float32, pygrad.Float64):
+        assert _is_float(cls_)
 
 
 @pytest.mark.parametrize('obj, dtype, expected', [

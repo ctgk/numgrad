@@ -1,4 +1,4 @@
-from typing import Tuple, Type
+from typing import Iterable, Tuple, Type, Union
 
 import numpy as np
 
@@ -19,6 +19,20 @@ class Array(_Node):
             *,
             name: str = None,
             **kwargs):
+        """Construct array object.
+
+        Parameters
+        ----------
+        value : object
+            Value of this array.
+        dtype : Type[DataType], optional
+            Desired data type, by default None
+        is_differentiable : bool, optional
+            Set True if you want to compute gradient of this array,
+            by default False
+        name : str, optional
+            Name of this array, by default None
+        """
         if is_differentiable and '_parent' in kwargs:
             super().__init__(kwargs['_parent'], name=name)
         else:
@@ -26,6 +40,9 @@ class Array(_Node):
         self._parent = kwargs.get(
             '_parent', None) if is_differentiable else None
         self._value = np.asarray(value, dtype=dtype)
+        if is_differentiable and 'float' not in repr(self._value.dtype):
+            raise DifferentiationError(
+                'Non-floating array is not differentiable.')
         self._is_differentiable: bool = is_differentiable
         self._num_backwards: int = 0
         self._grad = None
@@ -60,9 +77,15 @@ class Array(_Node):
     def is_differentiable(self) -> bool:
         return self._is_differentiable
 
+    @property
+    def grad(self) -> np.ndarray:
+        if self._grad is None or (self._num_backwards != len(self._children)):
+            raise ValueError('This object does not have a valid gradient.')
+        return self._grad
+
     def clear_grad(self):
         self._num_backwards = 0
-        self.grad = None
+        self._grad = None
 
     def backward(self, **kwargs):
         if not self._is_differentiable:
@@ -72,11 +95,29 @@ class Array(_Node):
             grad = kwargs.get('_grad', np.ones_like(self.value, self.dtype))
         else:
             grad = kwargs.get('_grad')
-            if self._grad is None:
-                self._grad = grad
-            else:
-                self._grad += grad
             self._num_backwards += 1
+        if self._grad is None:
+            self._grad = grad
+        else:
+            self._grad += grad
         if ((self._parent is not None)
-                and (self._num_backwards == len(self.children))):
-            self._parent.backward(self.grad)
+                and (self._num_backwards == len(self._children))):
+            self._parent.backward(self._grad)
+
+    def __neg__(self):
+        raise NotImplementedError
+
+    def sum(self,
+            axis: Union[int, Iterable[int], None] = None,
+            keepdims: bool = False,
+            *,
+            name: str = None):
+        raise NotImplementedError
+
+    def mean(
+            self,
+            axis: Union[int, Iterable[int], None] = None,
+            keepdims: bool = False,
+            *,
+            name: str = None):
+        raise NotImplementedError

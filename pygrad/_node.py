@@ -35,3 +35,7 @@ class _Node(object):
                         f' in arg \'name\', {name}.')
         self._name: str = name
         self._children: list = []
+
+    @property
+    def name(self) -> str:
+        return self._name

@@ -49,3 +49,11 @@ def _to_pygrad_type(type_):
         np.float128: Float128,
     }
     return dict_.get(type_, None)
+
+
+def _is_int(type_):
+    return type_ in (Int8, Int16, Int32, Int64)
+
+
+def _is_float(type_):
+    return type_ in (Float16, Float32, Float64, Float128)

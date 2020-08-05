@@ -14,7 +14,6 @@ class _Operator(_Node):
             arg if isinstance(arg, Array) else Array(arg) for arg in args)
         super().__init__(*args, name=name)
         self._is_differentiable = any(arg._is_differentiable for arg in args)
-        assert(hasattr(self, '_dtype'))
         assert(callable(getattr(self, '_forward_numpy')))
         assert(callable(getattr(self, '_backward_numpy')))
 
@@ -25,7 +24,7 @@ class _Operator(_Node):
     def forward(self) -> Array:
         return Array(
             self._forward_numpy(*tuple(arg.value for arg in self._args)),
-            dtype=self._dtype, is_differentiable=self._is_differentiable,
+            is_differentiable=self._is_differentiable,
             **{
                 k: v + '.out' for k, v in zip(['name'], [self._name])
                 if v is not None
@@ -39,6 +38,6 @@ class _Operator(_Node):
         dargs = dargs if isinstance(dargs, tuple) else (dargs,)
         for arg, darg in zip(self._args, dargs):
             try:
-                arg.backward(darg)
+                arg.backward(_grad=darg)
             except DifferentiationError:
                 pass
