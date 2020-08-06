@@ -6,6 +6,7 @@ __version__ = '0.0.1'
 
 install_requires = [
     'numpy',
+    'scipy',
 ]
 develop_requires = [
     'autopep8',

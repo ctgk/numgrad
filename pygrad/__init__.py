@@ -12,6 +12,7 @@ from pygrad._math._cos import cos
 from pygrad._math._cosh import cosh
 from pygrad._math._divide import divide
 from pygrad._math._exp import exp
+from pygrad._math._gamma import gamma
 from pygrad._math._log import log
 from pygrad._math._matmul import matmul
 from pygrad._math._max import max
@@ -76,6 +77,7 @@ __all__ = [_cls.__name__ for _cls in _classes] + [
     'cosh',
     'divide',
     'exp',
+    'gamma',
     'log',
     'matmul',
     'max',
