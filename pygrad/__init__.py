@@ -8,6 +8,8 @@ from pygrad._manipulation._reshape import reshape
 from pygrad._manipulation._transpose import transpose
 
 from pygrad._math._add import add
+from pygrad._math._cos import cos
+from pygrad._math._cosh import cosh
 from pygrad._math._divide import divide
 from pygrad._math._exp import exp
 from pygrad._math._log import log
@@ -15,10 +17,14 @@ from pygrad._math._matmul import matmul
 from pygrad._math._mean import mean
 from pygrad._math._multiply import multiply
 from pygrad._math._negate import negate
+from pygrad._math._sin import sin
+from pygrad._math._sinh import sinh
 from pygrad._math._sqrt import sqrt
 from pygrad._math._square import square
 from pygrad._math._subtract import subtract
 from pygrad._math._sum import sum
+from pygrad._math._tan import tan
+from pygrad._math._tanh import tanh
 
 
 def _reshape(x, *newshape):
@@ -62,6 +68,8 @@ __all__ = [_cls.__name__ for _cls in _classes] + [
     'transpose',
 
     'add',
+    'cos',
+    'cosh',
     'divide',
     'exp',
     'log',
@@ -69,8 +77,12 @@ __all__ = [_cls.__name__ for _cls in _classes] + [
     'mean',
     'multiply',
     'negate',
+    'sin',
+    'sinh',
     'sqrt',
     'square',
     'subtract',
     'sum',
+    'tan',
+    'tanh',
 ]
