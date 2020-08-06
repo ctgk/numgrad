@@ -1,4 +1,4 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 
 __version__ = '0.0.1'
@@ -24,8 +24,10 @@ setup(
     version=__version__,
     author='ctgk',
     author_email='r1135nj54w@gmail.com',
-    description='pygrad',
+    description='Simple gradient computation library in Python',
 
+    packages=find_packages(
+        exclude=('tests', 'tests.*'), include=('pygrad', 'pygrad.*')),
     python_requires='>=3.6',
     install_requires=install_requires,
     extras_require={
