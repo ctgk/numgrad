@@ -14,7 +14,9 @@ from pygrad._math._divide import divide
 from pygrad._math._exp import exp
 from pygrad._math._log import log
 from pygrad._math._matmul import matmul
+from pygrad._math._max import max
 from pygrad._math._mean import mean
+from pygrad._math._min import min
 from pygrad._math._multiply import multiply
 from pygrad._math._negate import negate
 from pygrad._math._sin import sin
@@ -46,8 +48,10 @@ Array.__rmatmul__ = lambda x, y: matmul(y, x)
 Array.__rmul__ = multiply
 Array.__rsub__ = lambda x, y: subtract(y, x)
 Array.__rtruediv__ = lambda x, y: divide(y, x)
-Array.reshape = _reshape
+Array.max = max
 Array.mean = mean
+Array.min = min
+Array.reshape = _reshape
 Array.sum = sum
 Array.transpose = _transpose
 Array.T = property(lambda self: transpose(self))
@@ -74,7 +78,9 @@ __all__ = [_cls.__name__ for _cls in _classes] + [
     'exp',
     'log',
     'matmul',
+    'max',
     'mean',
+    'min',
     'multiply',
     'negate',
     'sin',
