@@ -2,14 +2,14 @@ import typing as tp
 
 import numpy as np
 
-from pygrad._array import Array
+from pygrad._core._array import Array
 from pygrad.optimizers._gradient import Gradient
-from pygrad._type_check import _typecheck_args
+from pygrad._utils._typecheck import _typecheck
 
 
 class RMSProp(Gradient):
 
-    @_typecheck_args
+    @_typecheck(exclude=('parameters', 'learning_rate'))
     def __init__(
             self,
             parameters: tp.Iterable[Array],

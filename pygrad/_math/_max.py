@@ -2,9 +2,9 @@ import typing as tp
 
 import numpy as np
 
-from pygrad._array import Array
-from pygrad._operator import _Operator
-from pygrad._type_check import _typecheck_args
+from pygrad._core._array import Array
+from pygrad._core._operator import _Operator
+from pygrad._utils._typecheck import _typecheck
 
 
 class _Max(_Operator):
@@ -36,8 +36,8 @@ class _Max(_Operator):
         return dx
 
 
-@_typecheck_args
-def max(x,
+@_typecheck(exclude=('x',))
+def max(x: Array,
         axis: tp.Union[int, tp.Iterable[int]] = None,
         keepdims: bool = False,
         *,
@@ -46,7 +46,7 @@ def max(x,
 
     Parameters
     ----------
-    x
+    x : Array
         Input array.
     axis : tp.Union[int, tp.Iterable[int]], optional
         Axis to find maximum value along, by default None

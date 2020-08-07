@@ -2,9 +2,9 @@ import typing as tp
 
 import numpy as np
 
-from pygrad._array import Array
-from pygrad._operator import _Operator
-from pygrad._type_check import _typecheck_args
+from pygrad._core._array import Array
+from pygrad._core._operator import _Operator
+from pygrad._utils._typecheck import _typecheck
 
 
 class _Transpose(_Operator):
@@ -22,13 +22,13 @@ class _Transpose(_Operator):
         return np.transpose(delta, np.argsort(self._axes))
 
 
-@_typecheck_args
+@_typecheck()
 def transpose(x, axes: tp.Iterable[int] = None, *, name: str = None) -> Array:
     """Return a transposed array.
 
     Parameters
     ----------
-    x
+    x : Array
         Input array.
     axes : tp.Iterable[int], optional
         New shape

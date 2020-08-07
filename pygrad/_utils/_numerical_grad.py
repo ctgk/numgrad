@@ -2,7 +2,7 @@ from typing import Tuple
 
 import numpy as np
 
-from pygrad._array import Array
+from pygrad._core._array import Array
 
 
 def _numerical_grad(

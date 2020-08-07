@@ -1,8 +1,8 @@
 import numpy as np
 
-from pygrad._array import Array
-from pygrad._operator import _Operator
-from pygrad._type_check import _typecheck_args
+from pygrad._core._array import Array
+from pygrad._core._operator import _Operator
+from pygrad._utils._typecheck import _typecheck
 
 
 class _MatMul(_Operator):
@@ -23,15 +23,15 @@ class _MatMul(_Operator):
         return dx, dy
 
 
-@_typecheck_args
-def matmul(x, y, name: str = None) -> Array:
+@_typecheck(exclude=('x', 'y'))
+def matmul(x: Array, y: Array, name: str = None) -> Array:
     """Return matrix multiplication of two arrays.
 
     Parameters
     ----------
-    x
+    x : Array
         Input array.
-    y
+    y : Array
         Another input array.
     name : str, optional
         Name of the operation, by default None.

@@ -1,8 +1,8 @@
 import numpy as np
 
-from pygrad._array import Array
-from pygrad._operator import _Operator
-from pygrad._type_check import _typecheck_args
+from pygrad._core._array import Array
+from pygrad._core._operator import _Operator
+from pygrad._utils._typecheck import _typecheck
 
 
 class _Tan(_Operator):
@@ -18,13 +18,13 @@ class _Tan(_Operator):
         return dy * (1 + np.square(self.output))
 
 
-@_typecheck_args
-def tan(x, *, name: str = None) -> Array:
+@_typecheck(exclude=('x',))
+def tan(x: Array, *, name: str = None) -> Array:
     """Return trigonometric tangent of each element.
 
     Parameters
     ----------
-    x
+    x : Array
         Input array.
     name : str, optional
         Name of the operation, by default None.

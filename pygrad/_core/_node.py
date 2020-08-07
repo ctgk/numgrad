@@ -3,7 +3,7 @@ class _Node(object):
 
     Examples
     --------
-    >>> from pygrad._node import _Node
+    >>> from pygrad._core._node import _Node
     >>> a = _Node()
     >>> b = _Node()
     >>> c = _Node(a, b)

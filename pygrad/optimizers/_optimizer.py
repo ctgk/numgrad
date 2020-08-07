@@ -1,15 +1,13 @@
 from contextlib import contextmanager
 import typing as tp
 
-from pygrad._array import Array
-from pygrad._type_check import _typecheck_args
+from pygrad._core._array import Array
 
 
 class Optimizer(object):
     """Base optimizer class.
     """
 
-    @_typecheck_args
     def __init__(self, parameters: tp.Iterable[Array]):
         if not all(p.is_differentiable for p in parameters):
             raise ValueError('All \'parameters\' must be differentiable.')
@@ -50,10 +48,8 @@ class Optimizer(object):
                 for p in self._parameters:
                     p.clear_grad()
 
-    @_typecheck_args
     def minimize(self, loss: Array):
         raise NotImplementedError
 
-    @_typecheck_args
     def maximize(self, score: Array):
         raise NotImplementedError

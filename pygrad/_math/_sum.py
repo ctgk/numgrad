@@ -2,9 +2,9 @@ from typing import Iterable, Union
 
 import numpy as np
 
-from pygrad._array import Array
-from pygrad._operator import _Operator
-from pygrad._type_check import _typecheck_args
+from pygrad._core._array import Array
+from pygrad._core._operator import _Operator
+from pygrad._utils._typecheck import _typecheck
 
 
 class _Sum(_Operator):
@@ -40,8 +40,8 @@ class _Sum(_Operator):
         return dx
 
 
-@_typecheck_args
-def sum(x,
+@_typecheck(exclude=('x',))
+def sum(x: Array,
         axis: Union[int, Iterable[int], None] = None,
         keepdims: bool = False,
         *,
@@ -50,7 +50,7 @@ def sum(x,
 
     Parameters
     ----------
-    x
+    x : Array
         Input array.
     axis : Union[int, Iterable[int], None], optional
         Axis to sum along, by default None

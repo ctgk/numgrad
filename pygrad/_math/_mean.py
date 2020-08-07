@@ -2,8 +2,8 @@ from typing import Iterable, Union
 
 import numpy as np
 
-from pygrad._array import Array
-from pygrad._type_check import _typecheck_args
+from pygrad._core._array import Array
+from pygrad._utils._typecheck import _typecheck
 from pygrad._math._sum import _Sum
 
 
@@ -19,9 +19,9 @@ class _Mean(_Sum):
         return super()._backward_numpy(dy, x) * dy.size / x.size
 
 
-@_typecheck_args
+@_typecheck(exclude=('x',))
 def mean(
-        x,
+        x: Array,
         axis: Union[int, Iterable[int], None] = None,
         keepdims: bool = False,
         *,
@@ -30,7 +30,7 @@ def mean(
 
     Parameters
     ----------
-    x
+    x : Array
         Input array.
     axis : Union[int, Iterable[int], None], optional
         Axis to sum along, by default None

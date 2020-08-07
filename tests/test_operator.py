@@ -1,6 +1,6 @@
 import pytest
 
-from pygrad._operator import _Operator
+from pygrad._core._operator import _Operator
 
 
 @pytest.mark.parametrize('args, name', [

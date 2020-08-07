@@ -1,8 +1,8 @@
 import typing as tp
 
-from pygrad._array import Array
+from pygrad._core._array import Array
 from pygrad.optimizers._optimizer import Optimizer
-from pygrad._type_check import _typecheck_args
+from pygrad._utils._typecheck import _typecheck
 
 
 class Gradient(Optimizer):
@@ -35,7 +35,7 @@ class Gradient(Optimizer):
     array(9.8)
     """
 
-    @_typecheck_args
+    @_typecheck()
     def __init__(
             self,
             parameters: tp.Iterable[Array],
@@ -48,7 +48,7 @@ class Gradient(Optimizer):
         for p in self._parameters:
             p._value += learning_rate * p.grad
 
-    @_typecheck_args
+    @_typecheck()
     def minimize(self, loss: Array = None, clear_grad: bool = True):
         """Small updation of each parameter to minimize the given loss.
 
@@ -64,7 +64,7 @@ class Gradient(Optimizer):
         with self._increment_count_calc_grad_clear_grad(loss, clear_grad):
             self._update(-self._learning_rate)
 
-    @_typecheck_args
+    @_typecheck()
     def maximize(self, score: Array = None, clear_grad: bool = True):
         """Small updation of each parameter to maximize the given score.
 

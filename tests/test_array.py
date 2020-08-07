@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 
 import pygrad
-from pygrad._types import _to_pygrad_type
+from pygrad._core._types import _to_pygrad_type
 
 
 @pytest.mark.parametrize('value, dtype, is_differentiable, name, error', [

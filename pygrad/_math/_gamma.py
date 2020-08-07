@@ -1,8 +1,8 @@
 import scipy.special as sp
 
-from pygrad._array import Array
-from pygrad._operator import _Operator
-from pygrad._type_check import _typecheck_args
+from pygrad._core._array import Array
+from pygrad._core._operator import _Operator
+from pygrad._utils._typecheck import _typecheck
 
 
 class _Gamma(_Operator):
@@ -18,8 +18,8 @@ class _Gamma(_Operator):
         return delta * sp.digamma(x) * self.output
 
 
-@_typecheck_args
-def gamma(x, *, name: str = None) -> Array:
+@_typecheck(exclude=('x',))
+def gamma(x: Array, *, name: str = None) -> Array:
     r"""Element-wise gamma function.
 
     .. math::
@@ -31,7 +31,7 @@ def gamma(x, *, name: str = None) -> Array:
 
     Parameters
     ----------
-    x
+    x : Array
         Input array.
     name : str, optional
         Name of this operation, by default None

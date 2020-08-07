@@ -1,8 +1,8 @@
 import typing as tp
 
-from pygrad._array import Array
-from pygrad._operator import _Operator
-from pygrad._type_check import _typecheck_args
+from pygrad._core._array import Array
+from pygrad._core._operator import _Operator
+from pygrad._utils._typecheck import _typecheck
 
 
 class _Reshape(_Operator):
@@ -18,13 +18,13 @@ class _Reshape(_Operator):
         return delta.reshape(*x.shape)
 
 
-@_typecheck_args
+@_typecheck()
 def reshape(x, newshape: tp.Iterable[int], *, name: str = None) -> Array:
     """Return a reshaped array.
 
     Parameters
     ----------
-    x
+    x : Array
         Input array.
     newshape : tp.Iterable[int]
         New shape

@@ -1,6 +1,6 @@
-from pygrad._array import Array
-from pygrad._errors import DifferentiationError
-from pygrad._types import (
+from pygrad._core._array import Array
+from pygrad._core._errors import DifferentiationError
+from pygrad._core._types import (
     DataType, Int8, Int16, Int32, Int64, Float16, Float32, Float64, Float128
 )
 
@@ -32,11 +32,11 @@ from pygrad._math._tanh import tanh
 from pygrad import optimizers
 
 
-def _reshape(x, *newshape):
+def _reshape(x: Array, *newshape):
     return reshape(x, newshape)
 
 
-def _transpose(x, *axes):
+def _transpose(x: Array, *axes):
     return transpose(x, axes) if axes else transpose(x)
 
 

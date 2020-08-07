@@ -2,15 +2,15 @@ from typing import Iterable, Tuple, Type, Union
 
 import numpy as np
 
-from pygrad._errors import DifferentiationError
-from pygrad._node import _Node
-from pygrad._types import DataType, _to_pygrad_type
-from pygrad._type_check import _typecheck_args
+from pygrad._core._errors import DifferentiationError
+from pygrad._core._node import _Node
+from pygrad._core._types import DataType, _to_pygrad_type
+from pygrad._utils._typecheck import _typecheck
 
 
 class Array(_Node):
 
-    @_typecheck_args
+    @_typecheck()
     def __init__(
             self,
             value: object,

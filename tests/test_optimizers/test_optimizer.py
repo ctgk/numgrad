@@ -44,14 +44,6 @@ class NonCallableUpdate(pg.optimizers.Optimizer):
     (
         CallableUpdate,
         [
-            pg.Array(1., is_differentiable=True),
-            3,
-        ],
-        TypeError,
-    ),
-    (
-        CallableUpdate,
-        [
             pg.Array(1.),
             pg.Array([0, -1.], is_differentiable=True),
         ],

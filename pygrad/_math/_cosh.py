@@ -1,8 +1,8 @@
 import numpy as np
 
-from pygrad._array import Array
-from pygrad._operator import _Operator
-from pygrad._type_check import _typecheck_args
+from pygrad._core._array import Array
+from pygrad._core._operator import _Operator
+from pygrad._utils._typecheck import _typecheck
 
 
 class _Cosh(_Operator):
@@ -17,8 +17,8 @@ class _Cosh(_Operator):
         return dy * np.sinh(x)
 
 
-@_typecheck_args
-def cosh(x, *, name: str = None) -> Array:
+@_typecheck(exclude=('x',))
+def cosh(x: Array, *, name: str = None) -> Array:
     r"""Return hyperbolic cosine of each element.
 
     .. math::
@@ -28,7 +28,7 @@ def cosh(x, *, name: str = None) -> Array:
 
     Parameters
     ----------
-    x
+    x : Array
         Input array.
     name : str, optional
         Name of the operation, by default None.

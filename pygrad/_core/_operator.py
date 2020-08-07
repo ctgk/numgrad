@@ -2,9 +2,9 @@ from typing import Tuple
 
 import numpy as np
 
-from pygrad._array import Array
-from pygrad._errors import DifferentiationError
-from pygrad._node import _Node
+from pygrad._core._array import Array
+from pygrad._core._errors import DifferentiationError
+from pygrad._core._node import _Node
 
 
 class _Operator(_Node):
