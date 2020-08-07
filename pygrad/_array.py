@@ -84,6 +84,7 @@ class Array(_Node):
         return self._grad
 
     def clear_grad(self):
+        self._children = []
         self._num_backwards = 0
         self._grad = None
 

@@ -29,6 +29,8 @@ from pygrad._math._sum import sum
 from pygrad._math._tan import tan
 from pygrad._math._tanh import tanh
 
+from pygrad import optimizers
+
 
 def _reshape(x, *newshape):
     return reshape(x, newshape)
@@ -93,4 +95,6 @@ __all__ = [_cls.__name__ for _cls in _classes] + [
     'sum',
     'tan',
     'tanh',
+
+    'optimizers',
 ]
