@@ -8,6 +8,7 @@ Subpackages
    :maxdepth: 4
 
    pygrad.optimizers
+   pygrad.stats
 
 Module contents
 ---------------

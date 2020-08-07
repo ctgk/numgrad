@@ -14,6 +14,7 @@ from pygrad._math._divide import divide
 from pygrad._math._exp import exp
 from pygrad._math._gamma import gamma
 from pygrad._math._log import log
+from pygrad._math._logsumexp import logsumexp
 from pygrad._math._matmul import matmul
 from pygrad._math._max import max
 from pygrad._math._mean import mean
@@ -29,7 +30,7 @@ from pygrad._math._sum import sum
 from pygrad._math._tan import tan
 from pygrad._math._tanh import tanh
 
-from pygrad import optimizers
+from pygrad import optimizers, stats
 
 
 def _reshape(x: Array, *newshape):
@@ -81,6 +82,7 @@ __all__ = [_cls.__name__ for _cls in _classes] + [
     'exp',
     'gamma',
     'log',
+    'logsumexp',
     'matmul',
     'max',
     'mean',
@@ -96,5 +98,5 @@ __all__ = [_cls.__name__ for _cls in _classes] + [
     'tan',
     'tanh',
 
-    'optimizers',
+    'optimizers', 'stats',
 ]
