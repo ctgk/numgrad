@@ -1,4 +1,7 @@
-class _Node(object):
+import abc
+
+
+class _Node(abc.ABC):
     """Computational graph node.
 
     Examples

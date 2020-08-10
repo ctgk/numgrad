@@ -3,11 +3,11 @@ import pytest
 from pygrad._core._operator import _Operator
 
 
-@pytest.mark.parametrize('args, name', [
-    ((1, 2), None),
+@pytest.mark.parametrize('args, name, error', [
+    ((1, 2), None, TypeError),
 ])
-def test_operator_init_error(args, name):
-    with pytest.raises(AttributeError):
+def test_operator_init_error(args, name, error):
+    with pytest.raises(error):
         _Operator(*args, name)
 
 

@@ -1,3 +1,4 @@
+import abc
 from typing import Tuple
 
 import numpy as np
@@ -14,8 +15,6 @@ class _Operator(_Node):
             arg if isinstance(arg, Array) else Array(arg) for arg in args)
         super().__init__(*args, name=name)
         self._is_differentiable = any(arg._is_differentiable for arg in args)
-        assert(callable(getattr(self, '_forward_numpy')))
-        assert(callable(getattr(self, '_backward_numpy')))
 
     @property
     def _args(self) -> Tuple[Array]:
@@ -41,3 +40,11 @@ class _Operator(_Node):
                 arg.backward(_grad=darg)
             except DifferentiationError:
                 pass
+
+    @abc.abstractmethod
+    def _forward_numpy(self, *args, **kwargs):
+        pass
+
+    @abc.abstractmethod
+    def _backward_numpy(self, *args, **kwargs):
+        pass
