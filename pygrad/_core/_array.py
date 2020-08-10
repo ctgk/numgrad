@@ -17,7 +17,7 @@ class Array(_Node):
             dtype: Type[DataType] = None,
             is_differentiable: bool = False,
             *,
-            name: str = None,
+            name: Union[str, None] = None,
             **kwargs):
         """Construct array object.
 
