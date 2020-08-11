@@ -45,21 +45,22 @@ def test_xor():
 
     def predict_logit(x, w1, b1, w2, b2):
         x = pg.tanh(x @ w1 + b1)
-        return (x * w2).sum(axis=-1) + b2
+        return x @ w2 + b2
 
     def loss_func(w1, b1, w2, b2):
         return pg.stats.sigmoid_cross_entropy(
             y, predict_logit(x, w1, b1, w2, b2)).sum()
 
     optimizer = pg.optimizers.Gradient([w1, b1, w2, b2], 1e-1)
-    for _ in range(100):
-        dw1, db1, dw2, db2 = _numerical_grad(
-            loss_func, w1, b1, w2, b2, epsilon=1e-3)
+    for i in range(101):
         loss_func(w1, b1, w2, b2).backward()
-        assert np.allclose(w1.grad, dw1, rtol=0, atol=1e-2)
-        assert np.allclose(b1.grad, db1, rtol=0, atol=1e-2)
-        assert np.allclose(w2.grad, dw2, rtol=0, atol=1e-2)
-        assert np.allclose(b2.grad, db2, rtol=0, atol=1e-2)
+        if i % 20 == 0:
+            dw1, db1, dw2, db2 = _numerical_grad(
+                loss_func, w1, b1, w2, b2, epsilon=1e-3)
+            assert np.allclose(w1.grad, dw1, rtol=0, atol=1e-2)
+            assert np.allclose(b1.grad, db1, rtol=0, atol=1e-2)
+            assert np.allclose(w2.grad, dw2, rtol=0, atol=1e-2)
+            assert np.allclose(b2.grad, db2, rtol=0, atol=1e-2)
         optimizer.minimize(clear_grad=True)
     proba = pg.stats.sigmoid(predict_logit(x, w1, b1, w2, b2))
     assert np.allclose(proba.value, [1, 0, 0, 1], rtol=0, atol=1e-1)

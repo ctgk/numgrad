@@ -10,6 +10,8 @@ np.random.seed(0)
 
 @pytest.mark.parametrize('x, y', [
     ([[1, -1, 5]], [[1], [2], [3]]),
+    ([[1, -1, 5]], [1, 2, 3]),
+    ([1, -1, 5], [[1], [2], [3]]),
 ])
 def test_matmul_forward(x, y):
     actual = pg.matmul(x, y)
@@ -20,6 +22,14 @@ def test_matmul_forward(x, y):
     (
         pg.Array(np.random.rand(3, 4), is_differentiable=True),
         pg.Array(np.random.rand(4, 6), is_differentiable=True)
+    ),
+    (
+        pg.Array(np.random.rand(4), is_differentiable=True),
+        pg.Array(np.random.rand(4, 6), is_differentiable=True)
+    ),
+    (
+        pg.Array(np.random.rand(3, 4), is_differentiable=True),
+        pg.Array(np.random.rand(4), is_differentiable=True)
     ),
 ])
 def test_matmul_numerical_grad(x, y):
