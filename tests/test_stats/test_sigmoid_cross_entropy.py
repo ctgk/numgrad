@@ -23,7 +23,7 @@ def test_numerical_grad_1(labels, logits):
 
 @pytest.mark.parametrize('labels, logits', [
     (
-        pg.Array([0, 1, 1]),
+        pg.Array([0., 1, 1]),
         pg.Array(np.random.uniform(-9, 9, (4, 2, 3)), is_differentiable=True)
     ),
 ])
@@ -37,7 +37,7 @@ def test_numerical_grad_2(labels, logits):
 
 def test_xor():
     x = pg.Array([[1, 1], [1, -1], [-1, 1], [-1, -1]], pg.Float32)
-    y = pg.Array([1, 0, 0, 1])
+    y = pg.Array([1, 0, 0, 1], pg.Float32)
     w1 = pg.Array(np.random.normal(size=(2, 10)), pg.Float32, True)
     b1 = pg.Array([0] * 10, pg.Float32, True)
     w2 = pg.Array(np.random.normal(size=(10,)), pg.Float32, True)

@@ -1,4 +1,5 @@
 from pygrad._core._array import Array
+from pygrad._core._config import config
 from pygrad._core._errors import DifferentiationError
 from pygrad._core._types import (
     DataType, Int8, Int16, Int32, Int64, Float16, Float32, Float64, Float128
@@ -72,6 +73,8 @@ for _cls in _classes:
 
 
 __all__ = [_cls.__name__ for _cls in _classes] + [
+    'config',
+
     'reshape',
     'transpose',
 

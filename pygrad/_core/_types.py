@@ -39,14 +39,14 @@ class Float128(np.float128, DataType):
 
 def _to_pygrad_type(type_):
     dict_ = {
-        np.int8: Int8,
-        np.int16: Int16,
-        np.int32: Int32,
-        np.int64: Int64,
-        np.float16: Float16,
-        np.float32: Float32,
-        np.float64: Float64,
-        np.float128: Float128,
+        np.dtype('int8'): Int8,
+        np.dtype('int16'): Int16,
+        np.dtype('int32'): Int32,
+        np.dtype('int64'): Int64,
+        np.dtype('float16'): Float16,
+        np.dtype('float32'): Float32,
+        np.dtype('float64'): Float64,
+        np.dtype('float128'): Float128,
     }
     return dict_.get(type_, None)
 

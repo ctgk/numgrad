@@ -40,7 +40,7 @@ def reshape(x, newshape: tp.Iterable[int], *, name: str = None) -> Array:
     --------
     >>> import pygrad as pg
     >>> pg.reshape([1, 2, 3, 4, 5, 6], (2, -1))
-    array([[1, 2, 3],
-           [4, 5, 6]])
+    array([[1., 2., 3.],
+           [4., 5., 6.]])
     """
     return _Reshape(x, newshape, name=name).forward()

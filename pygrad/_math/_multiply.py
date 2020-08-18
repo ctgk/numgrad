@@ -44,7 +44,7 @@ def multiply(x: Array, y: Array, name: str = None) -> Array:
     --------
     >>> import pygrad as pg
     >>> pg.multiply([[1, 2], [2, 3]], [-1, 3])
-    array([[-1,  6],
-           [-2,  9]])
+    array([[-1.,  6.],
+           [-2.,  9.]])
     """
     return _Multiply(x, y, name=name).forward()

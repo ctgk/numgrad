@@ -42,6 +42,6 @@ def relu(x: Array, *, name: str = None) -> Array:
     --------
     >>> import pygrad as pg
     >>> pg.nn.relu([1, -1, 2, -3])
-    array([1, 0, 2, 0])
+    array([1., 0., 2., 0.])
     """
     return _ReLU(x, name=name).forward()

@@ -42,7 +42,7 @@ def add(x: Array, y: Array, *, name: str = None) -> Array:
     --------
     >>> import pygrad as pg
     >>> pg.add([[1, 2], [2, 3]], [-1, 3])
-    array([[0, 5],
-           [1, 6]])
+    array([[0., 5.],
+           [1., 6.]])
     """
     return _Add(x, y, name=name).forward()

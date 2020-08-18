@@ -39,6 +39,6 @@ def square(x: Array, *, name: str = None) -> Array:
     --------
     >>> import pygrad as pg
     >>> pg.square([1, 2, -3])
-    array([1, 4, 9])
+    array([1., 4., 9.])
     """
     return _Square(x, name=name).forward()

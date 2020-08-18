@@ -44,20 +44,20 @@ def transpose(x, axes: tp.Iterable[int] = None, *, name: str = None) -> Array:
     --------
     >>> import pygrad as pg
     >>> pg.transpose([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
-    array([[1, 4, 7],
-           [2, 5, 8],
-           [3, 6, 9]])
+    array([[1., 4., 7.],
+           [2., 5., 8.],
+           [3., 6., 9.]])
     >>> pg.transpose([[[1, 2, 3], [4, 5, 6], [7, 8, 9]]], (1, 2, 0))
-    array([[[1],
-            [2],
-            [3]],
+    array([[[1.],
+            [2.],
+            [3.]],
     <BLANKLINE>
-           [[4],
-            [5],
-            [6]],
+           [[4.],
+            [5.],
+            [6.]],
     <BLANKLINE>
-           [[7],
-            [8],
-            [9]]])
+           [[7.],
+            [8.],
+            [9.]]])
     """
     return _Transpose(x, axes, name=name).forward()

@@ -37,6 +37,6 @@ def negate(x: Array, *, name: str = None) -> Array:
     --------
     >>> import pygrad as pg
     >>> pg.negate([1, -2, 3])
-    array([-1,  2, -3])
+    array([-1.,  2., -3.])
     """
     return _Negate(x, name=name).forward()

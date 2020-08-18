@@ -44,7 +44,7 @@ def subtract(x: Array, y: Array, name: str = None) -> Array:
     --------
     >>> import pygrad as pg
     >>> pg.subtract([[1, 2], [2, 3]], [-1, 3])
-    array([[ 2, -1],
-           [ 3,  0]])
+    array([[ 2., -1.],
+           [ 3.,  0.]])
     """
     return _Subtract(x, y, name=name).forward()

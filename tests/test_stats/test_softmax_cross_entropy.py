@@ -28,12 +28,12 @@ def test_numerical_grad_1(labels, logits, axis):
 
 @pytest.mark.parametrize('labels, logits, axis', [
     (
-        pg.Array([[0, 1, 0], [1, 0, 1]]),
+        pg.Array([[0., 1, 0], [1, 0, 1]]),
         pg.Array(np.random.uniform(-9, 9, (2, 3)), is_differentiable=True),
         0
     ),
     (
-        pg.Array([[0, 1, 0], [1, 0, 0]]),
+        pg.Array([[0., 1, 0], [1, 0, 0]]),
         pg.Array(np.random.uniform(-9, 9, (2, 3)), is_differentiable=True),
         1
     ),
