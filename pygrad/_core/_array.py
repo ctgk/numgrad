@@ -1,4 +1,4 @@
-from typing import Iterable, Tuple, Type, Union
+import typing as tp
 
 import numpy as np
 
@@ -14,10 +14,10 @@ class Array(_Node):
     def __init__(
             self,
             value: object,
-            dtype: Type[DataType] = None,
+            dtype: tp.Type[DataType] = None,
             is_differentiable: bool = False,
             *,
-            name: Union[str, None] = None,
+            name: tp.Union[str, None] = None,
             **kwargs):
         """Construct array object.
 
@@ -70,7 +70,7 @@ class Array(_Node):
         return self._value.size
 
     @property
-    def shape(self) -> Tuple[int]:
+    def shape(self) -> tp.Tuple[int]:
         return self._value.shape
 
     @property
@@ -82,6 +82,10 @@ class Array(_Node):
         if self._grad is None or (self._num_backwards != len(self._children)):
             raise ValueError('This object does not have a valid gradient.')
         return self._grad
+
+    @_typecheck()
+    def astype(self, dtype: tp.Type[DataType]):
+        return Array(self._value, dtype=dtype)
 
     def clear_grad(self):
         self._children = []
@@ -109,7 +113,7 @@ class Array(_Node):
         raise NotImplementedError
 
     def sum(self,
-            axis: Union[int, Iterable[int], None] = None,
+            axis: tp.Union[int, tp.Iterable[int], None] = None,
             keepdims: bool = False,
             *,
             name: str = None):
@@ -117,7 +121,7 @@ class Array(_Node):
 
     def mean(
             self,
-            axis: Union[int, Iterable[int], None] = None,
+            axis: tp.Union[int, tp.Iterable[int], None] = None,
             keepdims: bool = False,
             *,
             name: str = None):

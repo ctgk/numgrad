@@ -1,6 +1,7 @@
 from pygrad._core._array import Array
 from pygrad._core._config import config
 from pygrad._core._errors import DifferentiationError
+from pygrad._core._module import Module
 from pygrad._core._types import (
     DataType, Int8, Int16, Int32, Int64, Float16, Float32, Float64, Float128
 )
@@ -65,6 +66,7 @@ Array.T = property(lambda self: transpose(self))
 _classes = [
     Array,
     DifferentiationError,
+    Module,
     DataType, Int8, Int16, Int32, Int64, Float16, Float32, Float64, Float128,
 ]
 

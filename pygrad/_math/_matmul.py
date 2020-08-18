@@ -1,6 +1,7 @@
 import numpy as np
 
 from pygrad._core._array import Array
+from pygrad._core._config import config
 from pygrad._core._operator import _Operator
 from pygrad._utils._typecheck import _typecheck
 from pygrad._utils._unbroadcast import _unbroadcast_to
@@ -98,23 +99,29 @@ def matmul(x: Array, y: Array, name: str = None) -> Array:
     --------
     >>> import pygrad as pg
     >>> pg.matmul([[1, 2], [2, 3]], [-1, 3])
-    array([5, 7])
+    array([5., 7.])
     >>> pg.matmul([-1, 3], [[1, 2], [2, 3]])
-    array([5, 7])
+    array([5., 7.])
     >>> pg.matmul([[1, 2], [2, 3]], [[-1], [3]])
-    array([[5],
-           [7]])
+    array([[5.],
+           [7.]])
     >>> pg.matmul([[[1, 2], [2, 3]], [[-1, 2], [2, -3]]], [[-1], [3]])
-    array([[[  5],
-            [  7]],
+    array([[[  5.],
+            [  7.]],
     <BLANKLINE>
-           [[  7],
-            [-11]]])
+           [[  7.],
+            [-11.]]])
     """
+    for arg in (x, y):
+        if isinstance(arg, Array):
+            dtype = arg.dtype
+            break
+    else:
+        dtype = config.dtype
     if not isinstance(x, Array):
-        x = Array(x)
+        x = Array(x, dtype)
     if not isinstance(y, Array):
-        y = Array(y)
+        y = Array(y, dtype)
     if y.ndim == 1:
         return _MatVecMul(x, y, name=name).forward()
     if x.ndim == 1:
