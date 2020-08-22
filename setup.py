@@ -1,9 +1,6 @@
 from setuptools import setup, find_packages
 
 
-__version__ = '0.0.1'
-
-
 install_requires = [
     'numpy',
     'scipy',
@@ -24,7 +21,7 @@ develop_requires = [
 
 setup(
     name='pygrad',
-    version=__version__,
+    version='0.1.0',
     author='ctgk',
     author_email='r1135nj54w@gmail.com',
     description='Simple gradient computation library in Python',

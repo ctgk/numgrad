@@ -1,12 +1,13 @@
-# Python-boilerplate
+# PyGrad
 
-TODO: short introduction of this project. The objective or the motivation
-behind this project.
+Simple gradient computation library for Python
 
 # Getting Started
 
-1. Installation process
-1. Software dependencies
+```bash
+pip install git+https://github.com/ctgk/pygrad.git
+```
+
 1. Latest releases
 1. API references
 
@@ -14,8 +15,10 @@ behind this project.
 
 # Contribute
 
+Be sure to run the following command before developing
+
 ```bash
-$ git clone ...
-$ cd ...
+$ git clone https://github.com/ctgk/pygrad.git
+$ cd pygrad
 $ pre-commit install
 ```
