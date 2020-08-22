@@ -10,6 +10,21 @@ np.random.seed(0)
 
 @pytest.mark.parametrize('x, size, strides, pad', [
     (
+        pg.Array(
+            np.random.uniform(
+                -2, 2, (2, 4, 4, 1)).astype(np.int).astype(np.float),
+            is_differentiable=True),
+        (2, 2),
+        None,
+        0
+    )
+])
+def test_forward_backward(x, size, strides, pad):
+    pg.nn.max_pool2d(x, size, strides, pad).backward()
+
+
+@pytest.mark.parametrize('x, size, strides, pad', [
+    (
         pg.Array(np.random.rand(1, 4, 4, 2), is_differentiable=True),
         (2, 2),
         None,
