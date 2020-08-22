@@ -58,10 +58,11 @@ class _Operator(_Node):
             delta, *tuple(arg.value for arg in self._args))
         dargs = dargs if isinstance(dargs, tuple) else (dargs,)
         for arg, darg in zip(self._args, dargs):
-            try:
-                arg.backward(_grad=darg)
-            except DifferentiationError:
-                pass
+            if darg is not None:
+                try:
+                    arg.backward(_grad=darg)
+                except DifferentiationError:
+                    pass
 
     @abc.abstractmethod
     def _forward_numpy(self, *args, **kwargs):

@@ -44,3 +44,7 @@ def test_numerical_grad_2(labels, logits, axis):
         lambda a: pg.stats.softmax_cross_entropy(
             labels, a, axis), logits)[0]
     assert np.allclose(dlogits, logits.grad, rtol=0, atol=1e-2)
+
+
+if __name__ == "__main__":
+    pytest.main([__file__])
