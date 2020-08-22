@@ -1,10 +1,10 @@
-from setuptools import setup
+from setuptools import setup, find_packages
 
 
-__version__ = '0.0.1'
-
-
-install_requires = []
+install_requires = [
+    'numpy',
+    'scipy',
+]
 develop_requires = [
     'autopep8',
     'flake8',
@@ -14,17 +14,21 @@ develop_requires = [
     'sphinx',
     'sphinx_rtd_theme',
     'livereload',
+    'scikit-learn',
+    'tqdm',
 ]
 
 
 setup(
-    name='pyboilerplate',
-    version=__version__,
+    name='pygrad',
+    version='0.1.0',
     author='ctgk',
     author_email='r1135nj54w@gmail.com',
-    description='pyboilerplate',
+    description='Simple gradient computation library in Python',
 
-    python_requires='>=3',
+    packages=find_packages(
+        exclude=('tests', 'tests.*'), include=('pygrad', 'pygrad.*')),
+    python_requires='>=3.6',
     install_requires=install_requires,
     extras_require={
         'develop': develop_requires,

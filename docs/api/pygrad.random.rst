@@ -1,10 +1,10 @@
-pyboilerplate package
+pygrad.random package
 =====================
 
 Module contents
 ---------------
 
-.. automodule:: pyboilerplate
+.. automodule:: pygrad.random
    :members:
    :undoc-members:
    :show-inheritance:
