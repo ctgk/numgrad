@@ -13,9 +13,9 @@ class Array(_Node):
     @_typecheck()
     def __init__(
             self,
-            value: object,
+            data: object,
             dtype: tp.Type[DataType] = None,
-            is_differentiable: bool = False,
+            is_variable: bool = False,
             *,
             name: tp.Union[str, None] = None,
             **kwargs):
@@ -23,59 +23,59 @@ class Array(_Node):
 
         Parameters
         ----------
-        value : object
-            Value of this array.
+        data : object
+            Data of this array.
         dtype : Type[DataType], optional
             Desired data type, by default None
-        is_differentiable : bool, optional
+        is_variable : bool, optional
             Set True if you want to compute gradient of this array,
             by default False
         name : str, optional
             Name of this array, by default None
         """
-        if is_differentiable and '_parent' in kwargs:
+        if is_variable and '_parent' in kwargs:
             super().__init__(kwargs['_parent'], name=name)
         else:
             super().__init__(name=name)
         self._parent = kwargs.get(
-            '_parent', None) if is_differentiable else None
-        self._value = np.asarray(value, dtype=dtype)
-        if is_differentiable and 'float' not in repr(self._value.dtype):
+            '_parent', None) if is_variable else None
+        self._data = np.asarray(data, dtype=dtype)
+        if is_variable and 'float' not in repr(self._data.dtype):
             raise DifferentiationError(
                 'Non-floating array is not differentiable.')
-        self._is_differentiable: bool = is_differentiable
+        self._is_variable: bool = is_variable
         self._num_backwards: int = 0
         self._grad = None
 
     def __repr__(self) -> str:
-        repr_ = repr(self.value)
+        repr_ = repr(self.data)
         if self._name is not None:
             repr_ = repr_[:-1] + f', name={self._name})'
         return repr_
 
     @property
-    def value(self) -> np.ndarray:
-        return self._value
+    def data(self) -> np.ndarray:
+        return self._data
 
     @property
     def dtype(self) -> DataType:
-        return _to_pygrad_type(self._value.dtype)
+        return _to_pygrad_type(self._data.dtype)
 
     @property
     def ndim(self) -> int:
-        return self._value.ndim
+        return self._data.ndim
 
     @property
     def size(self) -> int:
-        return self._value.size
+        return self._data.size
 
     @property
     def shape(self) -> tp.Tuple[int]:
-        return self._value.shape
+        return self._data.shape
 
     @property
-    def is_differentiable(self) -> bool:
-        return self._is_differentiable
+    def is_variable(self) -> bool:
+        return self._is_variable
 
     @property
     def grad(self) -> np.ndarray:
@@ -85,7 +85,7 @@ class Array(_Node):
 
     @_typecheck()
     def astype(self, dtype: tp.Type[DataType]):
-        return Array(self._value, dtype=dtype)
+        return Array(self._data, dtype=dtype)
 
     def clear_grad(self):
         self._children = []
@@ -93,11 +93,11 @@ class Array(_Node):
         self._grad = None
 
     def backward(self, **kwargs):
-        if not self._is_differentiable:
+        if not self._is_variable:
             raise DifferentiationError(
                 'Cannot call backward() method of non-differentiable array.')
         if len(self._children) == 0:
-            grad = kwargs.get('_grad', np.ones_like(self.value, self.dtype))
+            grad = kwargs.get('_grad', np.ones_like(self.data))
         else:
             grad = kwargs.get('_grad')
             self._num_backwards += 1

@@ -9,7 +9,7 @@ class Optimizer(object):
     """
 
     def __init__(self, parameters: tp.Iterable[Array]):
-        if not all(p.is_differentiable for p in parameters):
+        if not all(p.is_variable for p in parameters):
             raise ValueError('All \'parameters\' must be differentiable.')
         if any(len(p._parents) != 0 for p in parameters):
             raise ValueError('All \'parameters\' must not have parent nodes.')

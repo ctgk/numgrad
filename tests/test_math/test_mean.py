@@ -25,27 +25,27 @@ def test_forward_error(x, axis, keepdims, name, error):
 ])
 def test_forward(x, axis, keepdims, name, expected):
     actual = pg.mean(x, axis, keepdims, name=name)
-    assert np.allclose(actual.value, expected)
+    assert np.allclose(actual.data, expected)
     assert actual.name == name + '.out'
 
 
 @pytest.mark.parametrize('x, axis, keepdims, dy, expected', [
     (
-        pg.Array([1., 3, -2], is_differentiable=True),
+        pg.Array([1., 3, -2], is_variable=True),
         None, True, np.array([2]), np.array([2 / 3] * 3)
     ),
     (
-        pg.Array([[2., 1], [-2, 5]], is_differentiable=True),
+        pg.Array([[2., 1], [-2, 5]], is_variable=True),
         0, False, np.array([1, 2]),
         np.array([[1, 2], [1, 2]]) * 0.5,
     ),
     (
-        pg.Array([[2., 1], [-2, 5]], is_differentiable=True),
+        pg.Array([[2., 1], [-2, 5]], is_variable=True),
         1, False, np.array([1, 2]),
         np.array([[1, 1], [2, 2]]) * 0.5,
     ),
     (
-        pg.Array([[2., 1], [-2, 5]], is_differentiable=True),
+        pg.Array([[2., 1], [-2, 5]], is_variable=True),
         1, True, np.array([[1], [2]]),
         np.array([[1, 1], [2, 2]]) * 0.5,
     ),
@@ -57,8 +57,8 @@ def test_backward(x, axis, keepdims, dy, expected):
 
 
 @pytest.mark.parametrize('x, axis, keepdims', [
-    (pg.Array(np.random.rand(2, 3), is_differentiable=True), 1, False),
-    (pg.Array(np.random.rand(4, 2, 3), is_differentiable=True), 0, True),
+    (pg.Array(np.random.rand(2, 3), is_variable=True), 1, False),
+    (pg.Array(np.random.rand(4, 2, 3), is_variable=True), 0, True),
 ])
 def test_numerical_grad(x, axis, keepdims):
     x.mean().backward()

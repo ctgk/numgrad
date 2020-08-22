@@ -16,12 +16,12 @@ class _MatVecMul(_Operator):
     def _forward_numpy(x, y):
         return x @ y
 
-    @staticmethod
-    def _backward_numpy(delta: np.ndarray, x: np.ndarray, y: np.ndarray):
+    def _backward_numpy(self, delta: np.ndarray, x: np.ndarray, y: np.ndarray):
         delta = np.expand_dims(delta, -1)
         delta = np.broadcast_to(delta, x.shape)
-        dx = delta * y
-        dy = _unbroadcast_to(delta * x, y.shape)
+        dx = delta * y if self._args[0].is_variable else None
+        dy = _unbroadcast_to(
+            delta * x, y.shape) if self._args[1].is_variable else None
         return dx, dy
 
 
@@ -34,12 +34,13 @@ class _VecMatMul(_Operator):
     def _forward_numpy(x, y):
         return x @ y
 
-    @staticmethod
-    def _backward_numpy(delta, x, y):
+    def _backward_numpy(self, delta, x, y):
         delta = np.expand_dims(delta, -2)
         delta = np.broadcast_to(delta, y.shape)
-        dx = _unbroadcast_to((delta * y).sum(axis=-1), x.shape)
-        dy = delta * x[:, None]
+        dx = _unbroadcast_to(
+            (delta * y).sum(axis=-1), x.shape
+        ) if self._args[0].is_variable else None
+        dy = delta * x[:, None] if self._args[1].is_variable else None
         return dx, dy
 
 
@@ -54,10 +55,9 @@ class _MatMul(_Operator):
     def _forward_numpy(x, y):
         return x @ y
 
-    @staticmethod
-    def _backward_numpy(delta: np.ndarray, x: np.ndarray, y: np.ndarray):
-        dx = delta @ y.T
-        dy = x.T @ delta
+    def _backward_numpy(self, delta: np.ndarray, x: np.ndarray, y: np.ndarray):
+        dx = delta @ y.T if self._args[0].is_variable else None
+        dy = x.T @ delta if self._args[1].is_variable else None
         return dx, dy
 
 
@@ -70,10 +70,13 @@ class _BatchMatMul(_Operator):
     def _forward_numpy(x, y):
         return x @ y
 
-    @staticmethod
-    def _backward_numpy(delta, x, y):
-        dx = _unbroadcast_to(delta @ np.swapaxes(y, -1, -2), x.shape)
-        dy = _unbroadcast_to(np.swapaxes(x, -1, -2) @ delta, y.shape)
+    def _backward_numpy(self, delta, x, y):
+        dx = _unbroadcast_to(
+            delta @ np.swapaxes(y, -1, -2), x.shape
+        ) if self._args[0].is_variable else None
+        dy = _unbroadcast_to(
+            np.swapaxes(x, -1, -2) @ delta, y.shape
+        ) if self._args[1].is_variable else None
         return dx, dy
 
 

@@ -10,15 +10,15 @@ np.random.seed(0)
 
 @pytest.mark.parametrize('x, axis, keepdims', [
     (
-        pg.Array(np.random.uniform(-9, 9, (2, 3)), is_differentiable=True),
+        pg.Array(np.random.uniform(-9, 9, (2, 3)), is_variable=True),
         None, False,
     ),
     (
-        pg.Array(np.random.uniform(-9, 9, (4, 2, 3)), is_differentiable=True),
+        pg.Array(np.random.uniform(-9, 9, (4, 2, 3)), is_variable=True),
         1, False
     ),
     (
-        pg.Array(np.random.uniform(-9, 9, (4, 2, 3)), is_differentiable=True),
+        pg.Array(np.random.uniform(-9, 9, (4, 2, 3)), is_variable=True),
         (0, -1), True
     ),
 ])

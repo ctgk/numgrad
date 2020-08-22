@@ -14,14 +14,14 @@ np.random.seed(9)
 ])
 def test_divide_forward(x, y, name):
     actual = pg.divide(x, y, name=name)
-    assert np.allclose(actual.value, np.divide(x, y))
+    assert np.allclose(actual.data, np.divide(x, y))
     assert actual.name == name + '.out'
 
 
 @pytest.mark.parametrize('x, y', [
     (
-        pg.Array(np.random.rand(5, 1, 3), is_differentiable=True),
-        pg.Array(np.random.rand(2, 3), is_differentiable=True)
+        pg.Array(np.random.rand(5, 1, 3), is_variable=True),
+        pg.Array(np.random.rand(2, 3), is_variable=True)
     ),
 ])
 def test_divide_numerical_grad(x, y):

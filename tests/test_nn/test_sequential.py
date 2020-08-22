@@ -20,8 +20,8 @@ def test_sequential():
         loss = pg.stats.sigmoid_cross_entropy(y, model(x)).sum()
         optimizer.minimize(loss)
         if loss_prev is not None:
-            assert loss_prev > loss.value
-        loss_prev = loss.value
+            assert loss_prev > loss.data
+        loss_prev = loss.data
 
 
 if __name__ == "__main__":

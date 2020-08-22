@@ -15,20 +15,20 @@ np.random.seed(0)
 def test_forward(x, w):
     actual = pg.nn.conv2d(x, w)
     assert np.allclose(
-        np.squeeze(actual.value),
+        np.squeeze(actual.data),
         correlate2d(np.squeeze(x), np.squeeze(w), mode='valid'))
 
 
 @pytest.mark.parametrize('x, w, stride, pad', [
     (
-        pg.Array(np.random.rand(1, 4, 4, 2), is_differentiable=True),
-        pg.Array(np.random.rand(3, 3, 2, 5), is_differentiable=True),
+        pg.Array(np.random.rand(1, 4, 4, 2), is_variable=True),
+        pg.Array(np.random.rand(3, 3, 2, 5), is_variable=True),
         (1, 1),
         (0, 0),
     ),
     (
-        pg.Array(np.random.rand(3, 7, 7, 1), is_differentiable=True),
-        pg.Array(np.random.rand(5, 5, 1, 2), is_differentiable=True),
+        pg.Array(np.random.rand(3, 7, 7, 1), is_variable=True),
+        pg.Array(np.random.rand(5, 5, 1, 2), is_variable=True),
         (1, 1),
         (0, 0),
     ),

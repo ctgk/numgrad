@@ -44,10 +44,10 @@ if __name__ == "__main__":
             loss = pg.stats.sparse_softmax_cross_entropy(y_batch, logits).sum()
             optimizer.minimize(loss)
             if optimizer.n_iter % 10 == 0:
-                tp += np.sum(y_batch == np.argmax(logits.value, -1))
+                tp += np.sum(y_batch == np.argmax(logits.data, -1))
                 total += args.batch
                 pbar.set_description(
                     f'Epoch={e}, Accuracy={int(100 * tp / total)}%')
 
-    y_pred = np.argmax(cnn(x_test, droprate=None).value, -1)
+    y_pred = np.argmax(cnn(x_test, droprate=None).data, -1)
     print(confusion_matrix(y_test, y_pred))

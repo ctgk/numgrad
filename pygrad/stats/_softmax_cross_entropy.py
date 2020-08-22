@@ -19,9 +19,15 @@ class _SoftmaxCrossEntropy(_Operator):
 
     def _backward_numpy(self, delta, labels, logits):
         delta = np.expand_dims(delta, self._axis)
-        probs = np.exp(self.log_softmax)
-        dlabels = _unbroadcast_to(-delta * self.log_softmax, labels.shape)
-        dlogits = _unbroadcast_to(delta * (probs - labels), logits.shape)
+        if self._args[0].is_variable:
+            dlabels = _unbroadcast_to(-delta * self.log_softmax, labels.shape)
+        else:
+            dlabels = None
+        if self._args[1].is_variable:
+            probs = np.exp(self.log_softmax)
+            dlogits = _unbroadcast_to(delta * (probs - labels), logits.shape)
+        else:
+            dlogits = None
         return dlabels, dlogits
 
 

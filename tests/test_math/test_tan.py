@@ -9,8 +9,8 @@ np.random.seed(0)
 
 
 @pytest.mark.parametrize('x', [
-    pg.Array(np.random.uniform(-10, 10, (2, 3)), is_differentiable=True),
-    pg.Array(np.random.uniform(-10, 10, (4, 2, 3)), is_differentiable=True),
+    pg.Array(np.random.uniform(-10, 10, (2, 3)), is_variable=True),
+    pg.Array(np.random.uniform(-10, 10, (4, 2, 3)), is_variable=True),
 ])
 def test_numerical_grad(x):
     pg.tan(x).backward()

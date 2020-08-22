@@ -15,8 +15,8 @@ def test_forward(x, droprate, name):
     for i in range(x.size):
         assert (
             np.isclose(
-                x.ravel()[i] / (1 - droprate), actual.value.ravel()[i])
-            or np.isclose(actual.value.ravel()[i], 0)
+                x.ravel()[i] / (1 - droprate), actual.data.ravel()[i])
+            or np.isclose(actual.data.ravel()[i], 0)
         )
     assert actual.name == name + '.out'
 
@@ -31,15 +31,15 @@ def test_forward_2(x):
 
 
 @pytest.mark.parametrize('x, droprate', [
-    (pg.Array(np.random.rand(2, 3), is_differentiable=True), 0.1),
-    (pg.Array(np.random.rand(4, 2, 3), is_differentiable=True), 0.5),
+    (pg.Array(np.random.rand(2, 3), is_variable=True), 0.1),
+    (pg.Array(np.random.rand(4, 2, 3), is_variable=True), 0.5),
 ])
 def test_backward(x, droprate):
     y = pg.nn.dropout(x, droprate)
     y.backward()
     dx = x.grad
     for i in range(x.size):
-        if np.isclose(y.value.ravel()[i], 0):
+        if np.isclose(y.data.ravel()[i], 0):
             assert np.isclose(dx.ravel()[i], 0)
         else:
             assert np.isclose(dx.ravel()[i], 1 / (1 - droprate))

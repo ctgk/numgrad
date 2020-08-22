@@ -15,21 +15,21 @@ np.random.seed(0)
 ])
 def test_matmul_forward(x, y):
     actual = pg.matmul(x, y)
-    assert np.allclose(actual.value, np.matmul(x, y))
+    assert np.allclose(actual.data, np.matmul(x, y))
 
 
 @pytest.mark.parametrize('x, y', [
     (
-        pg.Array(np.random.rand(3, 4), is_differentiable=True),
-        pg.Array(np.random.rand(4, 6), is_differentiable=True)
+        pg.Array(np.random.rand(3, 4), is_variable=True),
+        pg.Array(np.random.rand(4, 6), is_variable=True)
     ),
     (
-        pg.Array(np.random.rand(4), is_differentiable=True),
-        pg.Array(np.random.rand(4, 6), is_differentiable=True)
+        pg.Array(np.random.rand(4), is_variable=True),
+        pg.Array(np.random.rand(4, 6), is_variable=True)
     ),
     (
-        pg.Array(np.random.rand(3, 4), is_differentiable=True),
-        pg.Array(np.random.rand(4), is_differentiable=True)
+        pg.Array(np.random.rand(3, 4), is_variable=True),
+        pg.Array(np.random.rand(4), is_variable=True)
     ),
 ])
 def test_matmul_numerical_grad(x, y):

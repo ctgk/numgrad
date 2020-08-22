@@ -169,12 +169,12 @@ class Conv2DTranspose(Module):
                 -v, v,
                 (kernel_size[0] * kernel_size[1] * out_channels, in_channels)),
             dtype=dtype,
-            is_differentiable=True)
+            is_variable=True)
         if bias:
             self.bias = Array(
                 np.random.uniform(-v, v, out_channels),
                 dtype=dtype,
-                is_differentiable=True)
+                is_variable=True)
 
     def __call__(self, x: Array, **kwargs) -> Array:
         x = _Conv2dTranspose(

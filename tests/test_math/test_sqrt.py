@@ -10,13 +10,13 @@ from pygrad._utils._numerical_grad import _numerical_grad
 ])
 def test_forward(x, name, expected):
     actual = pg.sqrt(x, name=name)
-    assert np.allclose(actual.value, expected)
+    assert np.allclose(actual.data, expected)
     assert actual.name == name + '.out'
 
 
 @pytest.mark.parametrize('x', [
-    pg.Array(np.random.rand(2, 3) + 1, is_differentiable=True),
-    pg.Array(np.random.rand(4, 2, 3) + 5, is_differentiable=True),
+    pg.Array(np.random.rand(2, 3) + 1, is_variable=True),
+    pg.Array(np.random.rand(4, 2, 3) + 5, is_variable=True),
 ])
 def test_numerical_grad(x):
     pg.sqrt(x).backward()

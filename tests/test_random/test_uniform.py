@@ -24,7 +24,7 @@ def uniform(low, high, size=None):
 def test_forward_1(low, high, size, name):
     with patch('numpy.random.uniform', side_effect=uniform):
         actual = pg.random.uniform(low, high, size, name=name)
-    assert np.allclose(actual.value, uniform(low, high, size))
+    assert np.allclose(actual.data, uniform(low, high, size))
     assert actual.name == name + '.out'
 
 
@@ -35,26 +35,26 @@ def test_forward_1(low, high, size, name):
 def test_forward_2(low, high, size, name):
     with patch('numpy.random.uniform', side_effect=uniform):
         actual = pg.random.uniform(low, high, size, name=name)
-    low = low.value if isinstance(low, pg.Array) else low
-    high = high.value if isinstance(high, pg.Array) else high
-    assert np.allclose(actual.value, uniform(low, high, size))
+    low = low.data if isinstance(low, pg.Array) else low
+    high = high.data if isinstance(high, pg.Array) else high
+    assert np.allclose(actual.data, uniform(low, high, size))
     assert actual.name == name + '.out'
 
 
 @pytest.mark.parametrize('low, high, size', [
     (
-        pg.Array(np.random.rand(2, 3), is_differentiable=True),
-        pg.Array(np.random.rand(2, 1), is_differentiable=True),
+        pg.Array(np.random.rand(2, 3), is_variable=True),
+        pg.Array(np.random.rand(2, 1), is_variable=True),
         None
     ),
     (
-        pg.Array(np.random.rand(4, 2, 3), is_differentiable=True),
-        pg.Array(np.random.rand(4, 1, 1), is_differentiable=True),
+        pg.Array(np.random.rand(4, 2, 3), is_variable=True),
+        pg.Array(np.random.rand(4, 1, 1), is_variable=True),
         None,
     ),
     (
-        pg.Array(np.random.rand(2), is_differentiable=True),
-        pg.Array(np.random.rand(2), is_differentiable=True),
+        pg.Array(np.random.rand(2), is_variable=True),
+        pg.Array(np.random.rand(2), is_variable=True),
         (3, 2)
     ),
 ])

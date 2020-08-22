@@ -19,7 +19,7 @@ class Gradient(Optimizer):
     Examples
     --------
     >>> import pygrad as pg
-    >>> theta = pg.Array(10., is_differentiable=True)
+    >>> theta = pg.Array(10., is_variable=True)
     >>> optimizer = pg.optimizers.Gradient([theta], 0.1)
     >>> optimizer.minimize(theta)
     >>> theta
@@ -46,7 +46,7 @@ class Gradient(Optimizer):
 
     def _update(self, learning_rate: float):
         for p in self._parameters:
-            p._value += learning_rate * p.grad
+            p._data += learning_rate * p.grad
 
     @_typecheck()
     def minimize(self, loss: Array = None, clear_grad: bool = True):

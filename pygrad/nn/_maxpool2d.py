@@ -31,14 +31,13 @@ class _MaxPool2D(_Operator):
             self._size,
             self._size if self._strides is None else self._strides)
         n, h, w, kh, kw, c = col.shape
-        col = col.reshape(n, h, w, kh * kw, c)
-        self._index = col.argmax(axis=3)
-        return col.max(axis=3)
+        self._col = col.reshape(n, h, w, kh * kw, c)
+        return self._col.max(axis=3)
 
     def _backward_numpy(self, delta, x):
         delta_col = np.zeros(
             delta.shape + (self._size[0] * self._size[1],), dtype=x.dtype)
-        index = np.where(delta == delta) + (self._index.ravel(),)
+        index = np.where(delta == delta) + (self._col.argmax(axis=3).ravel(),)
         delta_col[index] = delta.ravel()
         delta_col = np.reshape(delta_col, delta.shape + self._size)
         delta_col = delta_col.transpose(0, 1, 2, 4, 5, 3)

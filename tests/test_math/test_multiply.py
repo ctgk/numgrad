@@ -10,18 +10,18 @@ from pygrad._utils._numerical_grad import _numerical_grad
 ])
 def test_forward(x, y, name):
     actual = pg.multiply(x, y, name=name)
-    assert np.allclose(actual.value, np.multiply(x, y))
+    assert np.allclose(actual.data, np.multiply(x, y))
     assert actual.name == name + '.out'
 
 
 @pytest.mark.parametrize('x, y, dz, expected_dx, expected_dy', [
     (
-        pg.Array([1., -1, 5], is_differentiable=True),
-        pg.Array(3., is_differentiable=True), None,
+        pg.Array([1., -1, 5], is_variable=True),
+        pg.Array(3., is_variable=True), None,
         np.ones(3) * 3, 5
     ),
     (
-        5, pg.Array([-7., 3], is_differentiable=True), [1, -2],
+        5, pg.Array([-7., 3], is_variable=True), [1, -2],
         None, 5 * np.array([1, -2])
     ),
 ])
@@ -38,8 +38,8 @@ def test_backward(x, y, dz, expected_dx, expected_dy):
 
 @pytest.mark.parametrize('x, y', [
     (
-        pg.Array(np.random.rand(5, 1, 3), is_differentiable=True),
-        pg.Array(np.random.rand(2, 3), is_differentiable=True)
+        pg.Array(np.random.rand(5, 1, 3), is_variable=True),
+        pg.Array(np.random.rand(2, 3), is_variable=True)
     ),
 ])
 def test_numerical_grad(x, y):

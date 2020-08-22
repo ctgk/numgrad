@@ -53,9 +53,9 @@ def test_call(in_features, out_features, bias, dtype):
     actual = dense(x)
     if bias:
         assert np.allclose(
-            x.value @ dense.weight.value + dense.bias.value, actual.value)
+            x.data @ dense.weight.data + dense.bias.data, actual.data)
     else:
-        assert np.allclose(x.value @ dense.weight.value, actual.value)
+        assert np.allclose(x.data @ dense.weight.data, actual.data)
 
 
 @pytest.mark.parametrize('in_features, out_features, bias, dtype', [
@@ -74,7 +74,7 @@ def test_train(in_features, out_features, bias, dtype):
         loss = pg.square(dense(x) - y).sum()
         optimizer.minimize(loss)
         print(loss)
-    assert np.isclose(loss.value, 0)
+    assert np.isclose(loss.data, 0)
 
 
 if __name__ == "__main__":

@@ -20,24 +20,24 @@ class NonCallableUpdate(pg.optimizers.Optimizer):
     (
         CallableUpdate,
         [
-            pg.Array(1., is_differentiable=True),
-            pg.Array([0, -1.], is_differentiable=True),
+            pg.Array(1., is_variable=True),
+            pg.Array([0, -1.], is_variable=True),
         ],
         'NoError',
     ),
     (
         pg.optimizers.Optimizer,
         [
-            pg.Array(1., is_differentiable=True),
-            pg.Array([0, -1.], is_differentiable=True),
+            pg.Array(1., is_variable=True),
+            pg.Array([0, -1.], is_variable=True),
         ],
         AttributeError,
     ),
     (
         NonCallableUpdate,
         [
-            pg.Array(1., is_differentiable=True),
-            pg.Array([0, -1.], is_differentiable=True),
+            pg.Array(1., is_variable=True),
+            pg.Array([0, -1.], is_variable=True),
         ],
         AssertionError,
     ),
@@ -45,15 +45,15 @@ class NonCallableUpdate(pg.optimizers.Optimizer):
         CallableUpdate,
         [
             pg.Array(1.),
-            pg.Array([0, -1.], is_differentiable=True),
+            pg.Array([0, -1.], is_variable=True),
         ],
         ValueError
     ),
     (
         CallableUpdate,
         [
-            pg.Array(1., is_differentiable=True),
-            pg.sum(pg.Array([0, -1.], is_differentiable=True)),
+            pg.Array(1., is_variable=True),
+            pg.sum(pg.Array([0, -1.], is_variable=True)),
         ],
         ValueError
     ),

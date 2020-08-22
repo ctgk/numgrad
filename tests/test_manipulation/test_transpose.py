@@ -10,22 +10,22 @@ from pygrad._utils._numerical_grad import _numerical_grad
 ])
 def test_forward(x, axes, name):
     actual = pg.transpose(x, axes, name=name)
-    assert np.allclose(actual.value, np.transpose(x, axes))
+    assert np.allclose(actual.data, np.transpose(x, axes))
     assert actual.shape == np.transpose(x, axes).shape
     assert actual.name == name + '.out'
 
 
 @pytest.mark.parametrize('x, axes', [
     (
-        pg.Array(np.random.rand(2, 3, 4, 2), is_differentiable=True),
+        pg.Array(np.random.rand(2, 3, 4, 2), is_variable=True),
         (1, 0, 3, 2)
     ),
     (
-        pg.Array(np.random.rand(2, 3, 4, 2), is_differentiable=True),
+        pg.Array(np.random.rand(2, 3, 4, 2), is_variable=True),
         (2, 0, 3, 1)
     ),
     (
-        pg.Array(np.random.rand(2, 3, 4), is_differentiable=True),
+        pg.Array(np.random.rand(2, 3, 4), is_variable=True),
         (1, 0, 2)
     ),
 ])
@@ -36,10 +36,10 @@ def test_numerical_grad(x, axes):
 
 
 @pytest.mark.parametrize('x', [
-    pg.Array(np.random.rand(2, 3, 4, 2), is_differentiable=True),
-    pg.Array(np.random.rand(2, 3, 4, 2), is_differentiable=True),
-    pg.Array(np.random.rand(2, 3, 4), is_differentiable=True),
-    pg.Array(np.random.rand(5, 2), is_differentiable=True),
+    pg.Array(np.random.rand(2, 3, 4, 2), is_variable=True),
+    pg.Array(np.random.rand(2, 3, 4, 2), is_variable=True),
+    pg.Array(np.random.rand(2, 3, 4), is_variable=True),
+    pg.Array(np.random.rand(5, 2), is_variable=True),
 ])
 def test_numerical_grad_2(x):
     x.T.backward()

@@ -7,13 +7,13 @@ from pygrad._utils._numerical_grad import _numerical_grad
 
 @pytest.mark.parametrize('labels, logits, axis', [
     (
-        pg.Array([[0., 1, 0], [1, 0, 1]], is_differentiable=True),
-        pg.Array(np.random.uniform(-9, 9, (2, 3)), is_differentiable=True),
+        pg.Array([[0., 1, 0], [1, 0, 1]], is_variable=True),
+        pg.Array(np.random.uniform(-9, 9, (2, 3)), is_variable=True),
         0
     ),
     (
-        pg.Array([[0., 1, 0], [1, 0, 0]], is_differentiable=True),
-        pg.Array(np.random.uniform(-9, 9, (2, 3)), is_differentiable=True),
+        pg.Array([[0., 1, 0], [1, 0, 0]], is_variable=True),
+        pg.Array(np.random.uniform(-9, 9, (2, 3)), is_variable=True),
         1
     ),
 ])
@@ -29,12 +29,12 @@ def test_numerical_grad_1(labels, logits, axis):
 @pytest.mark.parametrize('labels, logits, axis', [
     (
         pg.Array([[0., 1, 0], [1, 0, 1]]),
-        pg.Array(np.random.uniform(-9, 9, (2, 3)), is_differentiable=True),
+        pg.Array(np.random.uniform(-9, 9, (2, 3)), is_variable=True),
         0
     ),
     (
         pg.Array([[0., 1, 0], [1, 0, 0]]),
-        pg.Array(np.random.uniform(-9, 9, (2, 3)), is_differentiable=True),
+        pg.Array(np.random.uniform(-9, 9, (2, 3)), is_variable=True),
         1
     ),
 ])

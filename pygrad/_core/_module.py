@@ -28,7 +28,7 @@ class Module(abc.ABC):
         object.__setattr__(self, name, value)
 
     def _add_if_trainable(self, name, value):
-        if isinstance(value, Array) and value.is_differentiable:
+        if isinstance(value, Array) and value.is_variable:
             self._trainables[self._module_name + '.' + name] = value
         elif isinstance(value, (list, tuple)):
             for i, v in enumerate(value):

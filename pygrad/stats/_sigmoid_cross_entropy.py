@@ -19,12 +19,14 @@ class _SigmoidCrossEntropy(_Operator):
             + np.log1p(np.exp(-np.abs(logits)))
         )
 
-    @staticmethod
-    def _backward_numpy(delta, labels, logits):
+    def _backward_numpy(self, delta, labels, logits):
         probs = np.tanh(logits * 0.5) * 0.5 + 0.5
-        dlogits = _unbroadcast_to(delta * (probs - labels), logits.shape)
         dlabels = _unbroadcast_to(
-            delta * np.arctanh(1 - 2 * probs) * 2, labels.shape)
+            delta * np.arctanh(1 - 2 * probs) * 2, labels.shape
+        ) if self._args[0].is_variable else None
+        dlogits = _unbroadcast_to(
+            delta * (probs - labels), logits.shape
+        ) if self._args[1].is_variable else None
         return dlabels, dlogits
 
 

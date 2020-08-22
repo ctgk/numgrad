@@ -7,8 +7,8 @@ from pygrad._utils._numerical_grad import _numerical_grad
 
 @pytest.mark.parametrize('labels, logits', [
     (
-        pg.Array(np.random.rand(2, 3), is_differentiable=True),
-        pg.Array(np.random.uniform(-9, 9, (4, 2, 3)), is_differentiable=True)
+        pg.Array(np.random.rand(2, 3), is_variable=True),
+        pg.Array(np.random.uniform(-9, 9, (4, 2, 3)), is_variable=True)
     ),
 ])
 def test_numerical_grad_1(labels, logits):
@@ -24,7 +24,7 @@ def test_numerical_grad_1(labels, logits):
 @pytest.mark.parametrize('labels, logits', [
     (
         pg.Array([0., 1, 1]),
-        pg.Array(np.random.uniform(-9, 9, (4, 2, 3)), is_differentiable=True)
+        pg.Array(np.random.uniform(-9, 9, (4, 2, 3)), is_variable=True)
     ),
 ])
 def test_numerical_grad_2(labels, logits):
@@ -63,7 +63,7 @@ def test_xor():
             assert np.allclose(b2.grad, db2, rtol=0, atol=1e-2)
         optimizer.minimize(clear_grad=True)
     proba = pg.stats.sigmoid(predict_logit(x, w1, b1, w2, b2))
-    assert np.allclose(proba.value, [1, 0, 0, 1], rtol=0, atol=1e-1)
+    assert np.allclose(proba.data, [1, 0, 0, 1], rtol=0, atol=1e-1)
 
 
 if __name__ == "__main__":

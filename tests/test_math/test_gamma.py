@@ -9,7 +9,7 @@ np.random.seed(0)
 
 
 @pytest.mark.parametrize('x', [
-    pg.Array(np.random.uniform(1, 9, (2, 3)), is_differentiable=True),
+    pg.Array(np.random.uniform(1, 9, (2, 3)), is_variable=True),
 ])
 def test_numerical_grad(x):
     pg.gamma(x).backward()

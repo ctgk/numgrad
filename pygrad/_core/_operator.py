@@ -5,7 +5,6 @@ import numpy as np
 
 from pygrad._core._array import Array
 from pygrad._core._config import config
-from pygrad._core._errors import DifferentiationError
 from pygrad._core._node import _Node
 from pygrad._core._types import DataType
 
@@ -18,7 +17,7 @@ class _Operator(_Node):
             for arg, dtype in zip(args, self._input_dtypes(*args))
         )
         super().__init__(*args, name=name)
-        self._is_differentiable = any(arg._is_differentiable for arg in args)
+        self._differentiable = any(arg._is_variable for arg in args)
         self._check_dtype()
 
     def _input_dtypes(self, *args: Array) -> Tuple[DataType]:
@@ -44,25 +43,19 @@ class _Operator(_Node):
 
     def forward(self) -> Array:
         return Array(
-            self._forward_numpy(*tuple(arg.value for arg in self._args)),
-            is_differentiable=self._is_differentiable,
-            **{
-                k: v + '.out' for k, v in zip(['name'], [self._name])
-                if v is not None
-            },
+            self._forward_numpy(*tuple(arg._data for arg in self._args)),
+            is_variable=self._differentiable,
+            name=None if self._name is None else self._name + '.out',
             _parent=self,
         )
 
     def backward(self, delta: np.ndarray) -> Array:
         dargs = self._backward_numpy(
-            delta, *tuple(arg.value for arg in self._args))
+            delta, *tuple(arg._data for arg in self._args))
         dargs = dargs if isinstance(dargs, tuple) else (dargs,)
         for arg, darg in zip(self._args, dargs):
             if darg is not None:
-                try:
-                    arg.backward(_grad=darg)
-                except DifferentiationError:
-                    pass
+                arg.backward(_grad=darg)
 
     @abc.abstractmethod
     def _forward_numpy(self, *args, **kwargs):

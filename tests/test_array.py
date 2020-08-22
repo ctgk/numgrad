@@ -5,7 +5,7 @@ import pygrad
 from pygrad._core._types import _to_pygrad_type
 
 
-@pytest.mark.parametrize('value, dtype, is_differentiable, name, error', [
+@pytest.mark.parametrize('value, dtype, is_variable, name, error', [
     (1, pygrad.Float64, True, 'x', 'NoError'),
     (int, pygrad.Float64, True, 'x', TypeError),
     (1, int, True, 'x', TypeError),
@@ -13,12 +13,12 @@ from pygrad._core._types import _to_pygrad_type
     (1, pygrad.Float64, True, 2, TypeError),
     (1, pygrad.Int64, True, 'x', pygrad.DifferentiationError),
 ])
-def test_array_init_error(value, dtype, is_differentiable, name, error):
+def test_array_init_error(value, dtype, is_variable, name, error):
     if error == 'NoError':
-        pygrad.Array(value, dtype, is_differentiable, name=name)
+        pygrad.Array(value, dtype, is_variable, name=name)
     else:
         with pytest.raises(error):
-            pygrad.Array(value, dtype, is_differentiable, name=name)
+            pygrad.Array(value, dtype, is_variable, name=name)
 
 
 @pytest.mark.parametrize('value, dtype, name', [
@@ -79,13 +79,13 @@ def test_shape(value):
     assert actual.shape == np.asarray(value).shape
 
 
-@pytest.mark.parametrize('value, is_differentiable', [
+@pytest.mark.parametrize('value, is_variable', [
     (np.random.rand(2, 3), True),
     (1, False),
 ])
-def test_is_differentiable(value, is_differentiable):
-    actual = pygrad.Array(value, is_differentiable=is_differentiable)
-    assert actual.is_differentiable is is_differentiable
+def test_is_variable(value, is_variable):
+    actual = pygrad.Array(value, is_variable=is_variable)
+    assert actual.is_variable is is_variable
 
 
 if __name__ == "__main__":

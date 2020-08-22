@@ -15,9 +15,16 @@ class _Add(_Operator):
     def _forward_numpy(x, y):
         return x + y
 
-    @staticmethod
-    def _backward_numpy(delta: np.ndarray, x: np.ndarray, y: np.ndarray):
-        return _unbroadcast_to(delta, x.shape), _unbroadcast_to(delta, y.shape)
+    def _backward_numpy(self, delta: np.ndarray, x: np.ndarray, y: np.ndarray):
+        if self._args[0].is_variable:
+            dx = _unbroadcast_to(delta, x.shape)
+        else:
+            dx = None
+        if self._args[1].is_variable:
+            dy = _unbroadcast_to(delta, y.shape)
+        else:
+            dy = None
+        return dx, dy
 
 
 @_typecheck(exclude=('x', 'y'))

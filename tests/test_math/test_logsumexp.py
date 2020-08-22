@@ -10,21 +10,21 @@ from pygrad._utils._numerical_grad import _numerical_grad
 ])
 def test_forward(x, name, expected):
     actual = pg.logsumexp(x, name=name)
-    assert np.allclose(actual.value, expected)
+    assert np.allclose(actual.data, expected)
     assert actual.name == name + '.out'
 
 
 @pytest.mark.parametrize('x, axis, keepdims', [
     (
-        pg.Array(np.random.rand(2, 3), is_differentiable=True),
+        pg.Array(np.random.rand(2, 3), is_variable=True),
         0, False,
     ),
     (
-        pg.Array(np.random.rand(4, 2, 3), is_differentiable=True),
+        pg.Array(np.random.rand(4, 2, 3), is_variable=True),
         (0, 2), True,
     ),
     (
-        pg.Array(np.random.rand(4, 2, 3), is_differentiable=True),
+        pg.Array(np.random.rand(4, 2, 3), is_variable=True),
         None, False,
     ),
 ])

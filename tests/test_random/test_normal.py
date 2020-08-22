@@ -23,24 +23,24 @@ def normal(loc=None, scale=None, size=None):
 def test_forward(loc, scale, size, name):
     with patch('numpy.random.normal', side_effect=normal):
         actual = pg.random.normal(loc, scale, size, name=name)
-    assert np.allclose(actual.value, normal(loc, scale, size))
+    assert np.allclose(actual.data, normal(loc, scale, size))
     assert actual.name == name + '.out'
 
 
 @pytest.mark.parametrize('loc, scale, size', [
     (
-        pg.Array(np.random.rand(2, 3), is_differentiable=True),
-        pg.Array(np.random.rand(2, 1), is_differentiable=True),
+        pg.Array(np.random.rand(2, 3), is_variable=True),
+        pg.Array(np.random.rand(2, 1), is_variable=True),
         None
     ),
     (
-        pg.Array(np.random.rand(4, 2, 3), is_differentiable=True),
-        pg.Array(np.random.rand(4, 1, 1), is_differentiable=True),
+        pg.Array(np.random.rand(4, 2, 3), is_variable=True),
+        pg.Array(np.random.rand(4, 1, 1), is_variable=True),
         None,
     ),
     (
-        pg.Array(np.random.rand(2), is_differentiable=True),
-        pg.Array(np.random.rand(2), is_differentiable=True),
+        pg.Array(np.random.rand(2), is_variable=True),
+        pg.Array(np.random.rand(2), is_variable=True),
         (3, 2)
     ),
 ])

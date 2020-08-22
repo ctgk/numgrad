@@ -49,12 +49,12 @@ class Dense(Module):
         self.weight = Array(
             np.random.uniform(-v, v, (in_features, out_features)),
             dtype=dtype,
-            is_differentiable=True)
+            is_variable=True)
         if bias:
             self.bias = Array(
                 np.random.uniform(-v, v, (out_features,)),
                 dtype=dtype,
-                is_differentiable=True)
+                is_variable=True)
 
     def __call__(self, x: Array, **kwargs) -> Array:
         x = matmul(x, self.weight)

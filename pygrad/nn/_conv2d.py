@@ -37,15 +37,21 @@ class _Conv2d(_Operator):
 
     def _backward_numpy(self, delta, x, w):
         delta = delta.reshape(-1, delta.shape[-1])
-        dcol = delta @ w.T
-        dcol = dcol.reshape(self._col_shape)
-        dx = np.zeros(self._padded_shape, dtype=x.dtype)
-        _col2im(dcol, self._strides, out=dx)
-        slices = tuple(
-            slice(p[0], len_ - p[0]) for p, len_
-            in zip(self._pad, self._padded_shape))
-        dx = dx[slices]
-        dw = self._col_flat.T @ delta
+        if self._args[0].is_variable:
+            dcol = delta @ w.T
+            dcol = dcol.reshape(self._col_shape)
+            dx = np.zeros(self._padded_shape, dtype=x.dtype)
+            _col2im(dcol, self._strides, out=dx)
+            slices = tuple(
+                slice(p[0], len_ - p[0]) for p, len_
+                in zip(self._pad, self._padded_shape))
+            dx = dx[slices]
+        else:
+            dx = None
+        if self._args[1].is_variable:
+            dw = self._col_flat.T @ delta
+        else:
+            dw = None
         return dx, dw
 
 
@@ -138,12 +144,12 @@ class Conv2D(Module):
             np.random.uniform(
                 -v, v,
                 (kernel_size[0] * kernel_size[1] * in_channels, out_channels)),
-            dtype=dtype, is_differentiable=True)
+            dtype=dtype, is_variable=True)
         if bias:
             self.bias = Array(
                 np.random.uniform(-v, v, out_channels),
                 dtype=dtype,
-                is_differentiable=True)
+                is_variable=True)
 
     def __call__(self, x: Array, **kwargs) -> Array:
         x = _Conv2d(

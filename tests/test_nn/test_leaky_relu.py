@@ -11,23 +11,23 @@ from pygrad._utils._numerical_grad import _numerical_grad
 ])
 def test_forward(x, alpha, name, expected):
     actual = pg.nn.leaky_relu(x, alpha, name=name)
-    assert np.allclose(actual.value, expected)
+    assert np.allclose(actual.data, expected)
     assert actual.name == name + '.out'
 
 
 @pytest.mark.parametrize('x, alpha', [
-    (pg.Array(np.random.rand(2, 3), is_differentiable=True), 0.1),
-    (pg.Array(np.random.rand(4, 2, 3), is_differentiable=True), 0.5),
+    (pg.Array(np.random.rand(2, 3), is_variable=True), 0.1),
+    (pg.Array(np.random.rand(4, 2, 3), is_variable=True), 0.5),
 ])
 def test_backward(x, alpha):
     pg.nn.leaky_relu(x, alpha).backward()
-    dx = (x.value > 0) + alpha * (x.value < 0)
+    dx = (x.data > 0) + alpha * (x.data < 0)
     assert np.allclose(dx, x.grad, rtol=0, atol=1e-2)
 
 
 @pytest.mark.parametrize('x, alpha', [
-    (pg.Array(np.random.rand(2, 3), is_differentiable=True), 0.2),
-    (pg.Array(np.random.rand(4, 2, 3), is_differentiable=True), 0.5),
+    (pg.Array(np.random.rand(2, 3), is_variable=True), 0.2),
+    (pg.Array(np.random.rand(4, 2, 3), is_variable=True), 0.5),
 ])
 def test_numerical_grad(x, alpha):
     pg.nn.leaky_relu(x, alpha).backward()

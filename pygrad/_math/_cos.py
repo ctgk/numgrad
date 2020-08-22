@@ -10,7 +10,8 @@ class _Cos(_Operator):
     def __init__(self, x: Array, name: str = None):
         super().__init__(x, name=name)
 
-    def _forward_numpy(self, x):
+    @staticmethod
+    def _forward_numpy(x):
         return np.cos(x)
 
     def _backward_numpy(self, dy, x):

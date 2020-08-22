@@ -13,7 +13,7 @@ np.random.seed(0)
         pg.Array(
             np.random.uniform(
                 -2, 2, (2, 4, 4, 1)).astype(np.int).astype(np.float),
-            is_differentiable=True),
+            is_variable=True),
         (2, 2),
         None,
         0
@@ -25,13 +25,13 @@ def test_forward_backward(x, size, strides, pad):
 
 @pytest.mark.parametrize('x, size, strides, pad', [
     (
-        pg.Array(np.random.rand(1, 4, 4, 2), is_differentiable=True),
+        pg.Array(np.random.rand(1, 4, 4, 2), is_variable=True),
         (2, 2),
         None,
         0
     ),
     (
-        pg.Array(np.random.rand(2, 4, 4, 2), is_differentiable=True),
+        pg.Array(np.random.rand(2, 4, 4, 2), is_variable=True),
         (3, 3),
         (1, 1),
         1,

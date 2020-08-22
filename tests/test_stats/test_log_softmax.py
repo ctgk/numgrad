@@ -14,15 +14,15 @@ from pygrad._utils._numerical_grad import _numerical_grad
 ])
 def test_forward(x, name, expected):
     actual = pg.stats.log_softmax(x, name=name)
-    assert np.allclose(actual.value, expected)
+    assert np.allclose(actual.data, expected)
     assert actual.name == name + '.out'
 
 
 @pytest.mark.parametrize('x, axis', [
-    (pg.Array(np.random.rand(2, 3), is_differentiable=True), 0),
-    (pg.Array(np.random.rand(4, 2, 3), is_differentiable=True), 0),
-    (pg.Array(np.random.rand(4, 2, 3), is_differentiable=True), 1),
-    (pg.Array(np.random.rand(4, 2, 3), is_differentiable=True), 2),
+    (pg.Array(np.random.rand(2, 3), is_variable=True), 0),
+    (pg.Array(np.random.rand(4, 2, 3), is_variable=True), 0),
+    (pg.Array(np.random.rand(4, 2, 3), is_variable=True), 1),
+    (pg.Array(np.random.rand(4, 2, 3), is_variable=True), 2),
 ])
 def test_numerical_grad(x, axis):
     pg.square(pg.stats.log_softmax(x, axis)).backward()
