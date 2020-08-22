@@ -56,7 +56,7 @@ class Dense(Module):
                 dtype=dtype,
                 is_differentiable=True)
 
-    def __call__(self, x: Array) -> Array:
+    def __call__(self, x: Array, **kwargs) -> Array:
         x = matmul(x, self.weight)
         if hasattr(self, 'bias'):
             x = x + self.bias

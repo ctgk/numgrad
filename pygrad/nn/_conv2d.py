@@ -119,8 +119,8 @@ class Conv2D(Module):
             in_channels: int,
             out_channels: int,
             kernel_size: tp.Union[int, tp.Iterable[int]],
-            strides: tp.Union[int, tp.Iterable[int]],
-            pad: tp.Union[int, tp.Iterable[int]],
+            strides: tp.Union[int, tp.Iterable[int]] = (1, 1),
+            pad: tp.Union[int, tp.Iterable[int]] = (0, 0),
             bias: bool = True,
             dtype: tp.Union[tp.Type[DataType], None] = None):
         super().__init__()
@@ -145,7 +145,7 @@ class Conv2D(Module):
                 dtype=dtype,
                 is_differentiable=True)
 
-    def __call__(self, x: Array) -> Array:
+    def __call__(self, x: Array, **kwargs) -> Array:
         x = _Conv2d(
             x,
             self.weight,

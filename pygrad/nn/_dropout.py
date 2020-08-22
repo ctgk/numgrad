@@ -3,6 +3,7 @@ import typing as tp
 import numpy as np
 
 from pygrad._core._array import Array
+from pygrad._core._module import Module
 from pygrad._core._operator import _Operator
 from pygrad._utils._typecheck import _typecheck
 
@@ -56,3 +57,14 @@ def dropout(x: Array,
     if droprate is None:
         return x
     return _Dropout(x, droprate, name=name).forward()
+
+
+class Dropout(Module):
+
+    @_typecheck()
+    def __init__(self, droprate: float = 0.5):
+        super().__init__()
+        self._droprate = droprate
+
+    def __call__(self, x: Array, **kwargs) -> Array:
+        return dropout(x, dropout=kwargs.get('droprate'))

@@ -1,6 +1,7 @@
 import numpy as np
 
 from pygrad._core._array import Array
+from pygrad._core._module import Module
 from pygrad._core._operator import _Operator
 from pygrad._utils._typecheck import _typecheck
 
@@ -45,3 +46,14 @@ def relu(x: Array, *, name: str = None) -> Array:
     array([1., 0., 2., 0.])
     """
     return _ReLU(x, name=name).forward()
+
+
+class ReLU(Module):
+    """Rectified linear unit layer
+    """
+
+    def __init__(self):
+        super().__init__()
+
+    def __call__(self, x: Array, **kwargs) -> Array:
+        return _ReLU(x).forward()

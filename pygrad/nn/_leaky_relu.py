@@ -1,6 +1,7 @@
 import numpy as np
 
 from pygrad._core._array import Array
+from pygrad._core._module import Module
 from pygrad._core._operator import _Operator
 from pygrad._utils._typecheck import _typecheck
 
@@ -49,3 +50,16 @@ def leaky_relu(x: Array, alpha: float = 0.2, *, name: str = None) -> Array:
     array([ 1. , -0.2,  2. , -0.6])
     """
     return _LeakyReLU(x, alpha, name=name).forward()
+
+
+class LeakyReLU(Module):
+    """Leaky rectified linear unit layer
+    """
+
+    @_typecheck()
+    def __init__(self, alpha: float = 0.2):
+        super().__init__()
+        self._alpha = alpha
+
+    def __call__(self, x: Array, **kwargs) -> Array:
+        return _LeakyReLU(x, self._alpha).forward()

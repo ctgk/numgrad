@@ -121,8 +121,9 @@ class MaxPool2D(Module):
             pad: tp.Union[int, tp.Iterable[int]] = (0, 0)):
         super().__init__()
         self._size = _to_pair(size, 'size')
-        self._strides = _to_pair(strides, 'strides')
+        self._strides = strides if strides is None else _to_pair(
+            strides, 'strides')
         self._pad = _to_pair(pad, 'pad')
 
-    def __call__(self, x: Array) -> Array:
+    def __call__(self, x: Array, **kwargs) -> Array:
         return _MaxPool2D(x, self._size, self._strides, self._pad).forward()

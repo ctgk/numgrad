@@ -176,7 +176,7 @@ class Conv2DTranspose(Module):
                 dtype=dtype,
                 is_differentiable=True)
 
-    def __call__(self, x: Array) -> Array:
+    def __call__(self, x: Array, **kwargs) -> Array:
         x = _Conv2dTranspose(
             x, self.weight, size=self._kernel_size,
             out_channels=self._out_channels, strides=self._strides,
