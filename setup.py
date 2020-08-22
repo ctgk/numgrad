@@ -17,6 +17,8 @@ develop_requires = [
     'sphinx',
     'sphinx_rtd_theme',
     'livereload',
+    'scikit-learn',
+    'tqdm',
 ]
 
 

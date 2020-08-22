@@ -1,7 +1,7 @@
 from pygrad.nn._conv2d import conv2d, Conv2D
 from pygrad.nn._conv2d_transpose import conv2d_transpose, Conv2DTranspose
 from pygrad.nn._dense import Dense
-from pygrad.nn._dropout import dropout
+from pygrad.nn._dropout import dropout, Dropout
 from pygrad.nn._flatten import Flatten
 from pygrad.nn._leaky_relu import leaky_relu, LeakyReLU
 from pygrad.nn._maxpool2d import max_pool2d, MaxPool2D
@@ -13,6 +13,7 @@ _classes = [
     Conv2D,
     Conv2DTranspose,
     Dense,
+    Dropout,
     Flatten,
     LeakyReLU,
     MaxPool2D,

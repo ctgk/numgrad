@@ -67,4 +67,4 @@ class Dropout(Module):
         self._droprate = droprate
 
     def __call__(self, x: Array, **kwargs) -> Array:
-        return dropout(x, dropout=kwargs.get('droprate'))
+        return dropout(x, droprate=kwargs.get('droprate'))
