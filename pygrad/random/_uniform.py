@@ -25,7 +25,7 @@ class _Uniform(_Operator):
         return dmin, dmax
 
 
-@_typecheck(exclude=('low', 'high'))
+@_typecheck(exclude_args=('low', 'high'))
 def uniform(low: Array,
             high: Array,
             size: tp.Union[tp.Iterable[int], None] = None,
@@ -57,11 +57,11 @@ def uniform(low: Array,
 
     Examples
     --------
-    >>> import pygrad as pg; import numpy as np; np.random.seed(0)
-    >>> pg.random.uniform(0, 1, (10,))
+    >>> import pygrad as gd; import numpy as np; np.random.seed(0)
+    >>> gd.random.uniform(0, 1, (10,))
     array([0.5488135 , 0.71518937, 0.60276338, 0.54488318, 0.4236548 ,
            0.64589411, 0.43758721, 0.891773  , 0.96366276, 0.38344152])
-    >>> pg.random.uniform([1, -2], [2, 0], size=(5, 2))
+    >>> gd.random.uniform([1, -2], [2, 0], size=(5, 2))
     array([[ 1.79172504, -0.94221016],
            [ 1.56804456, -0.14880672],
            [ 1.07103606, -1.8257414 ],

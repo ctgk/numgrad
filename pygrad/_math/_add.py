@@ -27,7 +27,7 @@ class _Add(_Operator):
         return dx, dy
 
 
-@_typecheck(exclude=('x', 'y'))
+@_typecheck(exclude_args=('x', 'y'))
 def add(x: Array, y: Array, *, name: str = None) -> Array:
     """Return element-wise addition of two arrays.
 
@@ -47,8 +47,8 @@ def add(x: Array, y: Array, *, name: str = None) -> Array:
 
     Examples
     --------
-    >>> import pygrad as pg
-    >>> pg.add([[1, 2], [2, 3]], [-1, 3])
+    >>> import pygrad as gd
+    >>> gd.add([[1, 2], [2, 3]], [-1, 3])
     array([[0., 5.],
            [1., 6.]])
     """

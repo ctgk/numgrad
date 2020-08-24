@@ -20,7 +20,7 @@ class _ReLU(_Operator):
         return delta * (x > 0)
 
 
-@_typecheck(exclude=('x',))
+@_typecheck(exclude_args=('x',))
 def relu(x: Array, *, name: str = None) -> Array:
     r"""Element-wise rectified linear unit.
 
@@ -41,8 +41,8 @@ def relu(x: Array, *, name: str = None) -> Array:
 
     Examples
     --------
-    >>> import pygrad as pg
-    >>> pg.nn.relu([1, -1, 2, -3])
+    >>> import pygrad as gd
+    >>> gd.nn.relu([1, -1, 2, -3])
     array([1., 0., 2., 0.])
     """
     return _ReLU(x, name=name).forward()

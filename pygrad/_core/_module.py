@@ -1,5 +1,4 @@
 import abc
-from collections import OrderedDict
 import inspect
 import typing as tp
 
@@ -11,7 +10,8 @@ class Module(abc.ABC):
     def __init__(self):
         super().__init__()
         object.__setattr__(self, '_module_name', self.__class__.__name__)
-        self._trainables = OrderedDict()
+        self._trainables = {}
+        self._modules = {}
 
     @abc.abstractmethod
     def __call__(self, *args, **kwargs):
@@ -28,23 +28,32 @@ class Module(abc.ABC):
         object.__setattr__(self, name, value)
 
     def _add_if_trainable(self, name, value):
-        if isinstance(value, Array) and value.is_variable:
-            self._trainables[self._module_name + '.' + name] = value
-        elif isinstance(value, (list, tuple)):
+        if isinstance(value, (list, tuple)):
             for i, v in enumerate(value):
                 self._add_if_trainable(name + '_' + str(i), v)
         elif isinstance(value, dict):
             for k, v in value.items():
                 self._add_if_trainable(name + '_' + k, v)
+        elif isinstance(value, Array) and value.is_variable:
+            if value in self._trainables.values():
+                raise ValueError('Duplicate assignment of parameter')
+            if value not in self._trainables.values():
+                self._trainables[self._module_name + '.' + name] = value
         elif isinstance(value, Module):
+            if value in self._modules.values():
+                raise ValueError('Duplicate assignment of module')
+            self._modules[self._module_name + '.' + name] = value
             for k, v in value._trainables.items():
                 self._trainables['.'.join((self._module_name, name, k))] = v
 
-    def clear_grad(self):
+    def clear(self):
         self._assert_init()
         for param in self._trainables.values():
             param.clear_grad()
+        for module in self._modules.values():
+            module.clear()
 
-    def trainables(self) -> tp.List[Array]:
+    @property
+    def trainables(self) -> tp.Dict[str, Array]:
         self._assert_init()
-        return list(self._trainables.values())
+        return self._trainables

@@ -31,7 +31,7 @@ class _GumbelSoftmax(_Operator):
         return dlogits
 
 
-@_typecheck(exclude=('logits',))
+@_typecheck(exclude_args=('logits',))
 def gumbel_softmax(
         logits: Array,
         temperature: float = 1e-3,

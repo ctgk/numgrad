@@ -38,8 +38,8 @@ def reshape(x, newshape: tp.Iterable[int], *, name: str = None) -> Array:
 
     Examples
     --------
-    >>> import pygrad as pg
-    >>> pg.reshape([1, 2, 3, 4, 5, 6], (2, -1))
+    >>> import pygrad as gd
+    >>> gd.reshape([1, 2, 3, 4, 5, 6], (2, -1))
     array([[1., 2., 3.],
            [4., 5., 6.]])
     """

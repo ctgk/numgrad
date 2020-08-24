@@ -17,10 +17,12 @@ class _Normal(_Operator):
             size: tp.Tuple[int] = None,
             name: str = None):
         super().__init__(loc, scale, name=name)
-        self._size = np.broadcast(loc, scale).shape if size is None else size
+        self._size = np.broadcast(
+            *tuple(arg.data for arg in self._args)
+        ).shape if size is None else size
 
     def _forward_numpy(self, loc, scale):
-        self.eps = np.random.normal(size=self._size)
+        self.eps = np.random.normal(size=self._size).astype(loc.dtype)
         return loc + scale * self.eps
 
     def _backward_numpy(self, delta, loc, scale):
@@ -29,11 +31,11 @@ class _Normal(_Operator):
         return dloc, dscale
 
 
-@_typecheck(exclude=('loc', 'scale'))
+@_typecheck(exclude_args=('loc', 'scale'))
 def normal(
         loc: Array,
         scale: Array,
-        size: tp.Union[tp.Iterable[int], None] = None,
+        size: tp.Union[int, tp.Iterable[int], None] = None,
         *,
         name: str = None) -> Array:
     r"""Return array with normally distributed values.
@@ -60,16 +62,16 @@ def normal(
 
     Examples
     --------
-    >>> import pygrad as pg; import numpy as np; np.random.seed(0)
-    >>> pg.random.normal(0, 1, (10,))
+    >>> import pygrad as gd; import numpy as np; np.random.seed(0)
+    >>> gd.random.normal(0, 1, (10,))
     array([ 1.76405235,  0.40015721,  0.97873798,  2.2408932 ,  1.86755799,
            -0.97727788,  0.95008842, -0.15135721, -0.10321885,  0.4105985 ])
-    >>> pg.random.normal(pg.random.normal(0, 1, [5, 1]), [1, 2], (5, 2))
-    array([[0.4777179 , 3.13220172],
-           [1.78794783, 4.44243165],
-           [1.09471205, 3.74919587],
-           [0.45534934, 3.10983316],
-           [0.77753756, 3.43202138]])
+    >>> gd.random.normal(gd.random.normal(0, 1, [5, 1]), [1, 2], (5, 2))
+    array([[ 0.4777179 ,  3.13220172],
+           [ 1.24911524,  2.08040891],
+           [-0.09305801, -4.34494191],
+           [ 0.77529361,  1.85054741],
+           [-0.29830179,  4.98337248]])
     """
     if isinstance(loc, Array) or isinstance(scale, Array):
         return _Normal(loc, scale, name=name).forward()

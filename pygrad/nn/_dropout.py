@@ -27,7 +27,7 @@ class _Dropout(_Operator):
         return delta * self._mask
 
 
-@_typecheck(exclude=('x',))
+@_typecheck(exclude_args=('x',))
 def dropout(x: Array,
             droprate: tp.Union[float, None] = 0.5,
             *,
@@ -50,8 +50,8 @@ def dropout(x: Array,
 
     Examples
     --------
-    >>> import pygrad as pg; import numpy as np; np.random.seed(1111)
-    >>> pg.nn.dropout([1, -2, 3, -4])
+    >>> import pygrad as gd; import numpy as np; np.random.seed(1111)
+    >>> gd.nn.dropout([1, -2, 3, -4])
     array([ 2., -0.,  6., -8.])
     """
     if droprate is None:

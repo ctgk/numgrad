@@ -36,7 +36,7 @@ class _Min(_Operator):
         return dx
 
 
-@_typecheck(exclude=('x',))
+@_typecheck(exclude_args=('x',))
 def min(x: Array,
         axis: tp.Union[int, tp.Iterable[int]] = None,
         keepdims: bool = False,
@@ -62,8 +62,8 @@ def min(x: Array,
 
     Examples
     --------
-    >>> import pygrad as pg
-    >>> a = pg.Array([[2, 3], [-1, -9]])
+    >>> import pygrad as gd
+    >>> a = gd.Array([[2, 3], [-1, -9]])
     >>> a.min()
     array(-9)
     >>> a.min(axis=0)

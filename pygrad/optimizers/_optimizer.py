@@ -2,13 +2,17 @@ from contextlib import contextmanager
 import typing as tp
 
 from pygrad._core._array import Array
+from pygrad._core._module import Module
 
 
 class Optimizer(object):
     """Base optimizer class.
     """
 
-    def __init__(self, parameters: tp.Iterable[Array]):
+    def __init__(self, parameters: tp.Union[Module, tp.Iterable[Array]]):
+        if isinstance(parameters, Module):
+            self._module = parameters
+            parameters = tuple(parameters.trainables.values())
         if not all(p.is_variable for p in parameters):
             raise ValueError('All \'parameters\' must be differentiable.')
         if any(len(p._parents) != 0 for p in parameters):
@@ -34,19 +38,22 @@ class Optimizer(object):
                 f'but was {value}')
 
     @contextmanager
-    def _increment_count_calc_grad_clear_grad(
+    def _increment_count_calc_grad_clear(
             self,
             value: Array = None,
-            clear_grad: bool = True):
+            clear: bool = True):
         self._n_iter += 1
         if value is not None:
             value.backward()
         try:
             yield
         finally:
-            if clear_grad:
-                for p in self._parameters:
-                    p.clear_grad()
+            if clear:
+                if hasattr(self, '_module'):
+                    self._module.clear()
+                else:
+                    for p in self._parameters:
+                        p.clear_grad()
 
     def minimize(self, loss: Array):
         raise NotImplementedError

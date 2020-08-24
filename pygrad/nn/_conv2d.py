@@ -55,7 +55,7 @@ class _Conv2d(_Operator):
         return dx, dw
 
 
-@_typecheck(exclude=('x', 'w'))
+@_typecheck(exclude_args=('x', 'w'))
 def conv2d(
         x: Array,
         w: Array,
@@ -87,8 +87,8 @@ def conv2d(
 
     Examples
     --------
-    >>> import pygrad as pg; import numpy as np
-    >>> pg.nn.conv2d(
+    >>> import pygrad as gd; import numpy as np
+    >>> gd.nn.conv2d(
     ...     np.arange(16).reshape(1, 4, 4, 1),
     ...     np.arange(9).reshape(3, 3, 1, 1))
     array([[[[258.],
@@ -113,8 +113,8 @@ class Conv2D(Module):
 
     Examples
     --------
-    >>> import pygrad as pg; import numpy as np
-    >>> c = pg.nn.Conv2D(1, 10, 3, strides=1, pad=0, bias=True)
+    >>> import pygrad as gd; import numpy as np
+    >>> c = gd.nn.Conv2D(1, 10, 3, strides=1, pad=0, bias=True)
     >>> c(np.random.rand(2, 5, 5, 1)).shape
     (2, 3, 3, 10)
     """

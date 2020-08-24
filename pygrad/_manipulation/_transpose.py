@@ -42,12 +42,12 @@ def transpose(x, axes: tp.Iterable[int] = None, *, name: str = None) -> Array:
 
     Examples
     --------
-    >>> import pygrad as pg
-    >>> pg.transpose([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+    >>> import pygrad as gd
+    >>> gd.transpose([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
     array([[1., 4., 7.],
            [2., 5., 8.],
            [3., 6., 9.]])
-    >>> pg.transpose([[[1, 2, 3], [4, 5, 6], [7, 8, 9]]], (1, 2, 0))
+    >>> gd.transpose([[[1, 2, 3], [4, 5, 6], [7, 8, 9]]], (1, 2, 0))
     array([[[1.],
             [2.],
             [3.]],

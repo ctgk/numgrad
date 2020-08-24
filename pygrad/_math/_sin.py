@@ -17,7 +17,7 @@ class _Sin(_Operator):
         return dy * np.cos(x)
 
 
-@_typecheck(exclude=('x',))
+@_typecheck(exclude_args=('x',))
 def sin(x: Array, *, name: str = None) -> Array:
     """Return trigonometric sine of each element
 
@@ -35,8 +35,8 @@ def sin(x: Array, *, name: str = None) -> Array:
 
     Examples
     --------
-    >>> import pygrad as pg; from math import pi
-    >>> pg.sin([0, -pi / 6, 17 * pi / 6, -pi / 2])
+    >>> import pygrad as gd; from math import pi
+    >>> gd.sin([0, -pi / 6, 17 * pi / 6, -pi / 2])
     array([ 0. , -0.5,  0.5, -1. ])
     """
     return _Sin(x, name=name).forward()

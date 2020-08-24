@@ -14,6 +14,8 @@ develop_requires = [
     'sphinx',
     'sphinx_rtd_theme',
     'livereload',
+
+    'matplotlib',
     'scikit-learn',
     'tqdm',
 ]

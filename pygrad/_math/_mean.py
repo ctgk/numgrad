@@ -19,7 +19,7 @@ class _Mean(_Sum):
         return super()._backward_numpy(dy, x) * dy.size / x.size
 
 
-@_typecheck(exclude=('x',))
+@_typecheck(exclude_args=('x',))
 def mean(
         x: Array,
         axis: Union[int, Iterable[int], None] = None,
@@ -46,10 +46,10 @@ def mean(
 
     Examples
     --------
-    >>> import pygrad as pg
-    >>> pg.Array([1, 2, 3]).mean()
+    >>> import pygrad as gd
+    >>> gd.Array([1, 2, 3]).mean()
     array(2.)
-    >>> pg.mean(pg.Array([[1., 2.], [4., 8.]]), axis=1, keepdims=True)
+    >>> gd.mean(gd.Array([[1., 2.], [4., 8.]]), axis=1, keepdims=True)
     array([[1.5],
            [6. ]])
     """

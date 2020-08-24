@@ -12,7 +12,8 @@ class _GumbelSigmoid(_Operator):
         self._temperature = temperature
 
     def _forward_numpy(self, logits):
-        dg = np.random.gumbel(size=logits) - np.random.gumbel(size=logits)
+        dg = np.random.gumbel(
+            size=logits.shape) - np.random.gumbel(size=logits.shape)
         a = (logits + dg) / self._temperature
         self.output = np.tanh(0.5 * a) * 0.5 + 0.5
         return self.output
@@ -23,7 +24,7 @@ class _GumbelSigmoid(_Operator):
         return dlogits
 
 
-@_typecheck(exclude=('logits',))
+@_typecheck(exclude_args=('logits',))
 def gumbel_sigmoid(
         logits: Array,
         temperature: float = 1e-3,

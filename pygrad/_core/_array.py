@@ -9,6 +9,7 @@ from pygrad._utils._typecheck import _typecheck
 
 
 class Array(_Node):
+    __array_ufunc__ = None
 
     @_typecheck()
     def __init__(
@@ -79,7 +80,9 @@ class Array(_Node):
 
     @property
     def grad(self) -> np.ndarray:
-        if self._grad is None or (self._num_backwards != len(self._children)):
+        if self._grad is None:
+            raise ValueError('This gradient is empty.')
+        if self._num_backwards != len(self._children):
             raise ValueError('This object does not have a valid gradient.')
         return self._grad
 

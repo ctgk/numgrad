@@ -1,6 +1,7 @@
 import typing as tp
 
 from pygrad._core._array import Array
+from pygrad._core._module import Module
 from pygrad.optimizers._optimizer import Optimizer
 from pygrad._utils._typecheck import _typecheck
 
@@ -18,9 +19,9 @@ class Gradient(Optimizer):
 
     Examples
     --------
-    >>> import pygrad as pg
-    >>> theta = pg.Array(10., is_variable=True)
-    >>> optimizer = pg.optimizers.Gradient([theta], 0.1)
+    >>> import pygrad as gd
+    >>> theta = gd.Array(10., is_variable=True)
+    >>> optimizer = gd.optimizers.Gradient([theta], 0.1)
     >>> optimizer.minimize(theta)
     >>> theta
     array(9.9)
@@ -38,11 +39,19 @@ class Gradient(Optimizer):
     @_typecheck()
     def __init__(
             self,
-            parameters: tp.Iterable[Array],
+            parameters: tp.Union[Module, tp.Iterable[Array]],
             learning_rate: float = 1e-3):
         super().__init__(parameters)
-        self._check_in_range('learning_rate', learning_rate, 0, None)
-        self._learning_rate = learning_rate
+        self.learning_rate = learning_rate
+
+    @property
+    def learning_rate(self) -> float:
+        return self._learning_rate
+
+    @learning_rate.setter
+    def learning_rate(self, value: float):
+        self._check_in_range('learning_rate', value, 0, None)
+        self._learning_rate = value
 
     def _update(self, learning_rate: float):
         for p in self._parameters:
@@ -61,7 +70,7 @@ class Gradient(Optimizer):
             Clear gradient of parameters after updation if True,
             default is True
         """
-        with self._increment_count_calc_grad_clear_grad(loss, clear_grad):
+        with self._increment_count_calc_grad_clear(loss, clear_grad):
             self._update(-self._learning_rate)
 
     @_typecheck()
@@ -77,5 +86,5 @@ class Gradient(Optimizer):
             Clear gradient of parameters after updation if True,
             default is True
         """
-        with self._increment_count_calc_grad_clear_grad(score, clear_grad):
+        with self._increment_count_calc_grad_clear(score, clear_grad):
             self._update(self._learning_rate)

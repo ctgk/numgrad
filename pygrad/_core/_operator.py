@@ -35,7 +35,9 @@ class _Operator(_Node):
         dtype = self._args[0].dtype
         for arg in self._args:
             if dtype is not arg.dtype:
-                raise ValueError('All array\'s dtype must be the same.')
+                raise ValueError(
+                    'All array\'s dtype must be the same, but were '
+                    f'{tuple(arg.dtype for arg in self._args)}')
 
     @property
     def _args(self) -> Tuple[Array]:

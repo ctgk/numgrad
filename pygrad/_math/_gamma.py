@@ -18,7 +18,7 @@ class _Gamma(_Operator):
         return delta * sp.digamma(x) * self.output
 
 
-@_typecheck(exclude=('x',))
+@_typecheck(exclude_args=('x',))
 def gamma(x: Array, *, name: str = None) -> Array:
     r"""Element-wise gamma function.
 
@@ -43,8 +43,8 @@ def gamma(x: Array, *, name: str = None) -> Array:
 
     Examples
     --------
-    >>> import pygrad as pg
-    >>> pg.gamma([1, 2, 3, 4])
+    >>> import pygrad as gd
+    >>> gd.gamma([1, 2, 3, 4])
     array([1., 1., 2., 6.])
     """
     return _Gamma(x, name=name).forward()

@@ -21,7 +21,7 @@ class _Softmax(_Operator):
         return dx
 
 
-@_typecheck(exclude=('x',))
+@_typecheck(exclude_args=('x',))
 def softmax(x: Array, axis: int = -1, *, name: str = None) -> Array:
     r"""Softmax activation along the given axis.
 
@@ -44,8 +44,8 @@ def softmax(x: Array, axis: int = -1, *, name: str = None) -> Array:
 
     Examples
     --------
-    >>> import pygrad as pg
-    >>> pg.stats.softmax([0, 1, -1])
+    >>> import pygrad as gd
+    >>> gd.stats.softmax([0, 1, -1])
     array([0.24472847, 0.66524096, 0.09003057])
     """
     return _Softmax(x, axis=axis, name=name).forward()

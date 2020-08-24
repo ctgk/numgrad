@@ -18,7 +18,7 @@ class _Tan(_Operator):
         return dy * (1 + np.square(self.output))
 
 
-@_typecheck(exclude=('x',))
+@_typecheck(exclude_args=('x',))
 def tan(x: Array, *, name: str = None) -> Array:
     """Return trigonometric tangent of each element.
 
@@ -36,8 +36,8 @@ def tan(x: Array, *, name: str = None) -> Array:
 
     Examples
     --------
-    >>> import pygrad as pg; from math import pi
-    >>> pg.tan([0, pi / 4, -9 * pi / 4])
+    >>> import pygrad as gd; from math import pi
+    >>> gd.tan([0, pi / 4, -9 * pi / 4])
     array([ 0.,  1., -1.])
     """
     return _Tan(x, name=name).forward()

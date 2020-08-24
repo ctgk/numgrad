@@ -19,7 +19,7 @@ class _LeakyReLU(_Operator):
         return delta * ((x > 0) + self._alpha * (x <= 0))
 
 
-@_typecheck(exclude=('x',))
+@_typecheck(exclude_args=('x',))
 def leaky_relu(x: Array, alpha: float = 0.2, *, name: str = None) -> Array:
     r"""Element-wise leaky rectified linear unit.
 
@@ -45,8 +45,8 @@ def leaky_relu(x: Array, alpha: float = 0.2, *, name: str = None) -> Array:
 
     Examples
     --------
-    >>> import pygrad as pg
-    >>> pg.nn.leaky_relu([1, -1, 2, -3])
+    >>> import pygrad as gd
+    >>> gd.nn.leaky_relu([1, -1, 2, -3])
     array([ 1. , -0.2,  2. , -0.6])
     """
     return _LeakyReLU(x, alpha, name=name).forward()

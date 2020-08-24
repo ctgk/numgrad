@@ -82,8 +82,8 @@ def max_pool2d(
 
     Examples
     --------
-    >>> import pygrad as pg
-    >>> pg.nn.max_pool2d(pg.Array([
+    >>> import pygrad as gd
+    >>> gd.nn.max_pool2d(gd.Array([
     ...     [0, 1, 2, 3],
     ...     [1, 4, -1, 1],
     ...     [8, 0, 2, 5],
@@ -106,8 +106,8 @@ class MaxPool2D(Module):
 
     Examples
     --------
-    >>> import pygrad as pg; import numpy as np
-    >>> m = pg.nn.MaxPool2D(size=2, strides=2, pad=1)
+    >>> import pygrad as gd; import numpy as np
+    >>> m = gd.nn.MaxPool2D(size=2, strides=2, pad=1)
     >>> m(np.random.rand(2, 5, 5, 4)).shape
     (2, 3, 3, 4)
     """

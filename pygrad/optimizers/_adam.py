@@ -3,6 +3,7 @@ import typing as tp
 import numpy as np
 
 from pygrad._core._array import Array
+from pygrad._core._module import Module
 from pygrad.optimizers._gradient import Gradient
 from pygrad._utils._typecheck import _typecheck
 
@@ -11,10 +12,10 @@ class Adam(Gradient):
     """Adam optimizer
     """
 
-    @_typecheck(exclude=('parameters', 'learning_rate'))
+    @_typecheck(exclude_args=('parameters', 'learning_rate'))
     def __init__(
             self,
-            parameters: tp.Iterable[Array],
+            parameters: tp.Union[Module, tp.Iterable[Array]],
             learning_rate: float = 0.001,
             beta1: float = 0.9,
             beta2: float = 0.999):
@@ -37,16 +38,16 @@ class Adam(Gradient):
         self._check_in_range('beta2', beta2, 0, 1)
         self._beta1 = beta1
         self._beta2 = beta2
-        self._moment1 = [np.zeros_like(p._data) for p in parameters]
-        self._moment2 = [np.zeros_like(p._data) for p in parameters]
+        self._moment1 = [np.zeros_like(p._data) for p in self._parameters]
+        self._moment2 = [np.zeros_like(p._data) for p in self._parameters]
 
     def _update(self, learning_rate: float):
         alpha = (
             learning_rate
             * (1 - self._beta2 ** self._n_iter) ** 2
             / (1 - self._beta1 ** self._n_iter))
-        for param, m1, m2 in zip(
-                self._parameters, self._moment1, self._moment2):
+        for i, (param, m1, m2) in enumerate(zip(
+                self._parameters, self._moment1, self._moment2)):
             g = param.grad
             m1 += (1 - self._beta1) * (g - m1)
             m2 += (1 - self._beta2) * (g ** 2 - m2)

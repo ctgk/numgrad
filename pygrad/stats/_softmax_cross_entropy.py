@@ -31,7 +31,7 @@ class _SoftmaxCrossEntropy(_Operator):
         return dlabels, dlogits
 
 
-@_typecheck(exclude=('labels', 'logits'))
+@_typecheck(exclude_args=('labels', 'logits'))
 def softmax_cross_entropy(
         labels: Array,
         logits: Array,
@@ -63,10 +63,10 @@ def softmax_cross_entropy(
 
     Examples
     --------
-    >>> import pygrad as pg
-    >>> pg.stats.softmax_cross_entropy([1, 0, 0], [0, 1, -1])
+    >>> import pygrad as gd
+    >>> gd.stats.softmax_cross_entropy([1, 0, 0], [0, 1, -1])
     array(1.40760596)
-    >>> pg.stats.softmax_cross_entropy([1, 0, 0], [10, -10, -10])
+    >>> gd.stats.softmax_cross_entropy([1, 0, 0], [10, -10, -10])
     array(4.12230738e-09)
     """
     return _SoftmaxCrossEntropy(labels, logits, axis=axis, name=name).forward()
