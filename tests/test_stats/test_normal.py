@@ -20,7 +20,9 @@ def test_normal_logpdf():
     x = gd.Array([0, 2], dtype=gd.Float32)
     optimizer = gd.optimizers.Gradient(n, 0.1)
     for _ in range(100):
-        optimizer.maximize(n.logpdf(x))
+        with gd.Graph() as g:
+            n.logpdf(x)
+        optimizer.maximize(g)
     assert np.isclose(n.loc.data, 1)
     assert np.isclose(n.lns.data, 0, rtol=0, atol=1e-5)
 

@@ -34,18 +34,22 @@ if __name__ == "__main__":
         gd.nn.Dense(100, 10),
     )
     optimizer = gd.optimizers.Adam(cnn)
+    x = gd.Array(np.zeros((args.batch, 28, 28, 1), dtype=np.float32))
+    y = gd.Array(np.zeros(args.batch, dtype=np.int))
+    with gd.Graph() as g:
+        logits = cnn(x)
+        loss = gd.stats.sparse_softmax_cross_entropy(y, logits).sum()
     for e in range(1, args.epoch + 1):
         pbar = tqdm(range(0, len(x_train), args.batch))
         tp = 0
         total = 0
         for i in pbar:
-            x_batch = x_train[i: i + args.batch]
-            y_batch = y_train[i: i + args.batch]
-            logits = cnn(x_batch)
-            loss = gd.stats.sparse_softmax_cross_entropy(y_batch, logits).sum()
-            optimizer.minimize(loss)
+            x.data = x_train[i: i + args.batch]
+            y.data = y_train[i: i + args.batch]
+            g.forward()
+            optimizer.minimize(g)
             if optimizer.n_iter % 10 == 0:
-                tp += np.sum(y_batch == np.argmax(logits.data, -1))
+                tp += np.sum(y.data == np.argmax(logits.data, -1))
                 total += args.batch
                 pbar.set_description(
                     f'Epoch={e}, Accuracy={int(100 * tp / total)}%')

@@ -26,7 +26,9 @@ from pygrad._utils._numerical_grad import _numerical_grad
 def test_numerical_grad(logits, temperature, axis):
     g = np.random.gumbel(size=logits.shape)
     with patch('numpy.random.gumbel', return_value=g):
-        gd.random.gumbel_softmax(logits, temperature, axis).backward()
+        with gd.Graph() as g:
+            gd.random.gumbel_softmax(logits, temperature, axis)
+        g.backward()
         dlogits = _numerical_grad(
             lambda x: gd.random.gumbel_softmax(x, temperature, axis),
             logits)[0]

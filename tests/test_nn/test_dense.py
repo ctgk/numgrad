@@ -71,8 +71,9 @@ def test_train(in_features, out_features, bias, dtype):
     dense = gd.nn.Dense(in_features, out_features, bias=bias, dtype=dtype)
     optimizer = gd.optimizers.Gradient(dense, 1e-1)
     for _ in range(100):
-        loss = gd.square(dense(x) - y).sum()
-        optimizer.minimize(loss)
+        with gd.Graph() as g:
+            loss = gd.square(dense(x) - y).sum()
+        optimizer.minimize(g)
         print(loss)
     assert np.isclose(loss.data, 0)
 

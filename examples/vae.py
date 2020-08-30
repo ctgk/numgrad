@@ -71,14 +71,17 @@ if __name__ == "__main__":
 
     vae = VAE()
     optimizer = gd.optimizers.Adam(vae)
+    x = gd.Array(x_train[:args.batch])
+    with gd.Graph() as g:
+        elbo = vae.elbo(x)
     for e in range(1, args.epoch + 1):
         pbar = tqdm(range(0, len(x_train), args.batch))
         total_elbo = 0
         total_count = 0
         for i in pbar:
-            x_batch = x_train[i: i + args.batch]
-            elbo = vae.elbo(x_batch)
-            optimizer.maximize(elbo)
+            x.data = x_train[i: i + args.batch]
+            g.forward()
+            optimizer.maximize(g)
             if optimizer.n_iter % 10 == 0:
                 total_elbo = total_elbo + elbo.data
                 total_count += 1

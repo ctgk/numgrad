@@ -20,7 +20,9 @@ np.random.seed(0)
     )
 ])
 def test_forward_backward(x, size, strides, pad):
-    gd.nn.max_pool2d(x, size, strides, pad).backward()
+    with gd.Graph() as g:
+        gd.nn.max_pool2d(x, size, strides, pad)
+    g.backward()
 
 
 @pytest.mark.parametrize('x, size, strides, pad', [
@@ -38,7 +40,9 @@ def test_forward_backward(x, size, strides, pad):
     ),
 ])
 def test_numerical_grad(x, size, strides, pad):
-    gd.nn.max_pool2d(x, size, strides, pad).backward()
+    with gd.Graph() as g:
+        gd.nn.max_pool2d(x, size, strides, pad)
+    g.backward()
     dx = _numerical_grad(lambda a: gd.nn.max_pool2d(a, size, strides, pad), x)
     assert np.allclose(dx, x.grad, rtol=0, atol=1e-2)
 

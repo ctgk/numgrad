@@ -35,8 +35,9 @@ def test_forward_2(x):
     (gd.Array(np.random.rand(4, 2, 3), is_variable=True), 0.5),
 ])
 def test_backward(x, droprate):
-    y = gd.nn.dropout(x, droprate)
-    y.backward()
+    with gd.Graph() as g:
+        y = gd.nn.dropout(x, droprate)
+    g.backward()
     dx = x.grad
     for i in range(x.size):
         if np.isclose(y.data.ravel()[i], 0):

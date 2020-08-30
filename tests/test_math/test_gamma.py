@@ -12,7 +12,9 @@ np.random.seed(0)
     gd.Array(np.random.uniform(1, 9, (2, 3)), is_variable=True),
 ])
 def test_numerical_grad(x):
-    gd.gamma(x).backward()
+    with gd.Graph() as g:
+        gd.gamma(x)
+    g.backward()
     dx = _numerical_grad(lambda x: gd.gamma(x), x)[0]
     print(dx)
     print(x.grad)

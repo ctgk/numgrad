@@ -19,7 +19,9 @@ def test_forward(x, name, expected):
     gd.Array(np.random.rand(4, 2, 3), is_variable=True),
 ])
 def test_backward(x):
-    gd.stats.sigmoid(x).backward()
+    with gd.Graph() as g:
+        gd.stats.sigmoid(x)
+    g.backward()
     dx = (gd.stats.sigmoid(x.data) * (1 - gd.stats.sigmoid(x.data))).data
     assert np.allclose(dx, x.grad, rtol=0, atol=1e-2)
 
@@ -29,7 +31,9 @@ def test_backward(x):
     gd.Array(np.random.rand(4, 2, 3), is_variable=True),
 ])
 def test_numerical_grad(x):
-    gd.stats.sigmoid(x).backward()
+    with gd.Graph() as g:
+        gd.stats.sigmoid(x)
+    g.backward()
     dx = _numerical_grad(gd.stats.sigmoid, x)[0]
     assert np.allclose(dx, x.grad, rtol=0, atol=1e-2)
 

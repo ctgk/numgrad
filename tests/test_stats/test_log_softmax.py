@@ -25,7 +25,9 @@ def test_forward(x, name, expected):
     (gd.Array(np.random.rand(4, 2, 3), is_variable=True), 2),
 ])
 def test_numerical_grad(x, axis):
-    gd.square(gd.stats.log_softmax(x, axis)).backward()
+    with gd.Graph() as g:
+        gd.square(gd.stats.log_softmax(x, axis))
+    g.backward()
     dx = _numerical_grad(
         lambda a: gd.square(
             gd.stats.log_softmax(

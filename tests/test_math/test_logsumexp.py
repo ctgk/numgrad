@@ -29,7 +29,9 @@ def test_forward(x, name, expected):
     ),
 ])
 def test_numerical_grad(x, axis, keepdims):
-    gd.logsumexp(x, axis, keepdims).backward()
+    with gd.Graph() as g:
+        gd.logsumexp(x, axis, keepdims)
+    g.backward()
     dx = _numerical_grad(lambda a: gd.logsumexp(a, axis, keepdims), x)[0]
     assert np.allclose(dx, x.grad, rtol=0, atol=1e-2)
 

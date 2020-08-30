@@ -12,7 +12,9 @@ from pygrad._utils._numerical_grad import _numerical_grad
     ),
 ])
 def test_numerical_grad_1(labels, logits):
-    gd.stats.sigmoid_cross_entropy(labels, logits).backward()
+    with gd.Graph() as g:
+        gd.stats.sigmoid_cross_entropy(labels, logits)
+    g.backward()
     dlabels, dlogits = _numerical_grad(
         gd.stats.sigmoid_cross_entropy, labels, logits)
     print(dlabels)
@@ -28,7 +30,9 @@ def test_numerical_grad_1(labels, logits):
     ),
 ])
 def test_numerical_grad_2(labels, logits):
-    gd.stats.sigmoid_cross_entropy(labels, logits).backward()
+    with gd.Graph() as g:
+        gd.stats.sigmoid_cross_entropy(labels, logits)
+    g.backward()
     dlogits = _numerical_grad(
         lambda a: gd.stats.sigmoid_cross_entropy(
             labels, a), logits)[0]
@@ -49,14 +53,19 @@ def test_xor():
 
     def loss_func(w1, b1, w2, b2):
         return gd.stats.sigmoid_cross_entropy(
-            y, predict_logit(x, w1, b1, w2, b2)).sum()
+            y, predict_logit(x, w1, b1, w2, b2), name='sce').sum()
 
     optimizer = gd.optimizers.Gradient([w1, b1, w2, b2], 1e-1)
+    with gd.Graph() as g:
+        loss_func(w1, b1, w2, b2)
     for i in range(101):
-        loss_func(w1, b1, w2, b2).backward()
+        g.forward()
+        g.backward()
         if i % 20 == 0:
             dw1, db1, dw2, db2 = _numerical_grad(
                 loss_func, w1, b1, w2, b2, epsilon=1e-3)
+            print(dw1)
+            print(w1.grad)
             assert np.allclose(w1.grad, dw1, rtol=0, atol=1e-2)
             assert np.allclose(b1.grad, db1, rtol=0, atol=1e-2)
             assert np.allclose(w2.grad, dw2, rtol=0, atol=1e-2)

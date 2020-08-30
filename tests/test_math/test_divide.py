@@ -25,7 +25,9 @@ def test_divide_forward(x, y, name):
     ),
 ])
 def test_divide_numerical_grad(x, y):
-    (x / y).backward()
+    with gd.Graph() as g:
+        (x / y)
+    g.backward()
     dx, dy = _numerical_grad(gd.divide, x, y, epsilon=1e-3)
     assert np.allclose(dx, x.grad, rtol=1e-2, atol=1e-2)
     assert np.allclose(dy, y.grad, rtol=1e-2, atol=1e-2)

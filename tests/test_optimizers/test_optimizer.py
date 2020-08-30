@@ -23,7 +23,7 @@ class NonCallableUpdate(gd.optimizers.Optimizer):
             gd.Array(1., is_variable=True),
             gd.Array([0, -1.], is_variable=True),
         ],
-        'NoError',
+        None,
     ),
     (
         gd.optimizers.Optimizer,
@@ -55,11 +55,11 @@ class NonCallableUpdate(gd.optimizers.Optimizer):
             gd.Array(1., is_variable=True),
             gd.sum(gd.Array([0, -1.], is_variable=True)),
         ],
-        ValueError
+        None,
     ),
 ])
 def test_init_error(cls_, parameters, error):
-    if error == 'NoError':
+    if error is None:
         cls_(parameters)
     else:
         with pytest.raises(error):

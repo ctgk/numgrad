@@ -13,7 +13,9 @@ np.random.seed(0)
     gd.Array(np.random.uniform(-10, 10, (4, 2, 3)), is_variable=True),
 ])
 def test_numerical_grad(x):
-    gd.tanh(x).backward()
+    with gd.Graph() as g:
+        gd.tanh(x)
+    g.backward()
     dx = _numerical_grad(gd.tanh, x)[0]
     assert np.allclose(dx, x.grad, rtol=0, atol=1e-2)
 

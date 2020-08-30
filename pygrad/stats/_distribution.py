@@ -66,7 +66,8 @@ class Distribution(Module, abc.ABC):
             obs: tp.Union[Array, tp.Dict[str, Array]],
             conditions: tp.Dict[str, Array] = {},
             *,
-            use_cache: bool = False) -> Array:
+            use_cache: bool = False,
+            reduce: tp.Union[str, None] = 'sum') -> Array:
         """Return sum of logarithm of probability density (mass) function
         given conditions
 
@@ -85,9 +86,14 @@ class Distribution(Module, abc.ABC):
             Summation of logarithm of probability density (mass) function
         """
         statistics = self.__call__(use_cache=use_cache, **conditions)
-        return self._logpdf(
-            obs[self._rv[0]] if isinstance(obs, dict) else obs,
-            **statistics).sum()
+        out = self._logpdf(
+            obs[self._rv[0]] if isinstance(obs, dict) else obs, **statistics)
+        if reduce == 'sum':
+            return out.sum()
+        elif reduce == 'mean':
+            return out.mean()
+        else:
+            return out
 
     @_typecheck(exclude_types=(Array,))
     def sample(
@@ -156,7 +162,8 @@ class JointDistribution(Distribution):
             obs: tp.Dict[str, Array],
             conditions: tp.Dict[str, Array] = {},
             *,
-            use_cache: bool = False) -> Array:
+            use_cache: bool = False,
+            reduce: tp.Union[str, None] = 'sum') -> Array:
         """Return sum of logarithm of probability density (mass) function
         given conditions
 
@@ -177,11 +184,11 @@ class JointDistribution(Distribution):
         p1_logpdf = self.p1.logpdf(
             obs=self._get_rv_of(self.p1, **obs, **conditions),
             conditions=self._get_conditions_of(self.p1, **obs, **conditions),
-            use_cache=use_cache)
+            use_cache=use_cache, reduce=reduce)
         p2_logpdf = self.p2.logpdf(
             obs=self._get_rv_of(self.p2, **obs, **conditions),
             conditions=self._get_conditions_of(self.p2, **obs, **conditions),
-            use_cache=use_cache)
+            use_cache=use_cache, reduce=reduce)
         return p1_logpdf + p2_logpdf
 
     @_typecheck(exclude_types=(Array,))

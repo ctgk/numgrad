@@ -33,7 +33,9 @@ def test_matmul_forward(x, y):
     ),
 ])
 def test_matmul_numerical_grad(x, y):
-    (x @ y).backward()
+    with gd.Graph() as g:
+        x @ y
+    g.backward()
     dx, dy = _numerical_grad(gd.matmul, x, y, epsilon=1e-3)
     assert np.allclose(dx, x.grad, rtol=0, atol=1e-2)
     assert np.allclose(dy, y.grad, rtol=0, atol=1e-2)

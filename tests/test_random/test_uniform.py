@@ -60,7 +60,9 @@ def test_forward_2(low, high, size, name):
 ])
 def test_numerical_grad(low, high, size):
     with patch('numpy.random.uniform', side_effect=uniform):
-        gd.random.uniform(low, high, size).backward()
+        with gd.Graph() as g:
+            gd.random.uniform(low, high, size)
+        g.backward()
         dlow, dhigh = _numerical_grad(
             lambda x, y: gd.random.uniform(x, y, size), low, high)
     assert np.allclose(dlow, low.grad, rtol=0, atol=1e-2)

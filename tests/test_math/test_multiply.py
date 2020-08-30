@@ -14,22 +14,17 @@ def test_forward(x, y, name):
     assert actual.name == name + '.out'
 
 
-@pytest.mark.parametrize('x, y, dz, expected_dx, expected_dy', [
+@pytest.mark.parametrize('x, y, expected_dx, expected_dy', [
     (
         gd.Array([1., -1, 5], is_variable=True),
-        gd.Array(3., is_variable=True), None,
+        gd.Array(3., is_variable=True),
         np.ones(3) * 3, 5
     ),
-    (
-        5, gd.Array([-7., 3], is_variable=True), [1, -2],
-        None, 5 * np.array([1, -2])
-    ),
 ])
-def test_backward(x, y, dz, expected_dx, expected_dy):
-    if dz is not None:
-        (x * y).backward(_grad=dz)
-    else:
-        (x * y).backward()
+def test_backward(x, y, expected_dx, expected_dy):
+    with gd.Graph() as g:
+        x * y
+    g.backward()
     if expected_dx is not None:
         assert np.allclose(x.grad, expected_dx)
     if expected_dy is not None:
@@ -43,7 +38,9 @@ def test_backward(x, y, dz, expected_dx, expected_dy):
     ),
 ])
 def test_numerical_grad(x, y):
-    (x * y).backward()
+    with gd.Graph() as g:
+        x * y
+    g.backward()
     dx, dy = _numerical_grad(gd.multiply, x, y, epsilon=1e-3)
     assert np.allclose(dx, x.grad, rtol=0, atol=1e-2)
     assert np.allclose(dy, y.grad, rtol=0, atol=1e-2)

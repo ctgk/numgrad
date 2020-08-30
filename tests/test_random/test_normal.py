@@ -46,7 +46,9 @@ def test_forward(loc, scale, size, name):
 ])
 def test_numerical_grad(loc, scale, size):
     with patch('numpy.random.normal', side_effect=normal):
-        gd.random.normal(loc, scale, size).backward()
+        with gd.Graph() as g:
+            gd.random.normal(loc, scale, size)
+        g.backward()
         dloc, dscale = _numerical_grad(
             lambda x, y: gd.random.normal(x, y, size), loc, scale)
     assert np.allclose(dloc, loc.grad, rtol=0, atol=1e-2)

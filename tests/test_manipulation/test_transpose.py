@@ -30,7 +30,9 @@ def test_forward(x, axes, name):
     ),
 ])
 def test_numerical_grad(x, axes):
-    x.transpose(*axes).backward()
+    with gd.Graph() as g:
+        x.transpose(*axes)
+    g.backward()
     dx = _numerical_grad(lambda x: gd.transpose(x, axes), x)
     assert np.allclose(dx, x.grad)
 
@@ -42,7 +44,9 @@ def test_numerical_grad(x, axes):
     gd.Array(np.random.rand(5, 2), is_variable=True),
 ])
 def test_numerical_grad_2(x):
-    x.T.backward()
+    with gd.Graph() as g:
+        x.T
+    g.backward()
     dx = _numerical_grad(lambda x: x.T, x)
     assert np.allclose(dx, x.grad)
 

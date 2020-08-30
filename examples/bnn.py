@@ -60,13 +60,14 @@ if __name__ == "__main__":
         * Posterior(1, rv='b2', name='q')
     )
     optimizer = gd.optimizers.Adam(q, 0.1)
-    for _ in range(1000):
+    with gd.Graph() as g:
         q_sample = q.sample()
         elbo = p_joint.logpdf({'x': x, 'y': y, **q_sample}) - q.logpdf(
             q_sample, use_cache=True)
-        optimizer.maximize(elbo)
+    for _ in range(1000):
+        g.forward()
+        optimizer.maximize(g)
         if optimizer.n_iter % 100 == 0:
-            print(elbo)
             optimizer.learning_rate *= 0.8
     plt.scatter(x.ravel(), y.ravel())
     for _ in range(10):

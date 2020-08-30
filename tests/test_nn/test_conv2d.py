@@ -34,7 +34,9 @@ def test_forward(x, w):
     ),
 ])
 def test_numerical_grad(x, w, stride, pad):
-    gd.nn.conv2d(x, w, stride, pad).backward()
+    with gd.Graph() as g:
+        gd.nn.conv2d(x, w, stride, pad)
+    g.backward()
     dx, dw = _numerical_grad(
         lambda a, b: gd.nn.conv2d(a, b, stride, pad), x, w)
     assert np.allclose(dx, x.grad, rtol=0, atol=1e-2)

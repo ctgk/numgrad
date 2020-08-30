@@ -15,19 +15,14 @@ def test_forward(x, newshape, name):
     assert actual.name == name + '.out'
 
 
-@pytest.mark.parametrize('x, newshape, dy', [
-    (gd.Array([1., 2, 3, 4, 5, 6], is_variable=True), (2, 3), None),
-    (
-        gd.Array([1., 2, 3, 4, 5, 6], is_variable=True), (2, 3),
-        np.array([[-1., 2, 4], [2, 0, -9]])
-    ),
+@pytest.mark.parametrize('x, newshape', [
+    (gd.Array([1., 2, 3, 4, 5, 6], is_variable=True), (2, 3)),
 ])
-def test_backward(x, newshape, dy):
-    if dy is None:
-        x.reshape(*newshape).backward()
-        dy = np.ones(newshape, dtype=x.dtype)
-    else:
-        x.reshape(*newshape).backward(_grad=dy)
+def test_backward(x, newshape):
+    with gd.Graph() as g:
+        x.reshape(*newshape)
+    g.backward()
+    dy = np.ones(newshape, dtype=x.dtype)
     assert np.allclose(x.grad, dy.reshape(x.shape))
 
 
@@ -35,7 +30,9 @@ def test_backward(x, newshape, dy):
     (gd.Array(np.random.rand(2, 3, 4), is_variable=True), (-1, 6)),
 ])
 def test_numerical_grad(x, newshape):
-    x.reshape(*newshape).backward()
+    with gd.Graph() as g:
+        x.reshape(*newshape)
+    g.backward()
     dx = _numerical_grad(lambda x: gd.reshape(x, newshape), x)
     assert np.allclose(dx, x.grad)
 

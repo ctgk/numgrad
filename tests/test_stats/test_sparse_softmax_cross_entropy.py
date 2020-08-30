@@ -23,7 +23,9 @@ from pygrad._utils._numerical_grad import _numerical_grad
     )
 ])
 def test_numerical_grad(labels, logits, axis):
-    gd.stats.sparse_softmax_cross_entropy(labels, logits, axis).backward()
+    with gd.Graph() as g:
+        gd.stats.sparse_softmax_cross_entropy(labels, logits, axis)
+    g.backward()
     dlogits = _numerical_grad(
         lambda a: gd.stats.sparse_softmax_cross_entropy(
             labels, a, axis), logits)[0]

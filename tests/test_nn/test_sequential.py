@@ -17,8 +17,9 @@ def test_sequential():
     optimizer = gd.optimizers.Adam(parameters)
     loss_prev = None
     for _ in range(100):
-        loss = gd.stats.sigmoid_cross_entropy(y, model(x)).sum()
-        optimizer.minimize(loss)
+        with gd.Graph() as g:
+            loss = gd.stats.sigmoid_cross_entropy(y, model(x)).sum()
+        optimizer.minimize(g)
         if loss_prev is not None:
             assert loss_prev > loss.data
         loss_prev = loss.data

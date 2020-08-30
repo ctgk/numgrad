@@ -3,12 +3,11 @@ import typing as tp
 import numpy as np
 
 from pygrad._core._errors import DifferentiationError
-from pygrad._core._node import _Node
 from pygrad._core._types import DataType, _to_pygrad_type
 from pygrad._utils._typecheck import _typecheck
 
 
-class Array(_Node):
+class Array(object):
     __array_ufunc__ = None
 
     @_typecheck()
@@ -18,8 +17,7 @@ class Array(_Node):
             dtype: tp.Type[DataType] = None,
             is_variable: bool = False,
             *,
-            name: tp.Union[str, None] = None,
-            **kwargs):
+            name: tp.Union[str, None] = None):
         """Construct array object.
 
         Parameters
@@ -34,12 +32,13 @@ class Array(_Node):
         name : str, optional
             Name of this array, by default None
         """
-        if is_variable and '_parent' in kwargs:
-            super().__init__(kwargs['_parent'], name=name)
-        else:
-            super().__init__(name=name)
-        self._parent = kwargs.get(
-            '_parent', None) if is_variable else None
+        if name is not None:
+            for ng_char in (',', '(', ')'):
+                if ng_char in name:
+                    raise ValueError(
+                        f'NG character {ng_char} contained'
+                        f' in arg \'name\', {name}.')
+        self._name = name
         self._data = np.asarray(data, dtype=dtype)
         if is_variable and 'float' not in repr(self._data.dtype):
             raise DifferentiationError(
@@ -47,6 +46,7 @@ class Array(_Node):
         self._is_variable: bool = is_variable
         self._num_backwards: int = 0
         self._grad = None
+        self._graph = None
 
     def __repr__(self) -> str:
         repr_ = repr(self.data)
@@ -55,8 +55,23 @@ class Array(_Node):
         return repr_
 
     @property
+    def name(self) -> str:
+        return self._name
+
+    @property
     def data(self) -> np.ndarray:
         return self._data
+
+    @data.setter
+    @_typecheck()
+    def data(self, value: np.ndarray):
+        if self._graph is not None:
+            raise ValueError('Cannot set data to output of operator')
+        if value.shape != self._data.shape:
+            raise ValueError('Inappropriate shape of the array')
+        if value.dtype != self._data.dtype:
+            raise ValueError('Inappropriate data type of the array')
+        self._data = value
 
     @property
     def dtype(self) -> DataType:
@@ -82,8 +97,6 @@ class Array(_Node):
     def grad(self) -> np.ndarray:
         if self._grad is None:
             raise ValueError('This gradient is empty.')
-        if self._num_backwards != len(self._children):
-            raise ValueError('This object does not have a valid gradient.')
         return self._grad
 
     @_typecheck()
@@ -91,26 +104,7 @@ class Array(_Node):
         return Array(self._data, dtype=dtype)
 
     def clear_grad(self):
-        self._children = []
-        self._num_backwards = 0
         self._grad = None
-
-    def backward(self, **kwargs):
-        if not self._is_variable:
-            raise DifferentiationError(
-                'Cannot call backward() method of non-differentiable array.')
-        if len(self._children) == 0:
-            grad = kwargs.get('_grad', np.ones_like(self.data))
-        else:
-            grad = kwargs.get('_grad')
-            self._num_backwards += 1
-        if self._grad is None:
-            self._grad = grad
-        else:
-            self._grad += grad
-        if ((self._parent is not None)
-                and (self._num_backwards == len(self._children))):
-            self._parent.backward(self._grad)
 
     def __neg__(self):
         raise NotImplementedError

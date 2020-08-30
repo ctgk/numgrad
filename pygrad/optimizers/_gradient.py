@@ -1,6 +1,7 @@
 import typing as tp
 
 from pygrad._core._array import Array
+from pygrad._core._graph import Graph
 from pygrad._core._module import Module
 from pygrad.optimizers._optimizer import Optimizer
 from pygrad._utils._typecheck import _typecheck
@@ -21,17 +22,19 @@ class Gradient(Optimizer):
     --------
     >>> import pygrad as gd
     >>> theta = gd.Array(10., is_variable=True)
+    >>> with gd.Graph() as g:
+    ...     loss = theta * 1
     >>> optimizer = gd.optimizers.Gradient([theta], 0.1)
-    >>> optimizer.minimize(theta)
+    >>> g.forward(); optimizer.minimize(g)
     >>> theta
     array(9.9)
-    >>> optimizer.minimize(theta)
+    >>> g.forward(); optimizer.minimize(g)
     >>> theta
     array(9.8)
-    >>> optimizer.minimize(theta)
+    >>> g.forward(); optimizer.minimize(g)
     >>> theta
     array(9.7)
-    >>> optimizer.maximize(theta)
+    >>> g.forward(); optimizer.maximize(g)
     >>> theta
     array(9.8)
     """
@@ -58,33 +61,35 @@ class Gradient(Optimizer):
             p._data += learning_rate * p.grad
 
     @_typecheck()
-    def minimize(self, loss: Array = None, clear_grad: bool = True):
+    def minimize(self, graph: Graph = None, clear_grad: bool = True):
         """Small updation of each parameter to minimize the given loss.
 
         Parameters
         ----------
-        loss : Array
-            Loss value to minimize, default is None which assumes that
-            backward() method of loss value has been already called.
+        graph : Graph
+            Graph whose terminal node is loss value to minimize,
+            default is None which assumes that backward() method of loss value
+            has been already called.
         clear_grad : bool
             Clear gradient of parameters after updation if True,
             default is True
         """
-        with self._increment_count_calc_grad_clear(loss, clear_grad):
+        with self._increment_count_calc_grad_clear(graph, clear_grad):
             self._update(-self._learning_rate)
 
     @_typecheck()
-    def maximize(self, score: Array = None, clear_grad: bool = True):
+    def maximize(self, graph: Graph = None, clear_grad: bool = True):
         """Small updation of each parameter to maximize the given score.
 
         Parameters
         ----------
-        score : Array
-            Score value to maximize, default is None which assumes that
-            backward() method of score value has been already called.
+        graph : Graph
+            Graph whose terminal node is score value to maximize,
+            default is None which assumes that backward() method of score value
+            has been already called.
         clear_grad : bool
             Clear gradient of parameters after updation if True,
             default is True
         """
-        with self._increment_count_calc_grad_clear(score, clear_grad):
+        with self._increment_count_calc_grad_clear(graph, clear_grad):
             self._update(self._learning_rate)

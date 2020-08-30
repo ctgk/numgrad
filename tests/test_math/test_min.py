@@ -27,7 +27,9 @@ def test_numerical_grad(x, axis, keepdims):
         k: v for k, v in zip(('axis', 'keepdims'), (axis, keepdims))
         if v is not None
     }
-    gd.min(x, **args).backward()
+    with gd.Graph() as g:
+        gd.min(x, **args)
+    g.backward()
     dx = _numerical_grad(lambda x: gd.min(x, **args), x)[0]
     assert np.allclose(dx, x.grad, rtol=0, atol=1e-2)
 

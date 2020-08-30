@@ -19,7 +19,7 @@ class _GumbelSoftmax(_Operator):
         self._axis = axis
 
     def _forward_numpy(self, logits):
-        g = np.random.gumbel(size=logits.shape)
+        g = np.random.gumbel(size=logits.shape).astype(logits.dtype)
         self.output = sp.softmax(
             (logits + g) / self._temperature, axis=self._axis)
         return self.output

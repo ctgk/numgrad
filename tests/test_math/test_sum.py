@@ -29,30 +29,28 @@ def test_forward(x, axis, keepdims, name, expected):
     assert actual.name == name + '.out'
 
 
-@pytest.mark.parametrize('x, axis, keepdims, dy, expected', [
+@pytest.mark.parametrize('x, axis, keepdims, expected', [
     (
         gd.Array([1., 3, -2], is_variable=True),
-        None, True, np.array([2]), np.array([2] * 3)
+        None, True, np.array([1] * 3)
     ),
     (
         gd.Array([[2., 1], [-2, 5]], is_variable=True),
-        0, False, np.array([1, 2]),
-        np.array([[1, 2], [1, 2]]),
+        0, False, np.array([[1, 1], [1, 1]]),
     ),
     (
         gd.Array([[2., 1], [-2, 5]], is_variable=True),
-        1, False, np.array([1, 2]),
-        np.array([[1, 1], [2, 2]]),
+        1, False, np.array([[1, 1], [1, 1]]),
     ),
     (
         gd.Array([[2., 1], [-2, 5]], is_variable=True),
-        1, True, np.array([[1], [2]]),
-        np.array([[1, 1], [2, 2]]),
+        1, True, np.array([[1, 1], [1, 1]]),
     ),
 ])
-def test_backward(x, axis, keepdims, dy, expected):
-    y = gd.sum(x, axis, keepdims)
-    y.backward(_grad=dy)
+def test_backward(x, axis, keepdims, expected):
+    with gd.Graph() as g:
+        gd.sum(x, axis, keepdims)
+    g.backward()
     assert np.allclose(x.grad, expected)
 
 
@@ -61,7 +59,9 @@ def test_backward(x, axis, keepdims, dy, expected):
     (gd.Array(np.random.rand(4, 2, 3), is_variable=True), 0, True),
 ])
 def test_numerical_grad(x, axis, keepdims):
-    x.sum().backward()
+    with gd.Graph() as g:
+        x.sum()
+    g.backward()
     dx = _numerical_grad(gd.sum, x)[0]
     assert np.allclose(dx, x.grad, rtol=0, atol=1e-2)
 

@@ -46,7 +46,9 @@ np.random.seed(0)
     ),
 ])
 def test_numerical_grad(x, w, strides, pad, shape):
-    gd.nn.conv2d_transpose(x, w, strides, pad, shape).backward()
+    with gd.Graph() as g:
+        gd.nn.conv2d_transpose(x, w, strides, pad, shape)
+    g.backward()
     dx, dw = _numerical_grad(
         lambda a, b: gd.nn.conv2d_transpose(a, b, strides, pad, shape), x, w)
     assert np.allclose(dx, x.grad, rtol=0, atol=1e-2)

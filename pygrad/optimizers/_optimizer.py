@@ -2,6 +2,7 @@ from contextlib import contextmanager
 import typing as tp
 
 from pygrad._core._array import Array
+from pygrad._core._graph import Graph
 from pygrad._core._module import Module
 
 
@@ -15,7 +16,7 @@ class Optimizer(object):
             parameters = tuple(parameters.trainables.values())
         if not all(p.is_variable for p in parameters):
             raise ValueError('All \'parameters\' must be differentiable.')
-        if any(len(p._parents) != 0 for p in parameters):
+        if any(p._graph is not None for p in parameters):
             raise ValueError('All \'parameters\' must not have parent nodes.')
         self._parameters = parameters
         self._n_iter: int = 0
@@ -40,11 +41,11 @@ class Optimizer(object):
     @contextmanager
     def _increment_count_calc_grad_clear(
             self,
-            value: Array = None,
+            graph: Graph = None,
             clear: bool = True):
         self._n_iter += 1
-        if value is not None:
-            value.backward()
+        if graph is not None:
+            graph.backward()
         try:
             yield
         finally:
@@ -55,8 +56,8 @@ class Optimizer(object):
                     for p in self._parameters:
                         p.clear_grad()
 
-    def minimize(self, loss: Array):
+    def minimize(self, graph: Graph):
         raise NotImplementedError
 
-    def maximize(self, score: Array):
+    def maximize(self, graph: Graph):
         raise NotImplementedError

@@ -20,7 +20,9 @@ def test_forward(x, alpha, name, expected):
     (gd.Array(np.random.rand(4, 2, 3), is_variable=True), 0.5),
 ])
 def test_backward(x, alpha):
-    gd.nn.leaky_relu(x, alpha).backward()
+    with gd.Graph() as g:
+        gd.nn.leaky_relu(x, alpha)
+    g.backward()
     dx = (x.data > 0) + alpha * (x.data < 0)
     assert np.allclose(dx, x.grad, rtol=0, atol=1e-2)
 
@@ -30,7 +32,9 @@ def test_backward(x, alpha):
     (gd.Array(np.random.rand(4, 2, 3), is_variable=True), 0.5),
 ])
 def test_numerical_grad(x, alpha):
-    gd.nn.leaky_relu(x, alpha).backward()
+    with gd.Graph() as g:
+        gd.nn.leaky_relu(x, alpha)
+    g.backward()
     dx = _numerical_grad(lambda a: gd.nn.leaky_relu(a, alpha), x)[0]
     assert np.allclose(dx, x.grad, rtol=0, atol=1e-2)
 

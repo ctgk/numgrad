@@ -19,7 +19,9 @@ def test_forward(x, name, expected):
     gd.Array(np.random.rand(4, 2, 3) + 5, is_variable=True),
 ])
 def test_numerical_grad(x):
-    gd.sqrt(x).backward()
+    with gd.Graph() as g:
+        gd.sqrt(x)
+    g.backward()
     dx = _numerical_grad(gd.sqrt, x)[0]
     assert np.allclose(dx, x.grad, rtol=0, atol=1e-2)
 

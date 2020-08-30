@@ -9,6 +9,7 @@ class Config:
     def __init__(self):
         self._dtype = Float64
         self._int = Int64
+        self._graph = None
 
     @property
     def dtype(self) -> DataType:
