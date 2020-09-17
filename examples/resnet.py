@@ -41,7 +41,7 @@ class ResNet(gd.Module):
             gd.nn.ReLU(),
             ResidualBlock(32),
             gd.nn.MaxPool2D(2),  # 8 -> 4
-            gd.nn.Conv2D(32, 64, 3, bias=False),
+            gd.nn.Conv2D(32, 64, 3, pad=1, bias=False),
             gd.nn.BatchNormalization(64),
             gd.nn.ReLU(),
             ResidualBlock(64),
