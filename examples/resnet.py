@@ -11,19 +11,25 @@ import pygrad as gd
 
 class ResidualBlock(gd.Module):
 
-    def __init__(self, num_ch):
+    def __init__(self, in_ch: int, out_ch: int, stride: int = 1):
         super().__init__()
         self.layers = gd.nn.Sequential(
-            gd.nn.BatchNormalization(num_ch),
+            gd.nn.Conv2D(in_ch, out_ch, 3, strides=stride, pad=1, bias=False),
+            gd.nn.BatchNormalization(out_ch),
             gd.nn.ReLU(),
-            gd.nn.Conv2D(num_ch, num_ch, 3, pad=1, bias=False),
-            gd.nn.BatchNormalization(num_ch),
-            gd.nn.ReLU(),
-            gd.nn.Conv2D(num_ch, num_ch, 3, pad=1, bias=False),
+            gd.nn.Conv2D(out_ch, out_ch, 3, pad=1, bias=False),
+            gd.nn.BatchNormalization(out_ch),
+        )
+        self.shortcut = gd.nn.Sequential(
+            gd.nn.Conv2D(in_ch, out_ch, 3, strides=stride, pad=1, bias=False),
+            gd.nn.BatchNormalization(out_ch),
         )
 
     def __call__(self, x, *, update_bn: bool = False):
-        return self.layers(x, update_bn=update_bn) + x
+        return gd.nn.relu(
+            self.layers(x, update_bn=update_bn)
+            + self.shortcut(x, update_bn=update_bn)
+        )
 
 
 class ResNet(gd.Module):
@@ -31,17 +37,14 @@ class ResNet(gd.Module):
     def __init__(self):
         super().__init__()
         self.layers = gd.nn.Sequential(
-            gd.nn.Conv2D(3, 16, 3),
-            gd.nn.MaxPool2D(2),
-            gd.nn.ReLU(),
+            gd.nn.Conv2D(3, 16, 3, bias=False),
             gd.nn.BatchNormalization(16),
-            gd.nn.Conv2D(16, 32, 3),
-            gd.nn.MaxPool2D(2),
-            ResidualBlock(32),
-            ResidualBlock(32),
-            ResidualBlock(32),
+            gd.nn.ReLU(),
+            ResidualBlock(16, 16),
+            ResidualBlock(16, 32, 2),
+            ResidualBlock(32, 64, 2),
         )
-        self.d = gd.nn.Dense(32, 10)
+        self.d = gd.nn.Dense(64, 10)
 
     def __call__(self, x, *, update_bn: bool = False):
         h = self.layers(x, update_bn=update_bn)
@@ -51,7 +54,7 @@ class ResNet(gd.Module):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('-e', '--epoch', type=int, default=5)
+    parser.add_argument('-e', '--epoch', type=int, default=10)
     parser.add_argument('-b', '--batch', type=int, default=50)
     args = parser.parse_args()
 
@@ -82,7 +85,7 @@ if __name__ == "__main__":
                 tp += np.sum(y.data == np.argmax(logits.data, -1))
                 total += args.batch
                 pbar.set_description(
-                    f'Epoch={e}, Accuracy={int(100 * tp / total)}%')
+                    f'Epoch={e:2}, Accuracy={int(100 * tp / total)}%')
         indices = np.random.permutation(len(x_train))
         x_train = x_train[indices]
         y_train = y_train[indices]
