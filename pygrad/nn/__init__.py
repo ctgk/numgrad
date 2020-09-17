@@ -1,3 +1,4 @@
+from pygrad.nn._batch_normalization import BatchNormalization
 from pygrad.nn._conv2d import conv2d, Conv2D
 from pygrad.nn._conv2d_transpose import conv2d_transpose, Conv2DTranspose
 from pygrad.nn._dense import Dense
@@ -12,6 +13,7 @@ from pygrad.nn._softplus import softplus
 
 
 _classes = [
+    BatchNormalization,
     Conv2D,
     Conv2DTranspose,
     Dense,

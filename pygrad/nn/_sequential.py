@@ -1,3 +1,4 @@
+import inspect
 import typing as tp
 
 from pygrad._core._array import Array
@@ -32,5 +33,7 @@ class Sequential(Module):
             Processed array
         """
         for layer in self.layers:
-            x = layer(x, **kwargs)
+            spec = inspect.getfullargspec(layer.__call__)
+            x = layer(
+                x, **{k: v for k, v in kwargs.items() if k in spec.kwonlyargs})
         return x
