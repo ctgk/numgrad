@@ -11,25 +11,18 @@ import pygrad as gd
 
 class ResidualBlock(gd.Module):
 
-    def __init__(self, in_ch: int, out_ch: int, stride: int = 1):
+    def __init__(self, num_ch: int):
         super().__init__()
         self.layers = gd.nn.Sequential(
-            gd.nn.Conv2D(in_ch, out_ch, 3, strides=stride, pad=1, bias=False),
-            gd.nn.BatchNormalization(out_ch),
+            gd.nn.Conv2D(num_ch, num_ch, 3, pad=1, bias=False),
+            gd.nn.BatchNormalization(num_ch),
             gd.nn.ReLU(),
-            gd.nn.Conv2D(out_ch, out_ch, 3, pad=1, bias=False),
-            gd.nn.BatchNormalization(out_ch),
-        )
-        self.shortcut = gd.nn.Sequential(
-            gd.nn.Conv2D(in_ch, out_ch, 3, strides=stride, pad=1, bias=False),
-            gd.nn.BatchNormalization(out_ch),
+            gd.nn.Conv2D(num_ch, num_ch, 3, pad=1, bias=False),
+            gd.nn.BatchNormalization(num_ch),
         )
 
     def __call__(self, x, *, update_bn: bool = False):
-        return gd.nn.relu(
-            self.layers(x, update_bn=update_bn)
-            + self.shortcut(x, update_bn=update_bn)
-        )
+        return gd.nn.relu(self.layers(x, update_bn=update_bn) + x)
 
 
 class ResNet(gd.Module):
@@ -39,10 +32,24 @@ class ResNet(gd.Module):
         self.layers = gd.nn.Sequential(
             gd.nn.Conv2D(3, 16, 3, bias=False),
             gd.nn.BatchNormalization(16),
+            gd.nn.MaxPool2D(2),
             gd.nn.ReLU(),
-            ResidualBlock(16, 16),
-            ResidualBlock(16, 32, 2),
-            ResidualBlock(32, 64, 2),
+
+            ResidualBlock(16),
+            gd.nn.MaxPool2D(2),
+
+            gd.nn.Conv2D(16, 32, 3, bias=False),
+            gd.nn.BatchNormalization(32),
+            gd.nn.ReLU(),
+
+            ResidualBlock(32),
+            gd.nn.MaxPool2D(2),
+
+            gd.nn.Conv2D(32, 64, 3, bias=False),
+            gd.nn.BatchNormalization(64),
+            gd.nn.ReLU(),
+
+            ResidualBlock(64),
         )
         self.d = gd.nn.Dense(64, 10)
 
