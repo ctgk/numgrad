@@ -10,7 +10,11 @@ def _is_union_type(tp):
 
 
 def _is_iterable_type(tp):
-    return "typing.Iterable[" == repr(tp)[:16] and "]" == repr(tp)[-1]
+    return (
+        ("typing.Iterable[" == repr(tp)[:16] and "]" == repr(tp)[-1])
+        or ("typing.List[" == repr(tp)[:12] and "]" == repr(tp)[-1])
+        or ("typing.Tuple[" == repr(tp)[:13] and "]" == repr(tp)[-1])
+    )
 
 
 def _is_dict_type(tp):

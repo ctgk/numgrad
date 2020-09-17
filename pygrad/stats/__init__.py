@@ -1,6 +1,6 @@
 from pygrad.stats._bernoulli import Bernoulli
 from pygrad.stats._categorical import Categorical
-from pygrad.stats._distribution import Distribution, JointDistribution
+from pygrad.stats._exponential import Exponential
 from pygrad.stats._log_softmax import log_softmax
 from pygrad.stats._normal import Normal
 from pygrad.stats._relaxed_bernoulli import RelaxedBernoulli
@@ -12,24 +12,22 @@ from pygrad.stats._softmax_cross_entropy import softmax_cross_entropy
 from pygrad.stats._sparse_softmax_cross_entropy import (
     sparse_softmax_cross_entropy,
 )
+from pygrad.stats._statistics import Statistics
 
 
 _classes = [
     Bernoulli,
     Categorical,
-    Distribution,
-    JointDistribution,
+    Exponential,
     Normal,
     RelaxedBernoulli,
     RelaxedCategorical,
+    Statistics,
 ]
 
 
 for _cls in _classes:
     _cls.__module__ = 'pygrad.stats'
-
-
-Distribution.__mul__ = lambda p1, p2: JointDistribution(p1, p2)
 
 
 __all__ = [_cls.__name__ for _cls in _classes] + [

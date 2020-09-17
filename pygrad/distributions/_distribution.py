@@ -5,6 +5,7 @@ import typing as tp
 from pygrad._core._array import Array
 from pygrad._core._module import Module
 from pygrad._utils._typecheck import _typecheck
+from pygrad.stats._statistics import Statistics
 
 
 class Distribution(Module, abc.ABC):
@@ -14,16 +15,32 @@ class Distribution(Module, abc.ABC):
     def __init__(
             self,
             rv: str = 'x',
-            name: str = 'p'):
+            name: str = 'p',
+            conditions: tp.List[str] = None):
         super().__init__()
         self._rv = (self._ensure_no_ng_char('rv', rv),)
-        conditions = inspect.getfullargspec(self.forward).args
+        forward_spec = inspect.getfullargspec(self.forward)
+        forward_args = forward_spec.args
         try:
-            conditions.remove('self')
+            forward_args.remove('self')
         except ValueError:
             pass
+        if conditions is None:
+            conditions = forward_args
+        else:
+            if len(conditions) != len(forward_args):
+                raise ValueError(
+                    f'{len(conditions)}(len(conditions)) != '
+                    f'{len(forward_args)}(# of forward() args)')
         if self._rv[0] in conditions:
             raise ValueError()
+        if 'return' in forward_spec.annotations:
+            return_annotation = forward_spec.annotations['return']
+            if not issubclass(return_annotation, Statistics):
+                raise TypeError(
+                    'forward() method should return instance of Statistics')
+        else:
+            raise ValueError('forward() method should have return annotation')
         self._conditions = tuple(conditions)
         self._name = self._ensure_no_ng_char('name', name)
         self._stats = None
@@ -46,14 +63,12 @@ class Distribution(Module, abc.ABC):
             self,
             *,
             use_cache: bool = False,
-            **conditions: Array) -> tp.Dict[str, Array]:
+            **conditions: Array) -> Statistics:
         """Return statistics of this distribution given conditions
-
-        Be sure to call clear() method to compute statistics again,
-        otherwise the cache value will be returned.
         """
         if self._stats is None or (not use_cache):
-            self._stats = self.forward(**conditions)
+            self._stats = self.forward(
+                *tuple(conditions[c] for c in self._conditions))
         return self._stats
 
     def clear(self):
@@ -86,8 +101,8 @@ class Distribution(Module, abc.ABC):
             Summation of logarithm of probability density (mass) function
         """
         statistics = self.__call__(use_cache=use_cache, **conditions)
-        out = self._logpdf(
-            obs[self._rv[0]] if isinstance(obs, dict) else obs, **statistics)
+        out = statistics.logpdf(
+            obs[self._rv[0]] if isinstance(obs, dict) else obs)
         if reduce == 'sum':
             return out.sum()
         elif reduce == 'mean':
@@ -116,20 +131,12 @@ class Distribution(Module, abc.ABC):
             Random sample of the random variable
         """
         statistics = self.__call__(use_cache=use_cache, **conditions)
-        return {self._rv[0]: self._sample(**statistics)}
+        return {self._rv[0]: statistics.sample()}
 
     @abc.abstractmethod
-    def forward(self, **conditions: Array) -> tp.Dict[str, Array]:
+    def forward(self, **conditions: Array) -> Statistics:
         """Return statistics of this distribution given conditions
         """
-        pass
-
-    @abc.abstractmethod
-    def _logpdf(self) -> Array:
-        pass
-
-    @abc.abstractmethod
-    def _sample(self) -> Array:
         pass
 
 

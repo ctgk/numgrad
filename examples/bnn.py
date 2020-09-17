@@ -4,7 +4,7 @@ import numpy as np
 import pygrad as gd
 
 
-class Posterior(gd.stats.Normal):
+class Posterior(gd.distributions.Normal):
 
     def __init__(
             self,
@@ -21,7 +21,7 @@ class Posterior(gd.stats.Normal):
         return {'loc': self.loc, 'scale': gd.exp(self.lns)}
 
 
-class Predictor(gd.stats.Normal):
+class Predictor(gd.distributions.Normal):
 
     def __init__(self, rv='y', name='N'):
         super().__init__(rv=rv, name=name)

@@ -9,7 +9,7 @@ from tqdm import tqdm
 import pygrad as gd
 
 
-class Encoder(gd.stats.Normal):
+class Encoder(gd.distributions.Normal):
 
     def __init__(self, rv='z', name='N'):
         super().__init__(rv=rv, name=name)
@@ -24,7 +24,7 @@ class Encoder(gd.stats.Normal):
         return {'loc': self.dm(x), 'scale': gd.exp(self.ds(x))}
 
 
-class Decoder(gd.stats.Bernoulli):
+class Decoder(gd.distributions.Bernoulli):
 
     def __init__(self, rv='x', name='Bern'):
         super().__init__(rv=rv, name=name)
@@ -44,7 +44,7 @@ class VAE(gd.Module):
         super().__init__()
         self.encoder = Encoder()
         self.decoder = Decoder()
-        self.pz = gd.stats.Normal('z')
+        self.pz = gd.distributions.Normal('z')
 
     def __call__(self, x):
         z = self.encoder.sample(conditions={'x': x})['z']

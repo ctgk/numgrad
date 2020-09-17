@@ -147,7 +147,7 @@ class Conv2DTranspose(Module):
             in_channels: int,
             out_channels: int,
             kernel_size: tp.Union[int, tp.Iterable[int]],
-            strides: tp.Union[int, tp.Iterable[int]],
+            strides: tp.Union[int, tp.Iterable[int]] = (1, 1),
             pad: tp.Union[int, tp.Iterable[int]] = (0, 0),
             shape: tp.Union[tp.Iterable[int], None] = None,
             bias: bool = True,

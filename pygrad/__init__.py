@@ -33,7 +33,7 @@ from pygrad._math._sum import sum
 from pygrad._math._tan import tan
 from pygrad._math._tanh import tanh
 
-from pygrad import nn, optimizers, random, stats
+from pygrad import distributions, nn, optimizers, random, stats
 
 
 def _reshape(x: Array, *newshape):
@@ -105,5 +105,5 @@ __all__ = [_cls.__name__ for _cls in _classes] + [
     'tan',
     'tanh',
 
-    'nn', 'optimizers', 'random', 'stats',
+    'distributions', 'nn', 'optimizers', 'random', 'stats',
 ]

@@ -16,6 +16,7 @@ develop_requires = [
     'livereload',
 
     'matplotlib',
+    'scikit-image',
     'scikit-learn',
     'tqdm',
 ]

@@ -4,15 +4,15 @@ import pytest
 import pygrad as gd
 
 
-class Normal(gd.stats.Normal):
+class Normal(gd.distributions.Normal):
 
     def __init__(self, rv='x', name='N'):
         super().__init__(rv, name=name)
         self.loc = gd.Array(0, dtype=gd.Float32, is_variable=True)
         self.lns = gd.Array(0, dtype=gd.Float32, is_variable=True)
 
-    def forward(self):
-        return {'loc': self.loc, 'scale': gd.exp(self.lns)}
+    def forward(self) -> gd.stats.Normal:
+        return gd.stats.Normal(self.loc, gd.exp(self.lns))
 
 
 def test_normal_logpdf():
