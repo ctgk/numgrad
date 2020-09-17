@@ -34,21 +34,15 @@ class ResNet(gd.Module):
             gd.nn.BatchNormalization(16),
             gd.nn.MaxPool2D(2),
             gd.nn.ReLU(),
-
             ResidualBlock(16),
             gd.nn.MaxPool2D(2),
-
             gd.nn.Conv2D(16, 32, 3, bias=False),
             gd.nn.BatchNormalization(32),
             gd.nn.ReLU(),
-
             ResidualBlock(32),
-            gd.nn.MaxPool2D(2),
-
             gd.nn.Conv2D(32, 64, 3, bias=False),
             gd.nn.BatchNormalization(64),
             gd.nn.ReLU(),
-
             ResidualBlock(64),
         )
         self.d = gd.nn.Dense(64, 10)
