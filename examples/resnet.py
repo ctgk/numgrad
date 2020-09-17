@@ -30,16 +30,17 @@ class ResNet(gd.Module):
     def __init__(self):
         super().__init__()
         self.layers = gd.nn.Sequential(
-            gd.nn.Conv2D(3, 16, 3, bias=False),
+            gd.nn.Conv2D(3, 16, 3, pad=1, bias=False),
             gd.nn.BatchNormalization(16),
-            gd.nn.MaxPool2D(2),
+            gd.nn.MaxPool2D(2),  # 32 -> 16
             gd.nn.ReLU(),
             ResidualBlock(16),
-            gd.nn.MaxPool2D(2),
-            gd.nn.Conv2D(16, 32, 3, bias=False),
+            gd.nn.MaxPool2D(2),  # 16 -> 8
+            gd.nn.Conv2D(16, 32, 3, pad=1, bias=False),
             gd.nn.BatchNormalization(32),
             gd.nn.ReLU(),
             ResidualBlock(32),
+            gd.nn.MaxPool2D(2),  # 8 -> 4
             gd.nn.Conv2D(32, 64, 3, bias=False),
             gd.nn.BatchNormalization(64),
             gd.nn.ReLU(),
