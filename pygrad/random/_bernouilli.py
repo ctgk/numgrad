@@ -12,6 +12,7 @@ class _Bernoulli(_Operator):
 
     def __init__(self, p, size: tp.Tuple[int] = None, name=None):
         super().__init__(p, name=name)
+        self._differentiable = False
         self._size = p.shape if size is None else size
 
     def _forward_numpy(self, p):
@@ -22,7 +23,7 @@ class _Bernoulli(_Operator):
             'pygrad.random.bernoulli() is not a differentiable operation.')
 
 
-@_typecheck(exclude=('p',))
+@_typecheck(exclude_args=('p',))
 def bernoulli(
         p: Array,
         size: tp.Union[tp.Iterable[int], None] = None,
@@ -46,8 +47,8 @@ def bernoulli(
 
     Examples
     --------
-    >>> import pygrad as pg; import numpy as np; np.random.seed(0)
-    >>> pg.random.bernoulli([0, 0.8, 1], (5, 3))
+    >>> import pygrad as gd; import numpy as np; np.random.seed(0)
+    >>> gd.random.bernoulli([0, 0.8, 1], (5, 3))
     array([[0, 1, 1],
            [0, 1, 1],
            [0, 0, 1],

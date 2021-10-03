@@ -19,7 +19,7 @@ class _Square(_Operator):
         return 2 * x * dy
 
 
-@_typecheck(exclude=('x',))
+@_typecheck(exclude_args=('x',))
 def square(x: Array, *, name: str = None) -> Array:
     """Return square of each element
 
@@ -37,8 +37,8 @@ def square(x: Array, *, name: str = None) -> Array:
 
     Examples
     --------
-    >>> import pygrad as pg
-    >>> pg.square([1, 2, -3])
+    >>> import pygrad as gd
+    >>> gd.square([1, 2, -3])
     array([1., 4., 9.])
     """
     return _Square(x, name=name).forward()

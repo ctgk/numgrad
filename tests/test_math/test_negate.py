@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-import pygrad as pg
+import pygrad as gd
 from pygrad._utils._numerical_grad import _numerical_grad
 
 
@@ -9,30 +9,30 @@ from pygrad._utils._numerical_grad import _numerical_grad
     ([1, -1, 5], 'negate', [-1, 1, -5]),
 ])
 def test_forward(x, name, expected):
-    actual = pg.negate(x, name=name)
+    actual = gd.negate(x, name=name)
     assert np.allclose(actual.data, expected)
     assert actual.name == name + '.out'
 
 
-@pytest.mark.parametrize('x, dy, expected', [
-    (pg.Array([1., -1, 5], is_variable=True), None, [-1, -1, -1]),
-    (pg.Array([-7., 3], is_variable=True), np.array([1., -2]), [-1, 2]),
+@pytest.mark.parametrize('x, expected', [
+    (gd.Array([1., -1, 5], is_variable=True), [-1, -1, -1]),
 ])
-def test_backward(x, dy, expected):
-    if dy is None:
-        pg.negate(x).backward()
-    else:
-        pg.negate(x).backward(_grad=dy)
+def test_backward(x, expected):
+    with gd.Graph() as g:
+        gd.negate(x)
+    g.backward()
     assert np.allclose(x.grad, expected)
 
 
 @pytest.mark.parametrize('x', [
-    pg.Array(np.random.rand(2, 3), is_variable=True),
-    pg.Array(np.random.rand(4, 2, 3), is_variable=True),
+    gd.Array(np.random.rand(2, 3), is_variable=True),
+    gd.Array(np.random.rand(4, 2, 3), is_variable=True),
 ])
 def test_numerical_grad(x):
-    pg.negate(x).backward()
-    dx = _numerical_grad(pg.negate, x)[0]
+    with gd.Graph() as g:
+        gd.negate(x)
+    g.backward()
+    dx = _numerical_grad(gd.negate, x)[0]
     assert np.allclose(dx, x.grad, rtol=0, atol=1e-2)
 
 

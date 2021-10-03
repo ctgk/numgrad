@@ -17,7 +17,7 @@ class _Negate(_Operator):
         return -dy
 
 
-@_typecheck(exclude=('x',))
+@_typecheck(exclude_args=('x',))
 def negate(x: Array, *, name: str = None) -> Array:
     """Negate each element
 
@@ -35,8 +35,8 @@ def negate(x: Array, *, name: str = None) -> Array:
 
     Examples
     --------
-    >>> import pygrad as pg
-    >>> pg.negate([1, -2, 3])
+    >>> import pygrad as gd
+    >>> gd.negate([1, -2, 3])
     array([-1.,  2., -3.])
     """
     return _Negate(x, name=name).forward()

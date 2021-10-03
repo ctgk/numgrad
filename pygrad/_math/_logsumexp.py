@@ -42,7 +42,7 @@ class _Logsumexp(_Operator):
         return delta * np.exp(x - self.output)
 
 
-@_typecheck(exclude=('x',))
+@_typecheck(exclude_args=('x',))
 def logsumexp(x: Array,
               axis: tp.Union[int, tp.Iterable[int], None] = None,
               keepdims: bool = False,
@@ -71,8 +71,8 @@ def logsumexp(x: Array,
 
     Examples
     --------
-    >>> import pygrad as pg
-    >>> pg.logsumexp([0, 1, -1])
+    >>> import pygrad as gd
+    >>> gd.logsumexp([0, 1, -1])
     array(1.40760596)
     """
     return _Logsumexp(x, axis=axis, keepdims=keepdims, name=name).forward()

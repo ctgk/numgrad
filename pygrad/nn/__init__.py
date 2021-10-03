@@ -6,7 +6,9 @@ from pygrad.nn._flatten import Flatten
 from pygrad.nn._leaky_relu import leaky_relu, LeakyReLU
 from pygrad.nn._maxpool2d import max_pool2d, MaxPool2D
 from pygrad.nn._relu import relu, ReLU
+from pygrad.nn._reshape import Reshape
 from pygrad.nn._sequential import Sequential
+from pygrad.nn._softplus import softplus
 
 
 _classes = [
@@ -18,6 +20,7 @@ _classes = [
     LeakyReLU,
     MaxPool2D,
     ReLU,
+    Reshape,
     Sequential,
 ]
 
@@ -32,4 +35,5 @@ __all__ = [_cls.__name__ for _cls in _classes] + [
     'leaky_relu',
     'max_pool2d',
     'relu',
+    'softplus',
 ]

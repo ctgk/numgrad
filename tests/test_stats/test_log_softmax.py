@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-import pygrad as pg
+import pygrad as gd
 from pygrad._utils._numerical_grad import _numerical_grad
 
 
@@ -13,22 +13,24 @@ from pygrad._utils._numerical_grad import _numerical_grad
     ),
 ])
 def test_forward(x, name, expected):
-    actual = pg.stats.log_softmax(x, name=name)
+    actual = gd.stats.log_softmax(x, name=name)
     assert np.allclose(actual.data, expected)
     assert actual.name == name + '.out'
 
 
 @pytest.mark.parametrize('x, axis', [
-    (pg.Array(np.random.rand(2, 3), is_variable=True), 0),
-    (pg.Array(np.random.rand(4, 2, 3), is_variable=True), 0),
-    (pg.Array(np.random.rand(4, 2, 3), is_variable=True), 1),
-    (pg.Array(np.random.rand(4, 2, 3), is_variable=True), 2),
+    (gd.Array(np.random.rand(2, 3), is_variable=True), 0),
+    (gd.Array(np.random.rand(4, 2, 3), is_variable=True), 0),
+    (gd.Array(np.random.rand(4, 2, 3), is_variable=True), 1),
+    (gd.Array(np.random.rand(4, 2, 3), is_variable=True), 2),
 ])
 def test_numerical_grad(x, axis):
-    pg.square(pg.stats.log_softmax(x, axis)).backward()
+    with gd.Graph() as g:
+        gd.square(gd.stats.log_softmax(x, axis))
+    g.backward()
     dx = _numerical_grad(
-        lambda a: pg.square(
-            pg.stats.log_softmax(
+        lambda a: gd.square(
+            gd.stats.log_softmax(
                 a, axis)), x)[0]
     assert np.allclose(dx, x.grad, rtol=0, atol=1e-2)
 

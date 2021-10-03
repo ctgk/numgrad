@@ -36,7 +36,7 @@ class _Max(_Operator):
         return dx
 
 
-@_typecheck(exclude=('x',))
+@_typecheck(exclude_args=('x',))
 def max(x: Array,
         axis: tp.Union[int, tp.Iterable[int]] = None,
         keepdims: bool = False,
@@ -62,8 +62,8 @@ def max(x: Array,
 
     Examples
     --------
-    >>> import pygrad as pg
-    >>> a = pg.Array([[2, 3], [-1, -9]])
+    >>> import pygrad as gd
+    >>> a = gd.Array([[2, 3], [-1, -9]])
     >>> a.max()
     array(3)
     >>> a.max(axis=0)

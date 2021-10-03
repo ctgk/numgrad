@@ -17,7 +17,7 @@ class _Cosh(_Operator):
         return dy * np.sinh(x)
 
 
-@_typecheck(exclude=('x',))
+@_typecheck(exclude_args=('x',))
 def cosh(x: Array, *, name: str = None) -> Array:
     r"""Return hyperbolic cosine of each element.
 
@@ -40,8 +40,8 @@ def cosh(x: Array, *, name: str = None) -> Array:
 
     Examples
     --------
-    >>> import pygrad as pg
-    >>> pg.cosh([0, 1, 2])
+    >>> import pygrad as gd
+    >>> gd.cosh([0, 1, 2])
     array([1.        , 1.54308063, 3.76219569])
     """
     return _Cosh(x, name=name).forward()

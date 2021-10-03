@@ -1,15 +1,15 @@
 import pytest
 
-import pygrad as pg
+import pygrad as gd
 
 
-class CallableUpdate(pg.optimizers.Optimizer):
+class CallableUpdate(gd.optimizers.Optimizer):
 
     def _update(self):
         raise NotImplementedError
 
 
-class NonCallableUpdate(pg.optimizers.Optimizer):
+class NonCallableUpdate(gd.optimizers.Optimizer):
 
     def __init__(self, parameters):
         self._update = None
@@ -20,46 +20,46 @@ class NonCallableUpdate(pg.optimizers.Optimizer):
     (
         CallableUpdate,
         [
-            pg.Array(1., is_variable=True),
-            pg.Array([0, -1.], is_variable=True),
+            gd.Array(1., is_variable=True),
+            gd.Array([0, -1.], is_variable=True),
         ],
-        'NoError',
+        None,
     ),
     (
-        pg.optimizers.Optimizer,
+        gd.optimizers.Optimizer,
         [
-            pg.Array(1., is_variable=True),
-            pg.Array([0, -1.], is_variable=True),
+            gd.Array(1., is_variable=True),
+            gd.Array([0, -1.], is_variable=True),
         ],
         AttributeError,
     ),
     (
         NonCallableUpdate,
         [
-            pg.Array(1., is_variable=True),
-            pg.Array([0, -1.], is_variable=True),
+            gd.Array(1., is_variable=True),
+            gd.Array([0, -1.], is_variable=True),
         ],
         AssertionError,
     ),
     (
         CallableUpdate,
         [
-            pg.Array(1.),
-            pg.Array([0, -1.], is_variable=True),
+            gd.Array(1.),
+            gd.Array([0, -1.], is_variable=True),
         ],
         ValueError
     ),
     (
         CallableUpdate,
         [
-            pg.Array(1., is_variable=True),
-            pg.sum(pg.Array([0, -1.], is_variable=True)),
+            gd.Array(1., is_variable=True),
+            gd.sum(gd.Array([0, -1.], is_variable=True)),
         ],
-        ValueError
+        None,
     ),
 ])
 def test_init_error(cls_, parameters, error):
-    if error == 'NoError':
+    if error is None:
         cls_(parameters)
     else:
         with pytest.raises(error):

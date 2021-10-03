@@ -27,7 +27,7 @@ class _Subtract(_Operator):
         return dx, dy
 
 
-@_typecheck(exclude=('x', 'y'))
+@_typecheck(exclude_args=('x', 'y'))
 def subtract(x: Array, y: Array, name: str = None) -> Array:
     """Return element-wise subtraction of two arrays.
 
@@ -47,8 +47,8 @@ def subtract(x: Array, y: Array, name: str = None) -> Array:
 
     Examples
     --------
-    >>> import pygrad as pg
-    >>> pg.subtract([[1, 2], [2, 3]], [-1, 3])
+    >>> import pygrad as gd
+    >>> gd.subtract([[1, 2], [2, 3]], [-1, 3])
     array([[ 2., -1.],
            [ 3.,  0.]])
     """

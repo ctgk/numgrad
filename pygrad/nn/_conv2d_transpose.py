@@ -63,7 +63,7 @@ class _Conv2dTranspose(_Operator):
         return dx, dy
 
 
-@_typecheck(exclude=('x', 'w'))
+@_typecheck(exclude_args=('x', 'w'))
 def conv2d_transpose(
         x: Array,
         w: Array,
@@ -96,8 +96,8 @@ def conv2d_transpose(
 
     Examples
     --------
-    >>> import pygrad as pg; import numpy as np
-    >>> pg.nn.conv2d_transpose(
+    >>> import pygrad as gd; import numpy as np
+    >>> gd.nn.conv2d_transpose(
     ...     np.arange(16).reshape(1, 4, 4, 1),
     ...     np.arange(9).reshape(3, 3, 1, 1),
     ...     strides=1,
@@ -135,8 +135,8 @@ class Conv2DTranspose(Module):
 
     Examples
     --------
-    >>> import pygrad as pg; import numpy as np
-    >>> c = pg.nn.Conv2DTranspose(1, 10, 3, strides=1, pad=0, bias=True)
+    >>> import pygrad as gd; import numpy as np
+    >>> c = gd.nn.Conv2DTranspose(1, 10, 3, strides=1, pad=0, bias=True)
     >>> c(np.random.rand(2, 5, 5, 1)).shape
     (2, 7, 7, 10)
     """
@@ -147,8 +147,8 @@ class Conv2DTranspose(Module):
             in_channels: int,
             out_channels: int,
             kernel_size: tp.Union[int, tp.Iterable[int]],
-            strides: tp.Union[int, tp.Iterable[int]],
-            pad: tp.Union[int, tp.Iterable[int]],
+            strides: tp.Union[int, tp.Iterable[int]] = (1, 1),
+            pad: tp.Union[int, tp.Iterable[int]] = (0, 0),
             shape: tp.Union[tp.Iterable[int], None] = None,
             bias: bool = True,
             dtype: tp.Union[tp.Type[DataType], None] = None):

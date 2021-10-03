@@ -80,7 +80,7 @@ class _BatchMatMul(_Operator):
         return dx, dy
 
 
-@_typecheck(exclude=('x', 'y'))
+@_typecheck(exclude_args=('x', 'y'))
 def matmul(x: Array, y: Array, name: str = None) -> Array:
     """Return matrix multiplication of two arrays.
 
@@ -100,15 +100,15 @@ def matmul(x: Array, y: Array, name: str = None) -> Array:
 
     Examples
     --------
-    >>> import pygrad as pg
-    >>> pg.matmul([[1, 2], [2, 3]], [-1, 3])
+    >>> import pygrad as gd
+    >>> gd.matmul([[1, 2], [2, 3]], [-1, 3])
     array([5., 7.])
-    >>> pg.matmul([-1, 3], [[1, 2], [2, 3]])
+    >>> gd.matmul([-1, 3], [[1, 2], [2, 3]])
     array([5., 7.])
-    >>> pg.matmul([[1, 2], [2, 3]], [[-1], [3]])
+    >>> gd.matmul([[1, 2], [2, 3]], [[-1], [3]])
     array([[5.],
            [7.]])
-    >>> pg.matmul([[[1, 2], [2, 3]], [[-1, 2], [2, -3]]], [[-1], [3]])
+    >>> gd.matmul([[[1, 2], [2, 3]], [[-1, 2], [2, -3]]], [[-1], [3]])
     array([[[  5.],
             [  7.]],
     <BLANKLINE>

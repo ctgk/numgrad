@@ -18,7 +18,7 @@ class _Sqrt(_Operator):
         return 0.5 * delta / self.output
 
 
-@_typecheck(exclude=('x',))
+@_typecheck(exclude_args=('x',))
 def sqrt(x: Array, *, name: str = None) -> Array:
     """Return square root of each element
 

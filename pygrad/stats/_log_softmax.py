@@ -22,7 +22,7 @@ class _LogSoftmax(_Operator):
         return dx
 
 
-@_typecheck(exclude=('x',))
+@_typecheck(exclude_args=('x',))
 def log_softmax(x: Array, axis: int = -1, *, name: str = None) -> Array:
     r"""Return logarithm of softmax activation along the given axis.
 
@@ -45,8 +45,8 @@ def log_softmax(x: Array, axis: int = -1, *, name: str = None) -> Array:
 
     Examples
     --------
-    >>> import pygrad as pg
-    >>> pg.stats.log_softmax([0, 1, -1])
+    >>> import pygrad as gd
+    >>> gd.stats.log_softmax([0, 1, -1])
     array([-1.40760596, -0.40760596, -2.40760596])
     """
     return _LogSoftmax(x, axis=axis, name=name).forward()

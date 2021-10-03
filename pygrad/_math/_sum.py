@@ -40,7 +40,7 @@ class _Sum(_Operator):
         return dx
 
 
-@_typecheck(exclude=('x',))
+@_typecheck(exclude_args=('x',))
 def sum(x: Array,
         axis: Union[int, Iterable[int], None] = None,
         keepdims: bool = False,
@@ -66,10 +66,10 @@ def sum(x: Array,
 
     Examples
     --------
-    >>> import pygrad as pg
-    >>> pg.Array([1, 2, 3]).sum()
+    >>> import pygrad as gd
+    >>> gd.Array([1, 2, 3]).sum()
     array(6)
-    >>> pg.sum(pg.Array([[1, 2], [4, 8]]), axis=1, keepdims=True)
+    >>> gd.sum(gd.Array([[1, 2], [4, 8]]), axis=1, keepdims=True)
     array([[ 3],
            [12]])
     """

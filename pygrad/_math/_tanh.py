@@ -18,7 +18,7 @@ class _Tanh(_Operator):
         return dy * (1 - np.square(self.output))
 
 
-@_typecheck(exclude=('x',))
+@_typecheck(exclude_args=('x',))
 def tanh(x: Array, *, name: str = None) -> Array:
     r"""Return hyperbolic tangent of each element.
 
@@ -41,8 +41,8 @@ def tanh(x: Array, *, name: str = None) -> Array:
 
     Examples
     --------
-    >>> import pygrad as pg
-    >>> pg.tanh([0, 1, 2])
+    >>> import pygrad as gd
+    >>> gd.tanh([0, 1, 2])
     array([0.        , 0.76159416, 0.96402758])
     """
     return _Tanh(x, name=name).forward()

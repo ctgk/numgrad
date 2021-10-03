@@ -18,7 +18,7 @@ class _Sigmoid(_Operator):
         return delta * self.output * (1 - self.output)
 
 
-@_typecheck(exclude=('x',))
+@_typecheck(exclude_args=('x',))
 def sigmoid(x: Array, *, name: str = None) -> Array:
     r"""Element-wise sigmoid function
 
@@ -39,8 +39,8 @@ def sigmoid(x: Array, *, name: str = None) -> Array:
 
     Examples
     --------
-    >>> import pygrad as pg
-    >>> pg.stats.sigmoid([-1, 0, 1])
+    >>> import pygrad as gd
+    >>> gd.stats.sigmoid([-1, 0, 1])
     array([0.26894142, 0.5       , 0.73105858])
     """
     return _Sigmoid(x, name=name).forward()

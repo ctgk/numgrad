@@ -15,7 +15,7 @@ class Dense(Module):
 
     Examples
     --------
-    >>> import pygrad as pg; import numpy as np
+    >>> import pygrad as gd; import numpy as np
     >>> d = Dense(2, 3)
     >>> d(np.random.normal(size=(4, 2))).shape
     (4, 3)

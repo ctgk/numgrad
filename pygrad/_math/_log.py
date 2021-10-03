@@ -19,7 +19,7 @@ class _Log(_Operator):
         return dy / x
 
 
-@_typecheck(exclude=('x',))
+@_typecheck(exclude_args=('x',))
 def log(x: Array, *, name: str = None) -> Array:
     """Return natural logarithm of each element
 
@@ -37,8 +37,8 @@ def log(x: Array, *, name: str = None) -> Array:
 
     Examples
     --------
-    >>> import pygrad as pg
-    >>> pg.log(1)
+    >>> import pygrad as gd
+    >>> gd.log(1)
     array(0.)
     """
     return _Log(x, name=name).forward()

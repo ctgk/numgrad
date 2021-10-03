@@ -30,7 +30,7 @@ class _SigmoidCrossEntropy(_Operator):
         return dlabels, dlogits
 
 
-@_typecheck(exclude=('labels', 'logits'))
+@_typecheck(exclude_args=('labels', 'logits'))
 def sigmoid_cross_entropy(
         labels: Array,
         logits: Array,
@@ -57,8 +57,8 @@ def sigmoid_cross_entropy(
 
     Examples
     --------
-    >>> import pygrad as pg
-    >>> pg.stats.sigmoid_cross_entropy([0, 1], [0.5, 100])
+    >>> import pygrad as gd
+    >>> gd.stats.sigmoid_cross_entropy([0, 1], [0.5, 100])
     array([9.74076984e-01, 3.72007598e-44])
     """
     return _SigmoidCrossEntropy(labels, logits, name=name).forward()

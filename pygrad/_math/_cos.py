@@ -18,7 +18,7 @@ class _Cos(_Operator):
         return -dy * np.sin(x)
 
 
-@_typecheck(exclude=('x',))
+@_typecheck(exclude_args=('x',))
 def cos(x: Array, *, name: str = None) -> Array:
     """Return trigonometric cosine of each element.
 
@@ -36,8 +36,8 @@ def cos(x: Array, *, name: str = None) -> Array:
 
     Examples
     --------
-    >>> import pygrad as pg; from math import pi
-    >>> pg.cos([0, pi / 3, 14 * pi / 3])
+    >>> import pygrad as gd; from math import pi
+    >>> gd.cos([0, pi / 3, 14 * pi / 3])
     array([ 1. ,  0.5, -0.5])
     """
     return _Cos(x, name=name).forward()

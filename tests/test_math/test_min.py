@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-import pygrad as pg
+import pygrad as gd
 from pygrad._utils._numerical_grad import _numerical_grad
 
 
@@ -10,15 +10,15 @@ np.random.seed(0)
 
 @pytest.mark.parametrize('x, axis, keepdims', [
     (
-        pg.Array(np.random.uniform(-9, 9, (2, 3)), is_variable=True),
+        gd.Array(np.random.uniform(-9, 9, (2, 3)), is_variable=True),
         None, False,
     ),
     (
-        pg.Array(np.random.uniform(-9, 9, (4, 2, 3)), is_variable=True),
+        gd.Array(np.random.uniform(-9, 9, (4, 2, 3)), is_variable=True),
         1, False
     ),
     (
-        pg.Array(np.random.uniform(-9, 9, (4, 2, 3)), is_variable=True),
+        gd.Array(np.random.uniform(-9, 9, (4, 2, 3)), is_variable=True),
         (0, -1), True
     ),
 ])
@@ -27,8 +27,10 @@ def test_numerical_grad(x, axis, keepdims):
         k: v for k, v in zip(('axis', 'keepdims'), (axis, keepdims))
         if v is not None
     }
-    pg.min(x, **args).backward()
-    dx = _numerical_grad(lambda x: pg.min(x, **args), x)[0]
+    with gd.Graph() as g:
+        gd.min(x, **args)
+    g.backward()
+    dx = _numerical_grad(lambda x: gd.min(x, **args), x)[0]
     assert np.allclose(dx, x.grad, rtol=0, atol=1e-2)
 
 

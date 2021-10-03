@@ -1,7 +1,7 @@
 import numpy as np
 import pytest
 
-import pygrad as pg
+import pygrad as gd
 
 
 @pytest.mark.parametrize('x, droprate, name', [
@@ -9,7 +9,7 @@ import pygrad as pg
     (np.random.normal(size=(4, 3)), 0.2, 'dropout'),
 ])
 def test_forward(x, droprate, name):
-    actual = pg.nn.dropout(x, droprate, name=name)
+    actual = gd.nn.dropout(x, droprate, name=name)
     print(x)
     print(actual)
     for i in range(x.size):
@@ -26,17 +26,18 @@ def test_forward(x, droprate, name):
     np.random.normal(size=(5, 20)),
 ])
 def test_forward_2(x):
-    actual = pg.nn.dropout(x, droprate=None)
+    actual = gd.nn.dropout(x, droprate=None)
     assert actual is x
 
 
 @pytest.mark.parametrize('x, droprate', [
-    (pg.Array(np.random.rand(2, 3), is_variable=True), 0.1),
-    (pg.Array(np.random.rand(4, 2, 3), is_variable=True), 0.5),
+    (gd.Array(np.random.rand(2, 3), is_variable=True), 0.1),
+    (gd.Array(np.random.rand(4, 2, 3), is_variable=True), 0.5),
 ])
 def test_backward(x, droprate):
-    y = pg.nn.dropout(x, droprate)
-    y.backward()
+    with gd.Graph() as g:
+        y = gd.nn.dropout(x, droprate)
+    g.backward()
     dx = x.grad
     for i in range(x.size):
         if np.isclose(y.data.ravel()[i], 0):

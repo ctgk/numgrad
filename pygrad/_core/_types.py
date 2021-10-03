@@ -33,10 +33,6 @@ class Float64(np.float64, DataType):
     pass
 
 
-class Float128(np.float128, DataType):
-    pass
-
-
 def _to_pygrad_type(type_):
     dict_ = {
         np.dtype('int8'): Int8,
@@ -46,7 +42,6 @@ def _to_pygrad_type(type_):
         np.dtype('float16'): Float16,
         np.dtype('float32'): Float32,
         np.dtype('float64'): Float64,
-        np.dtype('float128'): Float128,
     }
     return dict_.get(type_, None)
 
@@ -56,4 +51,4 @@ def _is_int(type_):
 
 
 def _is_float(type_):
-    return type_ in (Float16, Float32, Float64, Float128)
+    return type_ in (Float16, Float32, Float64)

@@ -18,7 +18,7 @@ class _Exp(_Operator):
         return dy * self.output
 
 
-@_typecheck(exclude=('x',))
+@_typecheck(exclude_args=('x',))
 def exp(x: Array, *, name: str = None) -> Array:
     """Return exponential of each element
 
@@ -36,8 +36,8 @@ def exp(x: Array, *, name: str = None) -> Array:
 
     Examples
     --------
-    >>> import pygrad as pg
-    >>> pg.exp(1)
+    >>> import pygrad as gd
+    >>> gd.exp(1)
     array(2.71828183)
     """
     return _Exp(x, name=name).forward()

@@ -45,7 +45,7 @@ class _SparseSoftmaxCrossEntropy(_Operator):
         return None, dlogits
 
 
-@_typecheck(exclude=('labels', 'logits'))
+@_typecheck(exclude_args=('labels', 'logits'))
 def sparse_softmax_cross_entropy(
         labels: Array,
         logits: Array,
@@ -72,8 +72,8 @@ def sparse_softmax_cross_entropy(
 
     Examples
     --------
-    >>> import pygrad as pg
-    >>> pg.stats.sparse_softmax_cross_entropy([2, 0], [[0, 1, -1], [5, -2, 0]])
+    >>> import pygrad as gd
+    >>> gd.stats.sparse_softmax_cross_entropy([2, 0], [[0, 1, -1], [5, -2, 0]])
     array([2.40760596, 0.00762072])
     """
     return _SparseSoftmaxCrossEntropy(

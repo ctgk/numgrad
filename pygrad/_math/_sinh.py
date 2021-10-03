@@ -17,7 +17,7 @@ class _Sinh(_Operator):
         return dy * np.cosh(x)
 
 
-@_typecheck(exclude=('x',))
+@_typecheck(exclude_args=('x',))
 def sinh(x: Array, *, name: str = None) -> Array:
     r"""Return hyperbolic sine of each element.
 
@@ -40,8 +40,8 @@ def sinh(x: Array, *, name: str = None) -> Array:
 
     Examples
     --------
-    >>> import pygrad as pg
-    >>> pg.sinh([0, 1, 2])
+    >>> import pygrad as gd
+    >>> gd.sinh([0, 1, 2])
     array([0.        , 1.17520119, 3.62686041])
     """
     return _Sinh(x, name=name).forward()

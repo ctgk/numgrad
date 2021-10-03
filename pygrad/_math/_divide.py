@@ -27,7 +27,7 @@ class _Divide(_Operator):
         return dx, dy
 
 
-@_typecheck(exclude=('x', 'y'))
+@_typecheck(exclude_args=('x', 'y'))
 def divide(x: Array, y: Array, name: str = None) -> Array:
     """Return element-wise division of two arrays.
 
@@ -47,8 +47,8 @@ def divide(x: Array, y: Array, name: str = None) -> Array:
 
     Examples
     --------
-    >>> import pygrad as pg
-    >>> pg.divide([[1, 2], [2, 3]], [-1, 2])
+    >>> import pygrad as gd
+    >>> gd.divide([[1, 2], [2, 3]], [-1, 2])
     array([[-1. ,  1. ],
            [-2. ,  1.5]])
     """
