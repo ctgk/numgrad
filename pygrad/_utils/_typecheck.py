@@ -74,7 +74,7 @@ def _typecheck(
 
     def _wrapper(func: callable) -> callable:
         argspec = inspect.getfullargspec(func)
-        arg_names = argspec.args
+        arg_names = argspec.args + argspec.kwonlyargs
         annotations = argspec.annotations
         for exclude_ in exclude_args:
             if exclude_ not in arg_names:

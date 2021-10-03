@@ -158,7 +158,7 @@ if __name__ == "__main__":
         np.random.seed(args.random_seed)
     gd.config.dtype = gd.Float32
 
-    x, y = fetch_openml('mnist_784', return_X_y=True)
+    x, y = fetch_openml('mnist_784', return_X_y=True, as_frame=False)
     x = (x > 127).reshape(-1, 28, 28, 1).astype(np.float32)
     y = y.astype(np.int)
     x_train, x_test, y_train, y_test = train_test_split(

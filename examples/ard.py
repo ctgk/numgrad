@@ -17,7 +17,7 @@ class Pa(gd.distributions.Exponential):
 
 class Pw(gd.distributions.Normal):
 
-    def __init__(self, size, rv: str, condition: str):
+    def __init__(self, rv: str, condition: str):
         super().__init__(rv=rv, name='p', conditions=[condition])
 
     def forward(self, alpha) -> gd.stats.Normal:
@@ -61,13 +61,13 @@ class ARD(gd.Module):
     def __init__(self, scale):
         super().__init__()
         self.prior = (
-            Pw((1, 10), rv='w1', condition='a_w1')
+            Pw(rv='w1', condition='a_w1')
             * Pa(scale, rv='a_w1')
-            * Pw(10, rv='b1', condition='a_b1')
+            * Pw(rv='b1', condition='a_b1')
             * Pa(scale, 'a_b1')
-            * Pw((10, 1), rv='w2', condition='a_w2')
+            * Pw(rv='w2', condition='a_w2')
             * Pa(scale, 'a_w2')
-            * Pw(1, rv='b2', condition='a_b2')
+            * Pw(rv='b2', condition='a_b2')
             * Pa(scale, 'a_b2')
         )
         self.py = Py()

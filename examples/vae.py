@@ -18,10 +18,10 @@ class Encoder(gd.distributions.Normal):
         self.dm = gd.nn.Dense(128, 2)
         self.ds = gd.nn.Dense(128, 2)
 
-    def forward(self, x):
+    def forward(self, x) -> gd.stats.Normal:
         x = gd.tanh(self.d1(x))
         x = gd.tanh(self.d2(x))
-        return {'loc': self.dm(x), 'scale': gd.exp(self.ds(x))}
+        return gd.stats.Normal(loc=self.dm(x), scale=gd.exp(self.ds(x)))
 
 
 class Decoder(gd.distributions.Bernoulli):
@@ -32,10 +32,10 @@ class Decoder(gd.distributions.Bernoulli):
         self.d2 = gd.nn.Dense(128, 256)
         self.d3 = gd.nn.Dense(256, 784)
 
-    def forward(self, z):
+    def forward(self, z) -> gd.stats.Bernoulli:
         z = gd.tanh(self.d1(z))
         z = gd.tanh(self.d2(z))
-        return {'logits': self.d3(z)}
+        return gd.stats.Bernoulli(logits=self.d3(z))
 
 
 class VAE(gd.Module):
@@ -48,7 +48,7 @@ class VAE(gd.Module):
 
     def __call__(self, x):
         z = self.encoder.sample(conditions={'x': x})['z']
-        return gd.stats.sigmoid(self.decoder(z=z)['logits'])
+        return gd.stats.sigmoid(self.decoder(z=z).logits)
 
     def elbo(self, x) -> gd.Array:
         z = self.encoder.sample(conditions={'x': x})
@@ -64,7 +64,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     gd.config.dtype = gd.Float32
-    x, y = fetch_openml('mnist_784', return_X_y=True)
+    x, y = fetch_openml('mnist_784', return_X_y=True, as_frame=False)
     x = (x > 127).astype(np.float32)
     y = y.astype(np.int)
     x_train, x_test, _, _ = train_test_split(x, y, test_size=10000, stratify=y)
@@ -102,7 +102,7 @@ if __name__ == "__main__":
 
     z = np.asarray(np.meshgrid(
         np.linspace(-1, 1, 10), np.linspace(-1, 1, 10))).T.reshape(-1, 2)
-    x_gen = gd.stats.sigmoid(vae.decoder(z=z)['logits']).data
+    x_gen = gd.stats.sigmoid(vae.decoder(z=z).logits).data
     for i in range(100):
         plt.subplot(10, 10, i + 1)
         plt.axis('off')
