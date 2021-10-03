@@ -121,9 +121,14 @@ if __name__ == "__main__":
             [f'w1[{i}]' for i in range(10)] + [f'b1[{i}]' for i in range(10)]
             + [f'w2[{i}]' for i in range(10)] + ['b2[0]']
         ),
-        sum(list(list(v.data.ravel())
-                 for k, v in model.trainables.items() if 'Qw.loc' in k),
-            start=[]))
+        sum(
+            list(
+                list(v.data.ravel()) for k, v in model.trainables.items()
+                if 'Qw.loc' in k
+            ),
+            []
+        ),
+    )
     plt.xticks(rotation=90)
     plt.grid(alpha=0.4)
     plt.show()
