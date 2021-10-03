@@ -13,7 +13,6 @@ from pygrad._core._types import _is_int, _is_float
     pygrad.Float16,
     pygrad.Float32,
     pygrad.Float64,
-    pygrad.Float128,
 ])
 def test_issubclass_of_datatype(type_):
     assert issubclass(type_, pygrad.DataType)
@@ -25,8 +24,7 @@ def test_is_int():
 
 
 def test_is_float():
-    for cls_ in (
-            pygrad.Float128, pygrad.Float16, pygrad.Float32, pygrad.Float64):
+    for cls_ in (pygrad.Float16, pygrad.Float32, pygrad.Float64):
         assert _is_float(cls_)
 
 
@@ -38,7 +36,6 @@ def test_is_float():
     ([1, 2], pygrad.Float16, np.float16),
     ([1, 2], pygrad.Float32, np.float32),
     ([1, 2], pygrad.Float64, np.float64),
-    ([1, 2], pygrad.Float128, np.float128),
 ])
 def test_numpy_asarray(obj, dtype, expected):
     a = np.asarray(obj, dtype=dtype)

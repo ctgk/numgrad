@@ -25,6 +25,10 @@ def _is_subclass_type(tp):
     return "typing.Type[" == repr(tp)[:12] and "]" == repr(tp)[-1]
 
 
+def _is_optional_type(tp):
+    return "typing.Optional[" == repr(tp)[:16]
+
+
 def _typecheck_arg(
         obj: object,
         type_: tp.Union[type, tp.Iterable[type]],
@@ -33,6 +37,11 @@ def _typecheck_arg(
         return True
     elif isinstance(type_, Iterable):
         return any(_typecheck_arg(obj, t, exclude_types) for t in type_)
+    elif _is_optional_type(type_):
+        if obj is None:
+            return True
+        else:
+            return _typecheck_arg(obj, type_.__args__, exclude_types)
     elif _is_union_type(type_):
         return _typecheck_arg(obj, type_.__args__, exclude_types)
     elif _is_iterable_type(type_):
@@ -52,7 +61,11 @@ def _typecheck_arg(
         else:
             return False
     else:
-        return isinstance(obj, type_)
+        try:
+            return isinstance(obj, type_)
+        except Exception as e:
+            print(obj, type_)
+            raise e
 
 
 def _typecheck(

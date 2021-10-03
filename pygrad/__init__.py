@@ -4,7 +4,7 @@ from pygrad._core._errors import DifferentiationError
 from pygrad._core._graph import Graph
 from pygrad._core._module import Module
 from pygrad._core._types import (
-    DataType, Int8, Int16, Int32, Int64, Float16, Float32, Float64, Float128
+    DataType, Int8, Int16, Int32, Int64, Float16, Float32, Float64,
 )
 
 from pygrad._manipulation._reshape import reshape
@@ -69,7 +69,7 @@ _classes = [
     DifferentiationError,
     Graph,
     Module,
-    DataType, Int8, Int16, Int32, Int64, Float16, Float32, Float64, Float128,
+    DataType, Int8, Int16, Int32, Int64, Float16, Float32, Float64,
 ]
 
 for _cls in _classes:
