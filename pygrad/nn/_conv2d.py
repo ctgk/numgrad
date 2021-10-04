@@ -8,7 +8,7 @@ from pygrad._core._module import Module
 from pygrad._core._operator import _Operator
 from pygrad._core._types import DataType
 from pygrad._utils._typecheck import _typecheck
-from pygrad.nn._utils import _im2col, _col2im, _to_pair
+from pygrad.nn._utils import _col2im, _im2col, _to_pair
 
 
 class _Conv2d(_Operator):
@@ -57,13 +57,14 @@ class _Conv2d(_Operator):
 
 @_typecheck(exclude_args=('x', 'w'))
 def conv2d(
-        x: Array,
-        w: Array,
-        strides: tp.Union[int, tp.Iterable[int]] = (1, 1),
-        pad: tp.Union[int, tp.Iterable[int]] = (0, 0),
-        *,
-        name: tp.Union[str, None] = None) -> Array:
-    """Perform convolution operation for neural network
+    x: Array,
+    w: Array,
+    strides: tp.Union[int, tp.Iterable[int]] = (1, 1),
+    pad: tp.Union[int, tp.Iterable[int]] = (0, 0),
+    *,
+    name: tp.Union[str, None] = None,
+) -> Array:
+    """Perform convolution operation for neural network.
 
     This actually computes correlaion.
 
@@ -109,7 +110,7 @@ def conv2d(
 
 
 class Conv2D(Module):
-    """Two-dimensional convolution layer
+    """Two-dimensional convolution layer.
 
     Examples
     --------
@@ -121,14 +122,34 @@ class Conv2D(Module):
 
     @_typecheck()
     def __init__(
-            self,
-            in_channels: int,
-            out_channels: int,
-            kernel_size: tp.Union[int, tp.Iterable[int]],
-            strides: tp.Union[int, tp.Iterable[int]] = (1, 1),
-            pad: tp.Union[int, tp.Iterable[int]] = (0, 0),
-            bias: bool = True,
-            dtype: tp.Union[tp.Type[DataType], None] = None):
+        self,
+        in_channels: int,
+        out_channels: int,
+        kernel_size: tp.Union[int, tp.Iterable[int]],
+        strides: tp.Union[int, tp.Iterable[int]] = (1, 1),
+        pad: tp.Union[int, tp.Iterable[int]] = (0, 0),
+        bias: bool = True,
+        dtype: tp.Union[tp.Type[DataType], None] = None,
+    ):
+        """Initialize 2d convolution module.
+
+        Parameters
+        ----------
+        in_channels : int
+            Number of input channels
+        out_channels : int
+            Number of output channels
+        kernel_size : tp.Union[int, tp.Iterable[int]]
+            Size of convolution kernel
+        strides : tp.Union[int, tp.Iterable[int]], optional
+            Strides of kernel convolution, by default (1, 1)
+        pad : tp.Union[int, tp.Iterable[int]], optional
+            Pad width, by default (0, 0)
+        bias : bool, optional
+            Add bias if true, by default True
+        dtype : tp.Union[tp.Type[DataType], None], optional
+            Data type, by default None
+        """
         super().__init__()
         dtype = dtype if dtype is not None else config.dtype
         self._in_channels = in_channels
@@ -152,6 +173,18 @@ class Conv2D(Module):
                 is_variable=True)
 
     def __call__(self, x: Array, **kwargs) -> Array:
+        """Return 2d convolution layer output.
+
+        Parameters
+        ----------
+        x : Array
+            Input.
+
+        Returns
+        -------
+        Array
+            Output of 2d convolution layer.
+        """
         x = _Conv2d(
             x,
             self.weight,

@@ -20,7 +20,7 @@ class _Sqrt(_Operator):
 
 @_typecheck(exclude_args=('x',))
 def sqrt(x: Array, *, name: str = None) -> Array:
-    """Return square root of each element
+    """Return square root of each element.
 
     Parameters
     ----------

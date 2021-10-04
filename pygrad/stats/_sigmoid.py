@@ -20,7 +20,7 @@ class _Sigmoid(_Operator):
 
 @_typecheck(exclude_args=('x',))
 def sigmoid(x: Array, *, name: str = None) -> Array:
-    r"""Element-wise sigmoid function
+    r"""Element-wise sigmoid function.
 
     .. math::
         \sigma(x) = {1\over1 + e^{-x}}

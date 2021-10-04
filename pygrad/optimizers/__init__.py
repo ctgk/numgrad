@@ -1,3 +1,5 @@
+"""Optimizers module."""
+
 from pygrad.optimizers._adam import Adam
 from pygrad.optimizers._gradient import Gradient
 from pygrad.optimizers._momentum import Momentum

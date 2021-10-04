@@ -3,8 +3,8 @@ from typing import Iterable, Union
 import numpy as np
 
 from pygrad._core._array import Array
-from pygrad._utils._typecheck import _typecheck
 from pygrad._math._sum import _Sum
+from pygrad._utils._typecheck import _typecheck
 
 
 class _Mean(_Sum):

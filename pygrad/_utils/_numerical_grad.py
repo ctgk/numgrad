@@ -18,10 +18,12 @@ def _numerical_grad(
             eps.ravel()[i] = epsilon
             args_p = [
                 Array(a._data + (eps if a is arg else 0), a.dtype)
-                for a in args]
+                for a in args
+            ]
             args_m = [
                 Array(a._data - (eps if a is arg else 0), a.dtype)
-                for a in args]
+                for a in args
+            ]
             out_p = op(*args_p, **kwargs)
             out_m = op(*args_m, **kwargs)
             darg.ravel()[i] = (

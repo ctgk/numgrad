@@ -2,7 +2,7 @@ import numpy as np
 import pytest
 
 import pygrad
-from pygrad._core._types import _is_int, _is_float
+from pygrad._core._types import _is_float, _is_int
 
 
 @pytest.mark.parametrize('type_', [

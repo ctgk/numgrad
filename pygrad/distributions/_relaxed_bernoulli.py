@@ -5,7 +5,7 @@ from pygrad.stats._relaxed_bernoulli import (
 
 
 class RelaxedBernoulli(Bernoulli):
-    """Relaxed bernoulli distribution
+    """Relaxed bernoulli distribution.
 
     Examples
     --------
@@ -23,12 +23,31 @@ class RelaxedBernoulli(Bernoulli):
 
     @_typecheck()
     def __init__(
-            self,
-            temperature: float = 1e-2,
-            rv: str = 'x',
-            name: str = 'Bern'):
+        self,
+        temperature: float = 1e-2,
+        rv: str = 'x',
+        name: str = 'Bern',
+    ):
+        """Initialize relaxed Bernoulli distribution.
+
+        Parameters
+        ----------
+        temperature : float, optional
+            Temperature parameter of relaxation, by default 1e-2
+        rv : str, optional
+            Name of the random parameter, by default 'x'
+        name : str, optional
+            Name of the distribution, by default 'Bern'
+        """
         super().__init__(rv=rv, name=name)
         self._temperature = temperature
 
     def forward(self) -> RelaxedBernoulliStats:
+        """Return statistics of the distribution.
+
+        Returns
+        -------
+        RelaxedBernoulliStats
+            Statistics of the distribution.
+        """
         return RelaxedBernoulliStats(logits=0, temperature=self._temperature)

@@ -19,7 +19,7 @@ class _Negate(_Operator):
 
 @_typecheck(exclude_args=('x',))
 def negate(x: Array, *, name: str = None) -> Array:
-    """Negate each element
+    """Negate each element.
 
     Parameters
     ----------

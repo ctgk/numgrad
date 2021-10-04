@@ -47,7 +47,7 @@ class NonCallableUpdate(gd.optimizers.Optimizer):
             gd.Array(1.),
             gd.Array([0, -1.], is_variable=True),
         ],
-        ValueError
+        ValueError,
     ),
     (
         CallableUpdate,

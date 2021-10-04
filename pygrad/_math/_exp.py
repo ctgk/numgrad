@@ -20,7 +20,7 @@ class _Exp(_Operator):
 
 @_typecheck(exclude_args=('x',))
 def exp(x: Array, *, name: str = None) -> Array:
-    """Return exponential of each element
+    """Return exponential of each element.
 
     Parameters
     ----------

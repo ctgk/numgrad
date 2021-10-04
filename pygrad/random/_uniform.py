@@ -26,11 +26,13 @@ class _Uniform(_Operator):
 
 
 @_typecheck(exclude_args=('low', 'high'))
-def uniform(low: Array,
-            high: Array,
-            size: tp.Union[tp.Iterable[int], None] = None,
-            *,
-            name: str = None) -> Array:
+def uniform(
+    low: Array,
+    high: Array,
+    size: tp.Union[tp.Iterable[int], None] = None,
+    *,
+    name: str = None,
+) -> Array:
     r"""Return array with uniformly distributed values.
 
     .. math::
@@ -58,15 +60,10 @@ def uniform(low: Array,
     Examples
     --------
     >>> import pygrad as gd; import numpy as np; np.random.seed(0)
-    >>> gd.random.uniform(0, 1, (10,))
-    array([0.5488135 , 0.71518937, 0.60276338, 0.54488318, 0.4236548 ,
-           0.64589411, 0.43758721, 0.891773  , 0.96366276, 0.38344152])
-    >>> gd.random.uniform([1, -2], [2, 0], size=(5, 2))
-    array([[ 1.79172504, -0.94221016],
-           [ 1.56804456, -0.14880672],
-           [ 1.07103606, -1.8257414 ],
-           [ 1.0202184 , -0.33476031],
-           [ 1.77815675, -0.2599757 ]])
+    >>> gd.random.uniform(0, 1, (4,))
+    array([0.5488135 , 0.71518937, 0.60276338, 0.54488318])
+    >>> gd.random.uniform([1, -2], [2, 0], size=(2,))
+    array([ 1.4236548 , -0.70821177])
     """
     if isinstance(low, Array) or isinstance(high, Array):
         return _Uniform(low, high, size=size, name=name).forward()

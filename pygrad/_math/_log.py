@@ -21,7 +21,7 @@ class _Log(_Operator):
 
 @_typecheck(exclude_args=('x',))
 def log(x: Array, *, name: str = None) -> Array:
-    """Return natural logarithm of each element
+    """Return natural logarithm of each element.
 
     Parameters
     ----------

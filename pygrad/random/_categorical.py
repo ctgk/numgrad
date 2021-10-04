@@ -41,7 +41,7 @@ def categorical(
         size: tp.Union[tp.Iterable[int], None] = None,
         *,
         name: tp.Union[str, None] = None) -> Array:
-    """Return array whose values follow categorical distribution
+    """Return array whose values follow categorical distribution.
 
     Parameters
     ----------
@@ -57,7 +57,7 @@ def categorical(
     Returns
     -------
     Array
-        Random sample from cateogrical distribution
+        Random sample from categorical distribution
 
     Examples
     --------

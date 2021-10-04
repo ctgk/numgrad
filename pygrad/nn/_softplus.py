@@ -21,4 +21,18 @@ class _Softplus(_Operator):
 
 @_typecheck(exclude_args=('x',))
 def softplus(x: Array, *, name: str = None) -> Array:
+    """Return element-wise softplus activation of the input.
+
+    Parameters
+    ----------
+    x : Array
+        Input
+    name : str, optional
+        Name of the operation, by default None
+
+    Returns
+    -------
+    Array
+        Element-wise softplus activation of the input.
+    """
     return _Softplus(x, name=name).forward()

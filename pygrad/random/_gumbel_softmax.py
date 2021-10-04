@@ -33,12 +33,13 @@ class _GumbelSoftmax(_Operator):
 
 @_typecheck(exclude_args=('logits',))
 def gumbel_softmax(
-        logits: Array,
-        temperature: float = 1e-3,
-        axis: int = -1,
-        *,
-        name: str = None) -> Array:
-    """Return random sample from gumbel softmax distribution
+    logits: Array,
+    temperature: float = 1e-3,
+    axis: int = -1,
+    *,
+    name: str = None,
+) -> Array:
+    """Return random sample from gumbel softmax distribution.
 
     Parameters
     ----------

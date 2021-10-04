@@ -3,8 +3,8 @@ import typing as tp
 from pygrad._core._array import Array
 from pygrad._core._graph import Graph
 from pygrad._core._module import Module
-from pygrad.optimizers._optimizer import Optimizer
 from pygrad._utils._typecheck import _typecheck
+from pygrad.optimizers._optimizer import Optimizer
 
 
 class Gradient(Optimizer):
@@ -41,14 +41,31 @@ class Gradient(Optimizer):
 
     @_typecheck()
     def __init__(
-            self,
-            parameters: tp.Union[Module, tp.Iterable[Array]],
-            learning_rate: float = 1e-3):
+        self,
+        parameters: tp.Union[Module, tp.Iterable[Array]],
+        learning_rate: float = 1e-3,
+    ):
+        """Initialize gradient optimizer.
+
+        Parameters
+        ----------
+        parameters : tp.Union[Module, tp.Iterable[Array]]
+            Parameter to optimize.
+        learning_rate : float, optional
+            Learning rate of the update, by default 1e-3
+        """
         super().__init__(parameters)
         self.learning_rate = learning_rate
 
     @property
     def learning_rate(self) -> float:
+        """Return learning rate.
+
+        Returns
+        -------
+        float
+            Learning rate.
+        """
         return self._learning_rate
 
     @learning_rate.setter

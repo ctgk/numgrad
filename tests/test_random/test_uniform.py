@@ -1,6 +1,7 @@
+from unittest.mock import patch
+
 import numpy as np
 import pytest
-from unittest.mock import patch
 
 import pygrad as gd
 from pygrad._utils._numerical_grad import _numerical_grad
@@ -45,7 +46,7 @@ def test_forward_2(low, high, size, name):
     (
         gd.Array(np.random.rand(2, 3), is_variable=True),
         gd.Array(np.random.rand(2, 1), is_variable=True),
-        None
+        None,
     ),
     (
         gd.Array(np.random.rand(4, 2, 3), is_variable=True),
@@ -55,7 +56,7 @@ def test_forward_2(low, high, size, name):
     (
         gd.Array(np.random.rand(2), is_variable=True),
         gd.Array(np.random.rand(2), is_variable=True),
-        (3, 2)
+        (3, 2),
     ),
 ])
 def test_numerical_grad(low, high, size):

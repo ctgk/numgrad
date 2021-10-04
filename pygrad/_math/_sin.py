@@ -19,7 +19,7 @@ class _Sin(_Operator):
 
 @_typecheck(exclude_args=('x',))
 def sin(x: Array, *, name: str = None) -> Array:
-    """Return trigonometric sine of each element
+    """Return trigonometric sine of each element.
 
     Parameters
     ----------

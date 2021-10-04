@@ -4,22 +4,22 @@ import numpy as np
 
 from pygrad._core._array import Array
 from pygrad._core._module import Module
-from pygrad.optimizers._gradient import Gradient
 from pygrad._utils._typecheck import _typecheck
+from pygrad.optimizers._gradient import Gradient
 
 
 class Adam(Gradient):
-    """Adam optimizer
-    """
+    """Adam optimizer."""
 
     @_typecheck(exclude_args=('parameters', 'learning_rate'))
     def __init__(
-            self,
-            parameters: tp.Union[Module, tp.Iterable[Array]],
-            learning_rate: float = 0.001,
-            beta1: float = 0.9,
-            beta2: float = 0.999):
-        """Construct Adam optimizer
+        self,
+        parameters: tp.Union[Module, tp.Iterable[Array]],
+        learning_rate: float = 0.001,
+        beta1: float = 0.9,
+        beta2: float = 0.999,
+    ):
+        """Construct Adam optimizer.
 
         Parameters
         ----------
@@ -45,7 +45,8 @@ class Adam(Gradient):
         alpha = (
             learning_rate
             * (1 - self._beta2 ** self._n_iter) ** 2
-            / (1 - self._beta1 ** self._n_iter))
+            / (1 - self._beta1 ** self._n_iter)
+        )
         for i, (param, m1, m2) in enumerate(zip(
                 self._parameters, self._moment1, self._moment2)):
             g = param.grad

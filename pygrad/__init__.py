@@ -1,15 +1,16 @@
+"""Simple gradient computation library for Python."""
+
+from pygrad import distributions, nn, optimizers, random, stats
 from pygrad._core._array import Array
 from pygrad._core._config import config
 from pygrad._core._errors import DifferentiationError
 from pygrad._core._graph import Graph
 from pygrad._core._module import Module
-from pygrad._core._types import (
+from pygrad._core._types import (  # noqa: I101
     DataType, Int8, Int16, Int32, Int64, Float16, Float32, Float64,
 )
-
 from pygrad._manipulation._reshape import reshape
 from pygrad._manipulation._transpose import transpose
-
 from pygrad._math._add import add
 from pygrad._math._cos import cos
 from pygrad._math._cosh import cosh
@@ -32,8 +33,6 @@ from pygrad._math._subtract import subtract
 from pygrad._math._sum import sum
 from pygrad._math._tan import tan
 from pygrad._math._tanh import tanh
-
-from pygrad import distributions, nn, optimizers, random, stats
 
 
 def _reshape(x: Array, *newshape):
@@ -76,34 +75,37 @@ for _cls in _classes:
     _cls.__module__ = 'pygrad'
 
 
-__all__ = [_cls.__name__ for _cls in _classes] + [
-    'config',
+__all__ = (
+    [_cls.__name__ for _cls in _classes]
+    + [
+        'config',
 
-    'reshape',
-    'transpose',
+        'reshape',
+        'transpose',
 
-    'add',
-    'cos',
-    'cosh',
-    'divide',
-    'exp',
-    'gamma',
-    'log',
-    'logsumexp',
-    'matmul',
-    'max',
-    'mean',
-    'min',
-    'multiply',
-    'negate',
-    'sin',
-    'sinh',
-    'sqrt',
-    'square',
-    'subtract',
-    'sum',
-    'tan',
-    'tanh',
+        'add',
+        'cos',
+        'cosh',
+        'divide',
+        'exp',
+        'gamma',
+        'log',
+        'logsumexp',
+        'matmul',
+        'max',
+        'mean',
+        'min',
+        'multiply',
+        'negate',
+        'sin',
+        'sinh',
+        'sqrt',
+        'square',
+        'subtract',
+        'sum',
+        'tan',
+        'tanh',
 
-    'distributions', 'nn', 'optimizers', 'random', 'stats',
-]
+        'distributions', 'nn', 'optimizers', 'random', 'stats',
+    ]
+)

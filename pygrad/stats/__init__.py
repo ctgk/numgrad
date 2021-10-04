@@ -1,3 +1,5 @@
+"""Statistics module."""
+
 from pygrad.stats._bernoulli import Bernoulli
 from pygrad.stats._categorical import Categorical
 from pygrad.stats._exponential import Exponential
@@ -30,11 +32,14 @@ for _cls in _classes:
     _cls.__module__ = 'pygrad.stats'
 
 
-__all__ = [_cls.__name__ for _cls in _classes] + [
-    'log_softmax',
-    'sigmoid',
-    'sigmoid_cross_entropy',
-    'softmax',
-    'softmax_cross_entropy',
-    'sparse_softmax_cross_entropy',
-]
+__all__ = (
+    [_cls.__name__ for _cls in _classes]
+    + [
+        'log_softmax',
+        'sigmoid',
+        'sigmoid_cross_entropy',
+        'softmax',
+        'softmax_cross_entropy',
+        'sparse_softmax_cross_entropy',
+    ]
+)

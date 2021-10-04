@@ -1,3 +1,5 @@
+"""Distribution module."""
+
 from pygrad.distributions._bernoulli import Bernoulli
 from pygrad.distributions._categorical import Categorical
 from pygrad.distributions._distribution import Distribution, JointDistribution

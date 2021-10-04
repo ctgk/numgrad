@@ -18,7 +18,7 @@ def test_forward(x, y, name):
     (
         gd.Array([1., -1, 5], is_variable=True),
         gd.Array(3., is_variable=True),
-        np.ones(3) * 3, 5
+        np.ones(3) * 3, 5,
     ),
 ])
 def test_backward(x, y, expected_dx, expected_dy):
@@ -34,7 +34,7 @@ def test_backward(x, y, expected_dx, expected_dy):
 @pytest.mark.parametrize('x, y', [
     (
         gd.Array(np.random.rand(5, 1, 3), is_variable=True),
-        gd.Array(np.random.rand(2, 3), is_variable=True)
+        gd.Array(np.random.rand(2, 3), is_variable=True),
     ),
 ])
 def test_numerical_grad(x, y):

@@ -18,15 +18,15 @@ def test_forward(x, axes, name):
 @pytest.mark.parametrize('x, axes', [
     (
         gd.Array(np.random.rand(2, 3, 4, 2), is_variable=True),
-        (1, 0, 3, 2)
+        (1, 0, 3, 2),
     ),
     (
         gd.Array(np.random.rand(2, 3, 4, 2), is_variable=True),
-        (2, 0, 3, 1)
+        (2, 0, 3, 1),
     ),
     (
         gd.Array(np.random.rand(2, 3, 4), is_variable=True),
-        (1, 0, 2)
+        (1, 0, 2),
     ),
 ])
 def test_numerical_grad(x, axes):

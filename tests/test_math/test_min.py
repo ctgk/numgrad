@@ -15,11 +15,11 @@ np.random.seed(0)
     ),
     (
         gd.Array(np.random.uniform(-9, 9, (4, 2, 3)), is_variable=True),
-        1, False
+        1, False,
     ),
     (
         gd.Array(np.random.uniform(-9, 9, (4, 2, 3)), is_variable=True),
-        (0, -1), True
+        (0, -1), True,
     ),
 ])
 def test_numerical_grad(x, axis, keepdims):

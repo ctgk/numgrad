@@ -26,11 +26,12 @@ class _Exponential(_Operator):
 
 @_typecheck(exclude_args=('scale',))
 def exponential(
-        scale: Array,
-        size: tp.Union[int, tp.Iterable[int], None] = None,
-        *,
-        name: str = None) -> Array:
-    r"""Return random samples from exponential distribution
+    scale: Array,
+    size: tp.Union[int, tp.Iterable[int], None] = None,
+    *,
+    name: str = None,
+) -> Array:
+    r"""Return random samples from exponential distribution.
 
     .. math::
         p(x|\beta) = {1\over\beta}e^{-{x\over\beta}}

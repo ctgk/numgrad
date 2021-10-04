@@ -8,7 +8,7 @@ from pygrad._utils._numerical_grad import _numerical_grad
 @pytest.mark.parametrize('labels, logits', [
     (
         gd.Array(np.random.rand(2, 3), is_variable=True),
-        gd.Array(np.random.uniform(-9, 9, (4, 2, 3)), is_variable=True)
+        gd.Array(np.random.uniform(-9, 9, (4, 2, 3)), is_variable=True),
     ),
 ])
 def test_numerical_grad_1(labels, logits):
@@ -26,7 +26,7 @@ def test_numerical_grad_1(labels, logits):
 @pytest.mark.parametrize('labels, logits', [
     (
         gd.Array([0., 1, 1]),
-        gd.Array(np.random.uniform(-9, 9, (4, 2, 3)), is_variable=True)
+        gd.Array(np.random.uniform(-9, 9, (4, 2, 3)), is_variable=True),
     ),
 ])
 def test_numerical_grad_2(labels, logits):

@@ -1,3 +1,5 @@
+"""Module for random operations."""
+
 from pygrad.random._bernouilli import bernoulli
 from pygrad.random._categorical import categorical
 from pygrad.random._exponential import exponential

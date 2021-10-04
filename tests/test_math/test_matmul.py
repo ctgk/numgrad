@@ -21,15 +21,15 @@ def test_matmul_forward(x, y):
 @pytest.mark.parametrize('x, y', [
     (
         gd.Array(np.random.rand(3, 4), is_variable=True),
-        gd.Array(np.random.rand(4, 6), is_variable=True)
+        gd.Array(np.random.rand(4, 6), is_variable=True),
     ),
     (
         gd.Array(np.random.rand(4), is_variable=True),
-        gd.Array(np.random.rand(4, 6), is_variable=True)
+        gd.Array(np.random.rand(4, 6), is_variable=True),
     ),
     (
         gd.Array(np.random.rand(3, 4), is_variable=True),
-        gd.Array(np.random.rand(4), is_variable=True)
+        gd.Array(np.random.rand(4), is_variable=True),
     ),
 ])
 def test_matmul_numerical_grad(x, y):

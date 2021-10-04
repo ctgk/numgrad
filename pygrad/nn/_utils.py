@@ -9,7 +9,8 @@ def _im2col(
         im: np.ndarray,
         size: tp.Iterable[int],
         step: tp.Iterable[int] = (1, 1)) -> np.ndarray:
-    """
+    """Image to columns.
+
     Examples
     --------
     >>> import numpy as np
@@ -64,7 +65,8 @@ def _im2col(
 
 
 def _col2im(col: np.ndarray, step: tp.Iterable[int], out: np.ndarray):
-    """
+    """Columns to image.
+
     Examples
     --------
     >>> import numpy as np

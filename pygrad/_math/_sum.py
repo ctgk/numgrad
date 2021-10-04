@@ -25,9 +25,11 @@ class _Sum(_Operator):
         return np.sum(x, axis=self.axis, keepdims=self.keepdims)
 
     def _backward_numpy(self, dy, x):
-        if all((isinstance(dy, np.ndarray),
-                (not self.keepdims),
-                (self.axis is not None))):
+        if all((
+            isinstance(dy, np.ndarray),
+            (not self.keepdims),
+            (self.axis is not None),
+        )):
             axis_positive = []
             for axis in self.axis:
                 if axis < 0:
@@ -41,11 +43,13 @@ class _Sum(_Operator):
 
 
 @_typecheck(exclude_args=('x',))
-def sum(x: Array,
-        axis: Union[int, Iterable[int], None] = None,
-        keepdims: bool = False,
-        *,
-        name: str = None) -> Array:
+def sum(
+    x: Array,
+    axis: Union[int, Iterable[int], None] = None,
+    keepdims: bool = False,
+    *,
+    name: str = None,
+) -> Array:
     """Sum elements in the array along given axis.
 
     Parameters

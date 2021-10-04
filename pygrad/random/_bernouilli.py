@@ -29,7 +29,7 @@ def bernoulli(
         size: tp.Union[tp.Iterable[int], None] = None,
         *,
         name: str = None):
-    """Return array with values following bernoulli distributions
+    """Return array with values following bernoulli distributions.
 
     Parameters
     ----------

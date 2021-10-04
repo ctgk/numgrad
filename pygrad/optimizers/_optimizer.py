@@ -7,10 +7,16 @@ from pygrad._core._module import Module
 
 
 class Optimizer(object):
-    """Base optimizer class.
-    """
+    """Base optimizer class."""
 
     def __init__(self, parameters: tp.Union[Module, tp.Iterable[Array]]):
+        """Initialize optimizer object.
+
+        Parameters
+        ----------
+        parameters : tp.Union[Module, tp.Iterable[Array]]
+            Parameters to optimize
+        """
         if isinstance(parameters, Module):
             self._module = parameters
             parameters = tuple(parameters.trainables.values())
@@ -24,14 +30,22 @@ class Optimizer(object):
 
     @property
     def n_iter(self) -> int:
+        """Return number of optimization iteration carried out.
+
+        Returns
+        -------
+        int
+            Number of optimization iteration carried out.
+        """
         return self._n_iter
 
     @staticmethod
     def _check_in_range(
-            name: str,
-            value: float,
-            min_: float = None,
-            max_: float = None):
+        name: str,
+        value: float,
+        min_: float = None,
+        max_: float = None,
+    ):
         if ((min_ is not None and value < min_)
                 or (max_ is not None and value >= max_)):
             raise ValueError(
@@ -40,9 +54,10 @@ class Optimizer(object):
 
     @contextmanager
     def _increment_count_calc_grad_clear(
-            self,
-            graph: Graph = None,
-            clear: bool = True):
+        self,
+        graph: Graph = None,
+        clear: bool = True,
+    ):
         self._n_iter += 1
         if graph is not None:
             graph.backward()
@@ -57,7 +72,21 @@ class Optimizer(object):
                         p.clear_grad()
 
     def minimize(self, graph: Graph):
+        """Minimize leaf node value in the graph w.r.t. the parameters.
+
+        Parameters
+        ----------
+        graph : Graph
+            Computational graph.
+        """
         raise NotImplementedError
 
     def maximize(self, graph: Graph):
+        """Maximize leaf node value in the graph w.r.t. the parameters.
+
+        Parameters
+        ----------
+        graph : Graph
+            Computational graph.
+        """
         raise NotImplementedError

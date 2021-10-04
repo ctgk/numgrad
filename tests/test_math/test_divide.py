@@ -21,7 +21,7 @@ def test_divide_forward(x, y, name):
 @pytest.mark.parametrize('x, y', [
     (
         gd.Array(np.random.rand(5, 1, 3), is_variable=True),
-        gd.Array(np.random.rand(2, 3), is_variable=True)
+        gd.Array(np.random.rand(2, 3), is_variable=True),
     ),
 ])
 def test_divide_numerical_grad(x, y):

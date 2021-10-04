@@ -9,12 +9,12 @@ from pygrad._utils._numerical_grad import _numerical_grad
     (
         gd.Array([[0., 1, 0], [1, 0, 1]], is_variable=True),
         gd.Array(np.random.uniform(-9, 9, (2, 3)), is_variable=True),
-        0
+        0,
     ),
     (
         gd.Array([[0., 1, 0], [1, 0, 0]], is_variable=True),
         gd.Array(np.random.uniform(-9, 9, (2, 3)), is_variable=True),
-        1
+        1,
     ),
 ])
 def test_numerical_grad_1(labels, logits, axis):
@@ -32,12 +32,12 @@ def test_numerical_grad_1(labels, logits, axis):
     (
         gd.Array([[0., 1, 0], [1, 0, 1]]),
         gd.Array(np.random.uniform(-9, 9, (2, 3)), is_variable=True),
-        0
+        0,
     ),
     (
         gd.Array([[0., 1, 0], [1, 0, 0]]),
         gd.Array(np.random.uniform(-9, 9, (2, 3)), is_variable=True),
-        1
+        1,
     ),
 ])
 def test_numerical_grad_2(labels, logits, axis):

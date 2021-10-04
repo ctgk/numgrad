@@ -8,7 +8,7 @@ from pygrad._core._module import Module
 from pygrad._core._operator import _Operator
 from pygrad._core._types import DataType
 from pygrad._utils._typecheck import _typecheck
-from pygrad.nn._utils import _im2col, _col2im, _to_pair
+from pygrad.nn._utils import _col2im, _im2col, _to_pair
 
 
 class _Conv2dTranspose(_Operator):
@@ -46,7 +46,8 @@ class _Conv2dTranspose(_Operator):
         return out[
             :,
             self._pad[0]: out.shape[1] - self._pad[0],
-            self._pad[1]: out.shape[2] - self._pad[1]]
+            self._pad[1]: out.shape[2] - self._pad[1],
+        ]
 
     def _backward_numpy(self, delta, x, w):
         delta = np.pad(
@@ -65,14 +66,15 @@ class _Conv2dTranspose(_Operator):
 
 @_typecheck(exclude_args=('x', 'w'))
 def conv2d_transpose(
-        x: Array,
-        w: Array,
-        strides: tp.Union[int, tp.Iterable[int]] = (1, 1),
-        pad: tp.Union[int, tp.Iterable[int]] = (0, 0),
-        shape: tp.Union[tp.Iterable[int], None] = None,
-        *,
-        name: tp.Union[str, None] = None) -> Array:
-    """Perform transposed convolution operation
+    x: Array,
+    w: Array,
+    strides: tp.Union[int, tp.Iterable[int]] = (1, 1),
+    pad: tp.Union[int, tp.Iterable[int]] = (0, 0),
+    shape: tp.Union[tp.Iterable[int], None] = None,
+    *,
+    name: tp.Union[str, None] = None,
+) -> Array:
+    """Perform transposed convolution operation.
 
     Parameters
     ----------
@@ -131,7 +133,7 @@ def conv2d_transpose(
 
 
 class Conv2DTranspose(Module):
-    """Two-dimesional tranposed convolution layer
+    """Two-dimesional tranposed convolution layer.
 
     Examples
     --------
@@ -143,15 +145,35 @@ class Conv2DTranspose(Module):
 
     @_typecheck()
     def __init__(
-            self,
-            in_channels: int,
-            out_channels: int,
-            kernel_size: tp.Union[int, tp.Iterable[int]],
-            strides: tp.Union[int, tp.Iterable[int]] = (1, 1),
-            pad: tp.Union[int, tp.Iterable[int]] = (0, 0),
-            shape: tp.Union[tp.Iterable[int], None] = None,
-            bias: bool = True,
-            dtype: tp.Union[tp.Type[DataType], None] = None):
+        self,
+        in_channels: int,
+        out_channels: int,
+        kernel_size: tp.Union[int, tp.Iterable[int]],
+        strides: tp.Union[int, tp.Iterable[int]] = (1, 1),
+        pad: tp.Union[int, tp.Iterable[int]] = (0, 0),
+        shape: tp.Union[tp.Iterable[int], None] = None,
+        bias: bool = True,
+        dtype: tp.Union[tp.Type[DataType], None] = None,
+    ):
+        """Initialize 2d transposed convolution module.
+
+        Parameters
+        ----------
+        in_channels : int
+            Number of input channels
+        out_channels : int
+            Number of output channels
+        kernel_size : tp.Union[int, tp.Iterable[int]]
+            Size of convolution kernel
+        strides : tp.Union[int, tp.Iterable[int]], optional
+            Strides of kernel convolution, by default (1, 1)
+        pad : tp.Union[int, tp.Iterable[int]], optional
+            Pad width, by default (0, 0)
+        bias : bool, optional
+            Add bias if true, by default True
+        dtype : tp.Union[tp.Type[DataType], None], optional
+            Data type, by default None
+        """
         super().__init__()
         dtype = dtype if dtype is not None else config.dtype
         self._in_channels = in_channels
@@ -177,6 +199,18 @@ class Conv2DTranspose(Module):
                 is_variable=True)
 
     def __call__(self, x: Array, **kwargs) -> Array:
+        """Apply transposed convolution.
+
+        Parameters
+        ----------
+        x : Array
+            Input
+
+        Returns
+        -------
+        Array
+            Result of transposed convolution.
+        """
         x = _Conv2dTranspose(
             x, self.weight, size=self._kernel_size,
             out_channels=self._out_channels, strides=self._strides,

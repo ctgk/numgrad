@@ -9,7 +9,7 @@ from pygrad._utils._numerical_grad import _numerical_grad
     (
         [1, -1, 5],
         'log_softmax',
-        np.log(np.exp([1, -1, 5]) / np.exp([1, -1, 5]).sum())
+        np.log(np.exp([1, -1, 5]) / np.exp([1, -1, 5]).sum()),
     ),
 ])
 def test_forward(x, name, expected):

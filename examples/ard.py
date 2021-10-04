@@ -126,7 +126,7 @@ if __name__ == "__main__":
                 list(v.data.ravel()) for k, v in model.trainables.items()
                 if 'Qw.loc' in k
             ),
-            []
+            [],
         ),
     )
     plt.xticks(rotation=90)

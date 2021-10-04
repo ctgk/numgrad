@@ -9,14 +9,26 @@ from pygrad.stats._statistics import Statistics
 
 
 class Distribution(Module, abc.ABC):
-    """Base probability distribution class
-    """
+    """Base probability distribution class."""
 
     def __init__(
-            self,
-            rv: str = 'x',
-            name: str = 'p',
-            conditions: tp.List[str] = None):
+        self,
+        rv: str = 'x',
+        name: str = 'p',
+        conditions: tp.List[str] = None,
+    ):
+        """Initialize probability distribution module.
+
+        Parameters
+        ----------
+        rv : str, optional
+            Name of the random variable that follows the distribution,
+            by default 'x'
+        name : str, optional
+            Name of the distribution, by default 'p'
+        conditions : tp.List[str], optional
+            Name of conditional random variables, by default None
+        """
         super().__init__()
         self._rv = (self._ensure_no_ng_char('rv', rv),)
         forward_spec = inspect.getfullargspec(self.forward)
@@ -53,6 +65,13 @@ class Distribution(Module, abc.ABC):
         return value
 
     def __repr__(self) -> str:
+        """Return representation of the distribution.
+
+        Returns
+        -------
+        str
+            Representation of the distribution.
+        """
         out = f'{self._name}({self._rv[0]}'
         if self._conditions:
             out += '|' + ','.join(self._conditions)
@@ -60,11 +79,22 @@ class Distribution(Module, abc.ABC):
         return out
 
     def __call__(
-            self,
-            *,
-            use_cache: bool = False,
-            **conditions: Array) -> Statistics:
-        """Return statistics of this distribution given conditions
+        self,
+        *,
+        use_cache: bool = False,
+        **conditions: Array,
+    ) -> Statistics:
+        """Return statistics of the distribution given conditions.
+
+        Parameters
+        ----------
+        use_cache : bool, optional
+            Use cached values if True, by default False
+
+        Returns
+        -------
+        Statistics
+            Statistics of the distribution.
         """
         if self._stats is None or (not use_cache):
             self._stats = self.forward(
@@ -72,19 +102,20 @@ class Distribution(Module, abc.ABC):
         return self._stats
 
     def clear(self):
+        """Clear caches."""
         super().clear()
         self._stats = None
 
     @_typecheck(exclude_types=(Array,))
     def logpdf(
-            self,
-            obs: tp.Union[Array, tp.Dict[str, Array]],
-            conditions: tp.Dict[str, Array] = {},
-            *,
-            use_cache: bool = False,
-            reduce: tp.Union[str, None] = 'sum') -> Array:
-        """Return sum of logarithm of probability density (mass) function
-        given conditions
+        self,
+        obs: tp.Union[Array, tp.Dict[str, Array]],
+        conditions: tp.Dict[str, Array] = {},
+        *,
+        use_cache: bool = False,
+        reduce: tp.Union[str, None] = 'sum',
+    ) -> Array:
+        """Return sum of logarithm of pdf (or pmf) given conditions.
 
         Parameters
         ----------
@@ -112,11 +143,12 @@ class Distribution(Module, abc.ABC):
 
     @_typecheck(exclude_types=(Array,))
     def sample(
-            self,
-            conditions: tp.Dict[str, Array] = {},
-            *,
-            use_cache: bool = False) -> tp.Dict[str, Array]:
-        """Return random sample of the random variable given conditions
+        self,
+        conditions: tp.Dict[str, Array] = {},
+        *,
+        use_cache: bool = False,
+    ) -> tp.Dict[str, Array]:
+        """Return random sample of the random variable given conditions.
 
         Parameters
         ----------
@@ -135,16 +167,23 @@ class Distribution(Module, abc.ABC):
 
     @abc.abstractmethod
     def forward(self, **conditions: Array) -> Statistics:
-        """Return statistics of this distribution given conditions
-        """
+        """Return statistics of this distribution given conditions."""
         pass
 
 
 class JointDistribution(Distribution):
-    """Joint probability distribution class
-    """
+    """Joint probability distribution class."""
 
     def __init__(self, p1: Distribution, p2: Distribution):
+        """Initialize joint distribution object.
+
+        Parameters
+        ----------
+        p1 : Distribution
+            First argument of distribution.
+        p2 : Distribution
+            Second argument of distribution.
+        """
         Module.__init__(self)
         if (set(p1._rv) & set(p2._rv)) or (set(p2._conditions) & set(p1._rv)):
             raise ValueError(f'Invalid joint of distributions {p1} and {p2}')
@@ -155,6 +194,13 @@ class JointDistribution(Distribution):
             (set(p1._conditions) | set(p2._conditions)) - set(self._rv))
 
     def __repr__(self):
+        """Return representation of the joint distribution.
+
+        Returns
+        -------
+        str
+            Representation of the joint distribution.
+        """
         return repr(self.p1) + repr(self.p2)
 
     def _get_rv_of(self, p: Distribution, **kwargs):
@@ -165,14 +211,14 @@ class JointDistribution(Distribution):
 
     @_typecheck(exclude_types=(Array,))
     def logpdf(
-            self,
-            obs: tp.Dict[str, Array],
-            conditions: tp.Dict[str, Array] = {},
-            *,
-            use_cache: bool = False,
-            reduce: tp.Union[str, None] = 'sum') -> Array:
-        """Return sum of logarithm of probability density (mass) function
-        given conditions
+        self,
+        obs: tp.Dict[str, Array],
+        conditions: tp.Dict[str, Array] = {},
+        *,
+        use_cache: bool = False,
+        reduce: tp.Union[str, None] = 'sum',
+    ) -> Array:
+        """Return sum of logarithm of pdf (pmf) given conditions.
 
         Parameters
         ----------
@@ -200,11 +246,12 @@ class JointDistribution(Distribution):
 
     @_typecheck(exclude_types=(Array,))
     def sample(
-            self,
-            conditions: tp.Dict[str, Array] = {},
-            *,
-            use_cache: bool = False) -> tp.Dict[str, Array]:
-        """Return random sample of the random variable given conditions
+        self,
+        conditions: tp.Dict[str, Array] = {},
+        *,
+        use_cache: bool = False,
+    ) -> tp.Dict[str, Array]:
+        """Return random sample of the random variable given conditions.
 
         Parameters
         ----------
@@ -225,6 +272,7 @@ class JointDistribution(Distribution):
         return {**p1_sample, **p2_sample}
 
     def forward(self, **conditions: Array):
+        """Return statistics."""
         raise NotImplementedError
 
     def _logpdf(self) -> Array:

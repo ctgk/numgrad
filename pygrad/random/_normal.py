@@ -18,7 +18,7 @@ class _Normal(_Operator):
             name: str = None):
         super().__init__(loc, scale, name=name)
         self._size = np.broadcast(
-            *tuple(arg.data for arg in self._args)
+            *tuple(arg.data for arg in self._args),
         ).shape if size is None else size
 
     def _forward_numpy(self, loc, scale):
@@ -33,16 +33,17 @@ class _Normal(_Operator):
 
 @_typecheck(exclude_args=('loc', 'scale'))
 def normal(
-        loc: Array,
-        scale: Array,
-        size: tp.Union[int, tp.Iterable[int], None] = None,
-        *,
-        name: str = None) -> Array:
+    loc: Array,
+    scale: Array,
+    size: tp.Union[int, tp.Iterable[int], None] = None,
+    *,
+    name: str = None,
+) -> Array:
     r"""Return array with normally distributed values.
 
     .. math::
-        \mathcal{N}(x|\mu, \sigma^2) = {1\over\sqrt{2\pi\sigma^2}}\exp\left\{
-            -{1\over2\sigma^2}(x-\mu)^2\right\}
+        \mathcal{N}(x|\mu, \sigma^2) = {1\over\sqrt{2\pi\sigma^2}}
+            \exp\left\{-{1\over2\sigma^2}(x-\mu)^2\right\}
 
     Parameters
     ----------
@@ -63,15 +64,10 @@ def normal(
     Examples
     --------
     >>> import pygrad as gd; import numpy as np; np.random.seed(0)
-    >>> gd.random.normal(0, 1, (10,))
-    array([ 1.76405235,  0.40015721,  0.97873798,  2.2408932 ,  1.86755799,
-           -0.97727788,  0.95008842, -0.15135721, -0.10321885,  0.4105985 ])
-    >>> gd.random.normal(gd.random.normal(0, 1, [5, 1]), [1, 2], (5, 2))
-    array([[ 0.4777179 ,  3.13220172],
-           [ 1.24911524,  2.08040891],
-           [-0.09305801, -4.34494191],
-           [ 0.77529361,  1.85054741],
-           [-0.29830179,  4.98337248]])
+    >>> gd.random.normal(0, 1, (4,))
+    array([1.76405235, 0.40015721, 0.97873798, 2.2408932 ])
+    >>> gd.random.normal([-1, 2, 0], 0.1, (3,))
+    array([-0.8132442 ,  1.90227221,  0.09500884])
     """
     if isinstance(loc, Array) or isinstance(scale, Array):
         return _Normal(loc, scale, name=name).forward()

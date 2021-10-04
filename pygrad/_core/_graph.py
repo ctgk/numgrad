@@ -7,10 +7,10 @@ from pygrad._core._config import config
 
 
 class Graph(object):
-    """Computational graph class
-    """
+    """Computational graph class."""
 
     def __init__(self):
+        """Initialize graph object."""
         super().__init__()
         self._parent = OrderedDict()
         self._children = {}
@@ -18,12 +18,14 @@ class Graph(object):
         self._terminal = None
 
     def __enter__(self):
+        """Create graph context."""
         if config._graph is not None:
             raise ValueError('There is already a graph under construction')
         config._graph = self
         return self
 
     def __exit__(self, *args, **kwargs):
+        """Exit current graph context."""
         config._graph = None
         for arg, children in self._children.items():
             if len(children) == 0:
@@ -47,8 +49,7 @@ class Graph(object):
         array._graph = self
 
     def forward(self):
-        """Run forward propagation through the computational graph
-        """
+        """Run forward propagation through the computational graph."""
         for k in self._backward_counts:
             self._backward_counts[k] = 0
         for arr, op in self._parent.items():
@@ -77,7 +78,6 @@ class Graph(object):
                     raise ValueError()
 
     def backward(self):
-        """Run backpropagation through the computational graph
-        """
+        """Run backpropagation through the computational graph."""
         self._terminal._grad = np.ones_like(self._terminal._data)
         self._backward(self._terminal)

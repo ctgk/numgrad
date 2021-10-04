@@ -5,12 +5,10 @@ from pygrad._core._module import Module
 
 
 class Sequential(Module):
-    """Sequence of layers
-    """
+    """Sequence of layers."""
 
     def __init__(self, *layers: tp.Iterable[Module]):
-        """Construct sequence of layers
-        """
+        """Construct sequence of layers."""
         super().__init__()
         if any(not isinstance(layer, Module) for layer in layers):
             raise TypeError(
@@ -19,7 +17,7 @@ class Sequential(Module):
         self.layers = layers
 
     def __call__(self, x: Array, **kwargs) -> Array:
-        """Process the input through the sequence of the layers
+        """Process the input through the sequence of the layers.
 
         Parameters
         ----------

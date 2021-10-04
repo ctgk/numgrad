@@ -4,7 +4,7 @@ from pygrad.stats._bernoulli import Bernoulli as BernoulliStats
 
 
 class Bernoulli(Distribution):
-    """Bernoulli distribution
+    """Bernoulli distribution.
 
     Examples
     --------
@@ -22,11 +22,28 @@ class Bernoulli(Distribution):
 
     @_typecheck()
     def __init__(
-            self,
-            rv: str = 'x',
-            name: str = 'Bern'):
+        self,
+        rv: str = 'x',
+        name: str = 'Bern',
+    ):
+        """Initialize Bernoulli distribution.
+
+        Parameters
+        ----------
+        rv : str, optional
+            Name of the random variable, by default 'x'
+        name : str, optional
+            Name of the distribution, by default 'Bern'
+        """
         super().__init__(rv=rv, name=name)
 
     @staticmethod
     def forward() -> BernoulliStats:
+        """Return statistics of Bernoulli distribution.
+
+        Returns
+        -------
+        BernoulliStats
+            Statistics of Bernoulli distribution.
+        """
         return BernoulliStats(logits=0)

@@ -1,24 +1,17 @@
-from setuptools import setup, find_packages
+"""Setup module.
+
+See:
+https://packaging.python.org/guides/distributing-packages-using-setuptools/
+https://github.com/pypa/sampleproject/blob/main/setup.py
+"""
+
+
+from setuptools import find_packages, setup
 
 
 install_requires = [
     'numpy',
     'scipy',
-]
-develop_requires = [
-    'autopep8',
-    'flake8',
-    'pep8-naming',
-    'pre-commit',
-    'pytest',
-    'sphinx',
-    'sphinx_rtd_theme',
-    'livereload',
-
-    'matplotlib',
-    'scikit-image',
-    'scikit-learn',
-    'tqdm',
 ]
 
 
@@ -33,9 +26,6 @@ setup(
         exclude=('tests', 'tests.*'), include=('pygrad', 'pygrad.*')),
     python_requires='>=3.6',
     install_requires=install_requires,
-    extras_require={
-        'develop': develop_requires,
-    },
 
     zip_safe=False,
 )

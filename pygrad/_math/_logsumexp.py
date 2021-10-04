@@ -25,9 +25,11 @@ class _Logsumexp(_Operator):
         return self.output
 
     def _backward_numpy(self, delta, x):
-        if all((isinstance(delta, np.ndarray),
-                (not self._keepdims),
-                (self._axis is not None))):
+        if all((
+            isinstance(delta, np.ndarray),
+            (not self._keepdims),
+            (self._axis is not None),
+        )):
             axis_positive = []
             for axis in self._axis:
                 if axis < 0:

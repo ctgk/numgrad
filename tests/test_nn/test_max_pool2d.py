@@ -16,8 +16,8 @@ np.random.seed(0)
             is_variable=True),
         (2, 2),
         None,
-        0
-    )
+        0,
+    ),
 ])
 def test_forward_backward(x, size, strides, pad):
     with gd.Graph() as g:
@@ -30,7 +30,7 @@ def test_forward_backward(x, size, strides, pad):
         gd.Array(np.random.rand(1, 4, 4, 2), is_variable=True),
         (2, 2),
         None,
-        0
+        0,
     ),
     (
         gd.Array(np.random.rand(2, 4, 4, 2), is_variable=True),

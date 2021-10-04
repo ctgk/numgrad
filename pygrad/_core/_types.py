@@ -2,34 +2,50 @@ import numpy as np
 
 
 class DataType:
+    """Data type class."""
+
     pass
 
 
 class Int8(np.int8, DataType):
+    """8-bit integer class."""
+
     pass
 
 
 class Int16(np.int16, DataType):
+    """16-bit integer class."""
+
     pass
 
 
 class Int32(np.int32, DataType):
+    """32-bit integer class."""
+
     pass
 
 
 class Int64(np.int64, DataType):
+    """64-bit integer class."""
+
     pass
 
 
 class Float16(np.float16, DataType):
+    """16-bit float class."""
+
     pass
 
 
 class Float32(np.float32, DataType):
+    """32-bit float class."""
+
     pass
 
 
 class Float64(np.float64, DataType):
+    """64-bit float class."""
+
     pass
 
 

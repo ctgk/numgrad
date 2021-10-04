@@ -69,8 +69,9 @@ def _typecheck_arg(
 
 
 def _typecheck(
-        exclude_args: tp.Tuple[str] = (),
-        exclude_types: tp.Tuple[tp.Type] = ()) -> callable:
+    exclude_args: tp.Tuple[str] = (),
+    exclude_types: tp.Tuple[tp.Type] = (),
+) -> callable:
 
     def _wrapper(func: callable) -> callable:
         argspec = inspect.getfullargspec(func)

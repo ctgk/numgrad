@@ -6,7 +6,7 @@ from pygrad._core._array import Array
 from pygrad._core._module import Module
 from pygrad._core._operator import _Operator
 from pygrad._utils._typecheck import _typecheck
-from pygrad.nn._utils import _im2col, _col2im, _to_pair
+from pygrad.nn._utils import _col2im, _im2col, _to_pair
 
 
 class _MaxPool2D(_Operator):
@@ -60,7 +60,7 @@ def max_pool2d(
         pad: tp.Union[int, tp.Iterable[int]] = (0, 0),
         *,
         name: tp.Union[str, None] = None) -> Array:
-    """Two-dimesional spatial max pooling
+    """Two-dimesional spatial max pooling.
 
     Parameters
     ----------
@@ -102,7 +102,7 @@ def max_pool2d(
 
 
 class MaxPool2D(Module):
-    """Two-dimensional spatial pooling layer
+    """Two-dimensional spatial pooling layer.
 
     Examples
     --------
@@ -114,10 +114,22 @@ class MaxPool2D(Module):
 
     @_typecheck()
     def __init__(
-            self,
-            size: tp.Union[int, tp.Iterable[int]],
-            strides: tp.Union[int, tp.Iterable[int], None] = None,
-            pad: tp.Union[int, tp.Iterable[int]] = (0, 0)):
+        self,
+        size: tp.Union[int, tp.Iterable[int]],
+        strides: tp.Union[int, tp.Iterable[int], None] = None,
+        pad: tp.Union[int, tp.Iterable[int]] = (0, 0),
+    ):
+        """Initialize max pooling layer.
+
+        Parameters
+        ----------
+        size : tp.Union[int, tp.Iterable[int]]
+            Size of max pooling
+        strides : tp.Union[int, tp.Iterable[int], None], optional
+            Stride to apply max pooling, by default None
+        pad : tp.Union[int, tp.Iterable[int]], optional
+            Pad width, by default (0, 0)
+        """
         super().__init__()
         self._size = _to_pair(size, 'size')
         self._strides = strides if strides is None else _to_pair(
@@ -125,4 +137,16 @@ class MaxPool2D(Module):
         self._pad = _to_pair(pad, 'pad')
 
     def __call__(self, x: Array, **kwargs) -> Array:
+        """Return output of max pooling layer.
+
+        Parameters
+        ----------
+        x : Array
+            Input.
+
+        Returns
+        -------
+        Array
+            Output of max pooling layer.
+        """
         return _MaxPool2D(x, self._size, self._strides, self._pad).forward()

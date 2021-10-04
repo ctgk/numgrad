@@ -11,7 +11,7 @@ from pygrad._utils._typecheck import _typecheck
 
 
 class Dense(Module):
-    """Densely connected layer
+    """Densely connected layer.
 
     Examples
     --------
@@ -28,7 +28,7 @@ class Dense(Module):
             out_features: int,
             bias: bool = True,
             dtype: tp.Union[tp.Type[DataType], None] = None):
-        """Constrct densely connected layer
+        """Constrct densely connected layer.
 
         Parameters
         ----------
@@ -57,6 +57,18 @@ class Dense(Module):
                 is_variable=True)
 
     def __call__(self, x: Array, **kwargs) -> Array:
+        """Return densely connected layer output.
+
+        Parameters
+        ----------
+        x : Array
+            Input.
+
+        Returns
+        -------
+        Array
+            Output of densely connected layer.
+        """
         x = matmul(x, self.weight)
         if hasattr(self, 'bias'):
             x = x + self.bias

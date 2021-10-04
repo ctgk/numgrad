@@ -38,7 +38,7 @@ class _VecMatMul(_Operator):
         delta = np.expand_dims(delta, -2)
         delta = np.broadcast_to(delta, y.shape)
         dx = _unbroadcast_to(
-            (delta * y).sum(axis=-1), x.shape
+            (delta * y).sum(axis=-1), x.shape,
         ) if self._args[0].is_variable else None
         dy = delta * x[:, None] if self._args[1].is_variable else None
         return dx, dy
@@ -72,10 +72,10 @@ class _BatchMatMul(_Operator):
 
     def _backward_numpy(self, delta, x, y):
         dx = _unbroadcast_to(
-            delta @ np.swapaxes(y, -1, -2), x.shape
+            delta @ np.swapaxes(y, -1, -2), x.shape,
         ) if self._args[0].is_variable else None
         dy = _unbroadcast_to(
-            np.swapaxes(x, -1, -2) @ delta, y.shape
+            np.swapaxes(x, -1, -2) @ delta, y.shape,
         ) if self._args[1].is_variable else None
         return dx, dy
 

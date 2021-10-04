@@ -5,7 +5,7 @@ from pygrad.random._gumbel_softmax import gumbel_softmax
 
 
 class RelaxedCategorical(Categorical):
-    """Relaxed categorical distribution
+    """Relaxed categorical distribution.
 
     Examples
     --------
@@ -23,11 +23,25 @@ class RelaxedCategorical(Categorical):
 
     @_typecheck()
     def __init__(
-            self,
-            n_classes: int = None,
-            temperature: float = 1e-2,
-            rv: str = 'x',
-            name: str = 'Cat'):
+        self,
+        n_classes: int = None,
+        temperature: float = 1e-2,
+        rv: str = 'x',
+        name: str = 'Cat',
+    ):
+        """Initialize the distribution.
+
+        Parameters
+        ----------
+        n_classes : int, optional
+            Number of the classes, by default None
+        temperature : float, optional
+            Relaxation parameter, by default 1e-2
+        rv : str, optional
+            Name of the random variable, by default 'x'
+        name : str, optional
+            Name of the distribution, by default 'Cat'
+        """
         super().__init__(n_classes, rv=rv, name=name)
         self._temperature = temperature
 

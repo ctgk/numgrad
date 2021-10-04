@@ -1,6 +1,6 @@
-from scipy.signal import correlate2d
 import numpy as np
 import pytest
+from scipy.signal import correlate2d
 
 import pygrad as gd
 from pygrad._utils._numerical_grad import _numerical_grad

@@ -21,7 +21,7 @@ class _Square(_Operator):
 
 @_typecheck(exclude_args=('x',))
 def square(x: Array, *, name: str = None) -> Array:
-    """Return square of each element
+    """Return square of each element.
 
     Parameters
     ----------

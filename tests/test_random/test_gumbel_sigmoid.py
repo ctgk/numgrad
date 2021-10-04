@@ -1,6 +1,7 @@
+from unittest.mock import patch
+
 import numpy as np
 import pytest
-from unittest.mock import patch
 
 import pygrad as gd
 from pygrad._utils._numerical_grad import _numerical_grad

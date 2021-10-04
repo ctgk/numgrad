@@ -32,7 +32,7 @@ def test_forward(x, axis, keepdims, name, expected):
 @pytest.mark.parametrize('x, axis, keepdims, expected', [
     (
         gd.Array([1., 3, -2], is_variable=True),
-        None, True, np.array([1] * 3)
+        None, True, np.array([1] * 3),
     ),
     (
         gd.Array([[2., 1], [-2, 5]], is_variable=True),

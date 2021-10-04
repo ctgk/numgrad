@@ -10,21 +10,21 @@ import pygrad as gd
             gd.Array(1., is_variable=True),
             gd.Array([1., -1.], is_variable=True),
         ],
-        1e-3, 0.9, 'NoError'
+        1e-3, 0.9, 'NoError',
     ),
     (
         [
             gd.Array(1., is_variable=True),
             gd.Array([1., -1.], is_variable=True),
         ],
-        1e-3, 1.1, ValueError
+        1e-3, 1.1, ValueError,
     ),
     (
         [
             gd.Array(1., is_variable=True),
             gd.Array([1., -1.], is_variable=True),
         ],
-        1e-3, -0.1, ValueError
+        1e-3, -0.1, ValueError,
     ),
 ])
 def test_init_error(parameters, learning_rate, rho, error):

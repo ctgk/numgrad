@@ -49,11 +49,23 @@ def relu(x: Array, *, name: str = None) -> Array:
 
 
 class ReLU(Module):
-    """Rectified linear unit layer
-    """
+    """Rectified linear unit layer."""
 
     def __init__(self):
+        """Initialize ReLU module."""
         super().__init__()
 
     def __call__(self, x: Array, **kwargs) -> Array:
+        """Pass through ReLU.
+
+        Parameters
+        ----------
+        x : Array
+            Input
+
+        Returns
+        -------
+        Array
+            Activation.
+        """
         return _ReLU(x).forward()

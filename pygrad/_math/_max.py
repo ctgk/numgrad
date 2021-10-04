@@ -23,9 +23,11 @@ class _Max(_Operator):
         return np.max(x, axis=self._axis, keepdims=self._keepdims)
 
     def _backward_numpy(self, dy, x):
-        if all((isinstance(dy, np.ndarray),
-                (not self._keepdims),
-                (self._axis is not None))):
+        if all((
+            isinstance(dy, np.ndarray),
+            (not self._keepdims),
+            (self._axis is not None),
+        )):
             axis_positive = []
             for axis in self._axis:
                 axis_positive.append(x.ndim + axis if axis < 0 else axis)
@@ -37,12 +39,14 @@ class _Max(_Operator):
 
 
 @_typecheck(exclude_args=('x',))
-def max(x: Array,
-        axis: tp.Union[int, tp.Iterable[int]] = None,
-        keepdims: bool = False,
-        *,
-        name: str = None) -> Array:
-    """Return maximum element along given axis
+def max(
+    x: Array,
+    axis: tp.Union[int, tp.Iterable[int]] = None,
+    keepdims: bool = False,
+    *,
+    name: str = None,
+) -> Array:
+    """Return maximum element along given axis.
 
     Parameters
     ----------

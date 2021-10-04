@@ -6,8 +6,10 @@ from pygrad._core._array import Array
 
 
 class Module(abc.ABC):
+    """Module class that contains trainable variables and has call method."""
 
     def __init__(self):
+        """Initialize module object."""
         super().__init__()
         object.__setattr__(self, '_module_name', self.__class__.__name__)
         self._trainables = {}
@@ -15,6 +17,7 @@ class Module(abc.ABC):
 
     @abc.abstractmethod
     def __call__(self, *args, **kwargs):
+        """Call method."""
         pass
 
     def _assert_init(self):
@@ -22,6 +25,7 @@ class Module(abc.ABC):
             raise RuntimeError('Should call super().__init__() in __init__()')
 
     def __setattr__(self, name, value):
+        """Set an attribute."""
         self._assert_init()
         if inspect.stack()[1][3] == '__init__':
             self._add_if_trainable(name, value)
@@ -47,6 +51,7 @@ class Module(abc.ABC):
                 self._trainables['.'.join((self._module_name, name, k))] = v
 
     def clear(self):
+        """Clear gradient of trainables."""
         self._assert_init()
         for param in self._trainables.values():
             param.clear_grad()
@@ -55,5 +60,12 @@ class Module(abc.ABC):
 
     @property
     def trainables(self) -> tp.Dict[str, Array]:
+        """Return dictionary of trainables.
+
+        Returns
+        -------
+        tp.Dict[str, Array]
+            Dictionary of trainables.
+        """
         self._assert_init()
         return self._trainables

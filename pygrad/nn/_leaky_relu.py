@@ -53,13 +53,31 @@ def leaky_relu(x: Array, alpha: float = 0.2, *, name: str = None) -> Array:
 
 
 class LeakyReLU(Module):
-    """Leaky rectified linear unit layer
-    """
+    """Leaky rectified linear unit layer."""
 
     @_typecheck()
     def __init__(self, alpha: float = 0.2):
+        """Initialize leaky ReLU module.
+
+        Parameters
+        ----------
+        alpha : float, optional
+            Coefficient of leak, by default 0.2
+        """
         super().__init__()
         self._alpha = alpha
 
     def __call__(self, x: Array, **kwargs) -> Array:
+        """Return result of leaky ReLU function.
+
+        Parameters
+        ----------
+        x : Array
+            Input.
+
+        Returns
+        -------
+        Array
+            Result of leaky ReLU.
+        """
         return _LeakyReLU(x, self._alpha).forward()

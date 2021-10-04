@@ -52,7 +52,7 @@ def sparse_softmax_cross_entropy(
         axis: int = -1,
         *,
         name: tp.Union[str, None] = None) -> Array:
-    """Return cross entropy of softmax of logits relative to given labels
+    """Return cross entropy of softmax of logits relative to given labels.
 
     Parameters
     ----------

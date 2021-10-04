@@ -60,11 +60,31 @@ def dropout(x: Array,
 
 
 class Dropout(Module):
+    """Dropout module."""
 
     @_typecheck()
     def __init__(self, droprate: float = 0.5):
+        """Initialize dropout module.
+
+        Parameters
+        ----------
+        droprate : float, optional
+            Rate of dropping values, by default 0.5
+        """
         super().__init__()
         self._droprate = droprate
 
     def __call__(self, x: Array, **kwargs) -> Array:
+        """Return output of dropout layer.
+
+        Parameters
+        ----------
+        x : Array
+            Input
+
+        Returns
+        -------
+        Array
+            Output of dropout layer.
+        """
         return dropout(x, droprate=kwargs.get('droprate'))

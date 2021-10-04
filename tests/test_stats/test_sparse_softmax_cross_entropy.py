@@ -9,18 +9,18 @@ from pygrad._utils._numerical_grad import _numerical_grad
     (
         gd.Array([1, 0, 1]),
         gd.Array(np.random.uniform(-9, 9, (2, 3)), is_variable=True),
-        0
+        0,
     ),
     (
         gd.Array([1, 0]),
         gd.Array(np.random.uniform(-9, 9, (2, 3)), is_variable=True),
-        1
+        1,
     ),
     (
         gd.Array([[1, 0], [2, 1]]),
         gd.Array(np.random.uniform(-9, 9, (2, 2, 4)), is_variable=True),
-        -1
-    )
+        -1,
+    ),
 ])
 def test_numerical_grad(labels, logits, axis):
     with gd.Graph() as g:
