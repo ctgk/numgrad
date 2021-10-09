@@ -1,49 +1,50 @@
-# import abc
+import abc
+import typing as tp
 
-# from pygrad._core._config import config
 
+class _Node(abc.ABC):
 
-# class _Node(abc.ABC):
-#     """Computational graph node.
+    def __init__(
+        self,
+        parents: tuple = tuple(),
+        name: str = None,
+    ) -> None:
+        self._check_parents_type(parents)
+        self._check_name_type_and_validtiy(name)
+        self._parents: tp.Tuple[_Node] = parents
+        self._name: tp.Union[None, str] = name
 
-#     Examples
-#     --------
-#     >>> import pygrad as gd
-#     >>> from pygrad._core._node import _Node
-#     >>> a = _Node()
-#     >>> b = _Node()
-#     >>> with gd.Graph():
-#     ...     c = _Node(a, b)
-#     >>> a._parents == ()
-#     True
-#     >>> a._children == [c]
-#     True
-#     >>> b._parents == ()
-#     True
-#     >>> b._children == [c]
-#     True
-#     >>> c._parents == (a, b)
-#     True
-#     >>> c._children == []
-#     True
-#     """
+    @property
+    def parents(self):
+        return self._parents
 
-#     def __init__(self, *parents, name: str = None):
-#         super().__init__()
-#         for parent in parents:
-#             assert(isinstance(parent, _Node))
-#             if config._graph is not None:
-#                 parent._children.append(self)
-#         self._parents: tuple = parents
-#         if name is not None:
-#             for ng_char in (',', '(', ')'):
-#                 if ng_char in name:
-#                     raise ValueError(
-#                         f'NG character {ng_char} contained'
-#                         f' in arg \'name\', {name}.')
-#         self._name: str = name
-#         self._children: list = []
+    @property
+    def name(self):
+        return self._name
 
-#     @property
-#     def name(self) -> str:
-#         return self._name
+    @staticmethod
+    def _check_parents_type(parents):
+        if not isinstance(parents, tuple):
+            raise TypeError(
+                '`parents` must be an instance of tuple, '
+                f'not {type(parents)}.',
+            )
+        for o in parents:
+            if not isinstance(o, _Node):
+                raise TypeError(
+                    'Parent of a node must be an instance of node, '
+                    f'not {type(o)}.',
+                )
+
+    @staticmethod
+    def _check_name_type_and_validtiy(name):
+        if name is None:
+            return
+        if not isinstance(name, str):
+            raise TypeError(
+                '`name` must be an instance of str, '
+                f'not {type(name)}.',
+            )
+        for ng_char in (',', '(', ')'):
+            if ng_char in name:
+                raise ValueError(f'`name` contains NG character {ng_char}.')
