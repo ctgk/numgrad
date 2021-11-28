@@ -1,28 +1,24 @@
 import scipy.special as sp
 
-from pygrad._core._array import Array
-from pygrad._core._operator import _Operator
+from pygrad._core._differentiable_operator import differentiable_operator
+from pygrad._core._tensor import Tensor, TensorLike
 from pygrad._utils._typecheck import _typecheck
 
 
-class _Softmax(_Operator):
+@_typecheck()
+@differentiable_operator
+def _softmax(x: TensorLike, *, axis: int = -1):
+    out = sp.softmax(x, axis=axis)
 
-    def __init__(self, x: Array, axis: int = -1, name: str = None):
-        super().__init__(x, name=name)
-        self._axis = axis
-
-    def _forward_numpy(self, x):
-        self.output = sp.softmax(x, axis=self._axis)
-        return self.output
-
-    def _backward_numpy(self, delta, x):
-        dx = self.output * delta
-        dx -= self.output * dx.sum(axis=self._axis, keepdims=True)
+    def grad(dout):
+        dx = out * dout
+        dx -= out * dx.sum(axis=axis, keepdims=True)
         return dx
 
+    return out, grad
 
-@_typecheck(exclude_args=('x',))
-def softmax(x: Array, axis: int = -1, *, name: str = None) -> Array:
+
+def softmax(x: TensorLike, axis: int = -1) -> Tensor:
     r"""Softmax activation along the given axis.
 
     .. math::
@@ -30,22 +26,19 @@ def softmax(x: Array, axis: int = -1, *, name: str = None) -> Array:
 
     Parameters
     ----------
-    x : Array
-        Input array.
+    x : TensorLike
+        Input tensor-like object.
     axis : int, optional
         Axis to sum along, by default -1
-    name : str, optional
-        Name of the operation, by default None
 
     Returns
     -------
-    Array
+    Tensor
         Result of softmax activation
 
     Examples
     --------
-    >>> import pygrad as gd
     >>> gd.stats.softmax([0, 1, -1])
-    array([0.24472847, 0.66524096, 0.09003057])
+    Tensor([0.24472847, 0.66524096, 0.09003057])
     """
-    return _Softmax(x, axis=axis, name=name).forward()
+    return _softmax(x, axis=axis)

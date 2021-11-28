@@ -1,6 +1,6 @@
-from pygrad._core._array import Array
-from pygrad.random._bernouilli import bernoulli
-from pygrad.stats._sigmoid import sigmoid
+from pygrad._core._differentiation_error import DifferentiationError
+from pygrad._core._tensor import Tensor, TensorLike
+from pygrad._utils._typecheck import _typecheck
 from pygrad.stats._sigmoid_cross_entropy import sigmoid_cross_entropy
 from pygrad.stats._statistics import Statistics
 
@@ -10,59 +10,53 @@ class Bernoulli(Statistics):
 
     Examples
     --------
-    >>> import pygrad as gd; import numpy as np; np.random.seed(111)
     >>> b = gd.stats.Bernoulli(logits=0)
     >>> b.logpdf(1)
-    array(-0.69314718)
-    >>> b.sample()
-    array(0)
-    >>> b.sample()
-    array(1)
+    Tensor(-0.69314718)
     """
 
-    def __init__(self, logits: Array):
+    @_typecheck()
+    def __init__(self, logits: TensorLike):
         """Initialize the statistics.
 
         Parameters
         ----------
-        logits : Array
+        logits : TensorLike
             Logits parameter.
         """
         super().__init__()
         self._logits = logits
 
     @property
-    def logits(self) -> Array:
+    def logits(self) -> TensorLike:
         """Return logits parameter.
 
         Returns
         -------
-        Array
+        TensorLike
             Logits parameter.
         """
         return self._logits
 
-    def logpdf(self, x):
+    @_typecheck()
+    def logpdf(self, x: TensorLike) -> Tensor:
         """Return logarithm of pdf given observed data.
 
         Parameters
         ----------
-        x : Array
+        x : TensorLike
             Observed data.
 
         Returns
         -------
-        Array
+        Tensor
             Logarithm of pdf.
         """
         return -sigmoid_cross_entropy(x, self._logits)
 
-    def sample(self):
-        """Return random sample.
-
-        Returns
-        -------
-        Array
-            Random sample.
-        """
-        return bernoulli(sigmoid(self._logits))
+    def sample(self):  # noqa: D102
+        raise DifferentiationError(
+            'Sampling from bernoulli distribution is not differentiable. '
+            'Please use `RelaxedBernoulli` if you want an approximation of '
+            'differentiable sampling from bernoulli distribution.',
+        )

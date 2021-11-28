@@ -1,4 +1,3 @@
-from collections.abc import Iterable
 import functools
 import inspect
 from itertools import chain
@@ -6,15 +5,15 @@ import typing as tp
 
 
 def _is_union_type(tp):
-    return "typing.Union[" == repr(tp)[:13] and "]" == repr(tp)[-1]
+    return repr(tp).startswith('typing.Union')
 
 
-def _is_iterable_type(tp):
-    return (
-        ("typing.Iterable[" == repr(tp)[:16] and "]" == repr(tp)[-1])
-        or ("typing.List[" == repr(tp)[:12] and "]" == repr(tp)[-1])
-        or ("typing.Tuple[" == repr(tp)[:13] and "]" == repr(tp)[-1])
-    )
+def _is_list_type(tp):
+    return "typing.List[" == repr(tp)[:12] and "]" == repr(tp)[-1]
+
+
+def _is_tuple_type(tp):
+    return "typing.Tuple[" == repr(tp)[:13] and "]" == repr(tp)[-1]
 
 
 def _is_dict_type(tp):
@@ -35,7 +34,7 @@ def _typecheck_arg(
         exclude_types: tp.Tuple[tp.Type]) -> bool:
     if type_ in exclude_types:
         return True
-    elif isinstance(type_, Iterable):
+    elif isinstance(type_, (tuple, list)):
         return any(_typecheck_arg(obj, t, exclude_types) for t in type_)
     elif _is_optional_type(type_):
         if obj is None:
@@ -44,8 +43,14 @@ def _typecheck_arg(
             return _typecheck_arg(obj, type_.__args__, exclude_types)
     elif _is_union_type(type_):
         return _typecheck_arg(obj, type_.__args__, exclude_types)
-    elif _is_iterable_type(type_):
-        if isinstance(obj, Iterable):
+    elif _is_list_type(type_):
+        if isinstance(obj, list):
+            return all(
+                _typecheck_arg(o, type_.__args__, exclude_types) for o in obj)
+        else:
+            return False
+    elif _is_tuple_type(type_):
+        if isinstance(obj, tuple):
             return all(
                 _typecheck_arg(o, type_.__args__, exclude_types) for o in obj)
         else:

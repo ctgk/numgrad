@@ -1,29 +1,23 @@
 import numpy as np
 import scipy.special as sp
 
-from pygrad._core._array import Array
-from pygrad._core._operator import _Operator
+from pygrad._core._differentiable_operator import differentiable_operator
+from pygrad._core._tensor import Tensor, TensorLike
 from pygrad._utils._typecheck import _typecheck
 
 
-class _LogSoftmax(_Operator):
+@_typecheck()
+@differentiable_operator
+def _log_softmax(x: TensorLike, *, axis: int = -1):
+    out = sp.log_softmax(x, axis=axis)
 
-    def __init__(self, x: Array, axis: int = -1, name: str = None):
-        super().__init__(x, name=name)
-        self._axis = axis
+    def grad(dout):
+        return dout - np.exp(out) * dout.sum(axis=axis, keepdims=True)
 
-    def _forward_numpy(self, x):
-        self.output = sp.log_softmax(x, axis=self._axis)
-        return self.output
-
-    def _backward_numpy(self, delta, x):
-        dx = delta - np.exp(self.output) * delta.sum(
-            axis=self._axis, keepdims=True)
-        return dx
+    return out, grad
 
 
-@_typecheck(exclude_args=('x',))
-def log_softmax(x: Array, axis: int = -1, *, name: str = None) -> Array:
+def log_softmax(x: TensorLike, axis: int = -1) -> Tensor:
     r"""Return logarithm of softmax activation along the given axis.
 
     .. math::
@@ -31,22 +25,19 @@ def log_softmax(x: Array, axis: int = -1, *, name: str = None) -> Array:
 
     Parameters
     ----------
-    x : Array
-        Input array.
+    x : TensorLike
+        Input tensor-like object.
     axis : int, optional
         Axis to sum along, by default -1
-    name : str, optional
-        Name of the operation, by default None
 
     Returns
     -------
-    Array
+    Tensor
         Logarithm of softmax activation
 
     Examples
     --------
-    >>> import pygrad as gd
     >>> gd.stats.log_softmax([0, 1, -1])
-    array([-1.40760596, -0.40760596, -2.40760596])
+    Tensor([-1.40760596, -0.40760596, -2.40760596])
     """
-    return _LogSoftmax(x, axis=axis, name=name).forward()
+    return _log_softmax(x, axis=axis)

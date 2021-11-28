@@ -1,4 +1,4 @@
-from pygrad._core._array import Array
+from pygrad._core._tensor import Tensor, TensorLike
 from pygrad._utils._typecheck import _typecheck
 from pygrad.random._gumbel_sigmoid import gumbel_sigmoid
 from pygrad.stats._bernoulli import Bernoulli
@@ -7,13 +7,13 @@ from pygrad.stats._bernoulli import Bernoulli
 class RelaxedBernoulli(Bernoulli):
     """Class for statistics of relaxed Bernoulli distribution."""
 
-    @_typecheck(exclude_args=('logits',))
-    def __init__(self, logits: Array, temperature: float = 1e-3) -> None:
+    @_typecheck()
+    def __init__(self, logits: TensorLike, temperature: float = 1e-3) -> None:
         """Initialize statistics of relaxed Bernoulli distribution.
 
         Parameters
         ----------
-        logits : Array
+        logits : TensorLike
             Logits parameter of the relaxed Bernoulli distribution.
         temperature : float, optional
             Temperature parameter of the relaxation, by default 1e-3
@@ -32,7 +32,7 @@ class RelaxedBernoulli(Bernoulli):
         """
         return self._temperature
 
-    def sample(self) -> Array:
+    def sample(self) -> Tensor:
         """Return random sample from the relaxed Bernoulli distribution.
 
         Returns

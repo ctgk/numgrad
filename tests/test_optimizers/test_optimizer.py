@@ -8,6 +8,12 @@ class CallableUpdate(gd.optimizers.Optimizer):
     def _update(self):
         raise NotImplementedError
 
+    def _maximize(self, score):
+        raise NotImplementedError
+
+    def _minimize(self, loss):
+        raise NotImplementedError
+
 
 class NonCallableUpdate(gd.optimizers.Optimizer):
 
@@ -15,47 +21,53 @@ class NonCallableUpdate(gd.optimizers.Optimizer):
         self._update = None
         super().__init__(parameters)
 
+    def _maximize(self, score):
+        raise NotImplementedError
+
+    def _minimize(self, loss):
+        raise NotImplementedError
+
 
 @pytest.mark.parametrize('cls_, parameters, error', [
     (
         CallableUpdate,
         [
-            gd.Array(1., is_variable=True),
-            gd.Array([0, -1.], is_variable=True),
+            gd.Tensor(1., is_variable=True),
+            gd.Tensor([0, -1.], is_variable=True),
         ],
         None,
     ),
     (
         gd.optimizers.Optimizer,
         [
-            gd.Array(1., is_variable=True),
-            gd.Array([0, -1.], is_variable=True),
+            gd.Tensor(1., is_variable=True),
+            gd.Tensor([0, -1.], is_variable=True),
         ],
-        AttributeError,
+        TypeError,
     ),
     (
         NonCallableUpdate,
         [
-            gd.Array(1., is_variable=True),
-            gd.Array([0, -1.], is_variable=True),
+            gd.Tensor(1., is_variable=True),
+            gd.Tensor([0, -1.], is_variable=True),
         ],
         AssertionError,
     ),
     (
         CallableUpdate,
         [
-            gd.Array(1.),
-            gd.Array([0, -1.], is_variable=True),
+            gd.Tensor(1.),
+            gd.Tensor([0, -1.], is_variable=True),
         ],
         ValueError,
     ),
     (
         CallableUpdate,
         [
-            gd.Array(1., is_variable=True),
-            gd.sum(gd.Array([0, -1.], is_variable=True)),
+            gd.Tensor(1., is_variable=True),
+            gd.sum(gd.Tensor([0, -1.], is_variable=True)),
         ],
-        None,
+        ValueError,
     ),
 ])
 def test_init_error(cls_, parameters, error):

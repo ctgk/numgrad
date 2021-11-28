@@ -1,43 +1,38 @@
 import numpy as np
 
-from pygrad._core._array import Array
-from pygrad._core._operator import _Operator
+from pygrad._core._differentiable_operator import differentiable_operator
+from pygrad._core._tensor import Tensor, TensorLike
 from pygrad._utils._typecheck import _typecheck
 
 
-class _Tan(_Operator):
+@_typecheck()
+@differentiable_operator
+def _tan(x: TensorLike):
+    out = np.tan(x)
 
-    def __init__(self, x: Array, name: str = None):
-        super().__init__(x, name=name)
+    def grad(dout):
+        return (1 + np.square(out)) * dout
 
-    def _forward_numpy(self, x):
-        self.output = np.tan(x)
-        return self.output
-
-    def _backward_numpy(self, dy, x):
-        return dy * (1 + np.square(self.output))
+    return out, grad
 
 
-@_typecheck(exclude_args=('x',))
-def tan(x: Array, *, name: str = None) -> Array:
+def tan(x: TensorLike) -> Tensor:
     """Return trigonometric tangent of each element.
 
     Parameters
     ----------
-    x : Array
-        Input array.
-    name : str, optional
-        Name of the operation, by default None.
+    x : TensorLike
+        Input tensor-like object.
 
     Returns
     -------
-    Array
+    Tensor
         Trigonometric tangent of each element
 
     Examples
     --------
-    >>> import pygrad as gd; from math import pi
+    >>> from math import pi
     >>> gd.tan([0, pi / 4, -9 * pi / 4])
-    array([ 0.,  1., -1.])
+    Tensor([ 0.,  1., -1.])
     """
-    return _Tan(x, name=name).forward()
+    return _tan(x)

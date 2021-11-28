@@ -1,44 +1,34 @@
 import numpy as np
 
-from pygrad._core._array import Array
-from pygrad._core._operator import _Operator
+from pygrad._core._differentiable_operator import differentiable_operator
+from pygrad._core._tensor import Tensor, TensorLike
 from pygrad._utils._typecheck import _typecheck
 
 
-class _Log(_Operator):
-
-    def __init__(self, x: Array, name: str = None):
-        super().__init__(x, name=name)
-
-    @staticmethod
-    def _forward_numpy(x):
-        return np.log(x)
-
-    @staticmethod
-    def _backward_numpy(dy, x):
-        return dy / x
+@_typecheck()
+@differentiable_operator
+def _log(x: TensorLike):
+    def grad(dout):
+        return dout / x
+    return np.log(x), grad
 
 
-@_typecheck(exclude_args=('x',))
-def log(x: Array, *, name: str = None) -> Array:
+def log(x: TensorLike) -> Tensor:
     """Return natural logarithm of each element.
 
     Parameters
     ----------
-    x : Array
-        Input array.
-    name : str, optional
-        Name of the operation, by default None.
+    x : TensorLike
+        Input tensor-like object.
 
     Returns
     -------
-    Array
+    Tensor
         Natural logarithm of each element
 
     Examples
     --------
-    >>> import pygrad as gd
     >>> gd.log(1)
-    array(0.)
+    Tensor(0.)
     """
-    return _Log(x, name=name).forward()
+    return _log(x)

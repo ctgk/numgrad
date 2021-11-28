@@ -9,16 +9,16 @@ class RelaxedBernoulli(Bernoulli):
 
     Examples
     --------
-    >>> import pygrad as gd; import numpy as np; np.random.seed(0)
+    >>> np.random.seed(0)
     >>> b = gd.distributions.RelaxedBernoulli()
     >>> b
     Bern(x)
     >>> b.logpdf(1)
-    array(-0.69314718)
+    Tensor(-0.69314718)
     >>> b.sample()['x']
-    array(1.)
+    Tensor(1.)
     >>> b.sample()['x']
-    array(1.1964751e-07)
+    Tensor(1.1964751e-07)
     """
 
     @_typecheck()

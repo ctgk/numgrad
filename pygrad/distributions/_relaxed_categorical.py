@@ -1,7 +1,8 @@
-from pygrad._core._array import Array
 from pygrad._utils._typecheck import _typecheck
 from pygrad.distributions._categorical import Categorical
-from pygrad.random._gumbel_softmax import gumbel_softmax
+from pygrad.stats._relaxed_categorical import (
+    RelaxedCategorical as RelaxedCategoricalStats,
+)
 
 
 class RelaxedCategorical(Categorical):
@@ -9,16 +10,18 @@ class RelaxedCategorical(Categorical):
 
     Examples
     --------
-    >>> import pygrad as gd; import numpy as np; np.random.seed(1)
+    >>> np.random.seed(1)
     >>> c = gd.distributions.RelaxedCategorical(5)
     >>> c
     Cat(x)
     >>> c.logpdf([1, 0, 0, 0, 0])
-    array(-1.60943791)
+    Tensor(-1.60943791)
     >>> c.sample()['x']
-    array([0., 0., 1., 0., 0.])
+    Tensor([0.00000000e+000, 0.00000000e+000, 1.00000000e+000, 0.00000000e+000,
+            5.95945705e-315])
     >>> c.sample()['x']
-    array([1., 0., 0., 0., 0.])
+    Tensor([1.00000000e+00, 1.63781861e-33, 7.77986202e-65, 1.80763229e-72,
+            5.66643102e-91])
     """
 
     @_typecheck()
@@ -45,5 +48,13 @@ class RelaxedCategorical(Categorical):
         super().__init__(n_classes, rv=rv, name=name)
         self._temperature = temperature
 
-    def _sample(self, logits: Array) -> Array:
-        return gumbel_softmax(logits, temperature=self._temperature)
+    def forward(self) -> RelaxedCategoricalStats:
+        """Return statistics of the distribution.
+
+        Returns
+        -------
+        RelaxedCategoricalStats
+            Statistics of the distribution.
+        """
+        return RelaxedCategoricalStats(
+            logits=[0] * self._n_classes, temperature=self._temperature)

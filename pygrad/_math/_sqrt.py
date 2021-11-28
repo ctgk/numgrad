@@ -1,41 +1,37 @@
 import numpy as np
 
-from pygrad._core._array import Array
-from pygrad._core._operator import _Operator
+from pygrad._core._differentiable_operator import differentiable_operator
+from pygrad._core._tensor import Tensor, TensorLike
 from pygrad._utils._typecheck import _typecheck
 
 
-class _Sqrt(_Operator):
+@_typecheck()
+@differentiable_operator
+def _sqrt(x: TensorLike):
+    out = np.sqrt(x)
 
-    def __init__(self, x: Array, name: str = None):
-        super().__init__(x, name=name)
+    def grad(dout):
+        return 0.5 / out * dout
 
-    def _forward_numpy(self, x):
-        self.output = np.sqrt(x)
-        return self.output
-
-    def _backward_numpy(self, delta, x):
-        return 0.5 * delta / self.output
+    return out, grad
 
 
-@_typecheck(exclude_args=('x',))
-def sqrt(x: Array, *, name: str = None) -> Array:
+def sqrt(x: TensorLike) -> Tensor:
     """Return square root of each element.
 
     Parameters
     ----------
-    x : Array
-        Input array.
+    x : TensorLike
+        Input tensor-like object.
 
     Returns
     -------
-    Array
+    Tensor
         Square root of each element
 
     Examples
     --------
-    >>> import pygrad as bs
-    >>> bs.sqrt([1, 4, 9])
-    array([1., 2., 3.])
+    >>> gd.sqrt([1, 4, 9])
+    Tensor([1., 2., 3.])
     """
-    return _Sqrt(x, name=name).forward()
+    return _sqrt(x)

@@ -1,55 +1,45 @@
-import numpy as np
-
-from pygrad._core._array import Array
-from pygrad._core._operator import _Operator
+from pygrad._core._differentiable_operator import differentiable_operator
+from pygrad._core._tensor import Tensor, TensorLike
 from pygrad._utils._typecheck import _typecheck
 from pygrad._utils._unbroadcast import _unbroadcast_to
 
 
-class _Divide(_Operator):
+@_typecheck()
+@differentiable_operator
+def _divide(x: TensorLike, y: TensorLike):
+    x_shape = Tensor(x).shape if not isinstance(x, Tensor) else x.shape
+    y_shape = Tensor(y).shape if not isinstance(y, Tensor) else y.shape
 
-    def __init__(self, x: Array, y: Array, name: str = None):
-        super().__init__(x, y, name=name)
-
-    @staticmethod
-    def _forward_numpy(x, y):
-        return x / y
-
-    def _backward_numpy(self, delta: np.ndarray, x: np.ndarray, y: np.ndarray):
-        if self._args[0].is_variable:
-            dx = _unbroadcast_to(delta / y, x.shape)
-        else:
-            dx = None
-        if self._args[1].is_variable:
-            dy = _unbroadcast_to(-delta * x / (y ** 2), y.shape)
-        else:
-            dy = None
+    def grad(dout):
+        dx = _unbroadcast_to(dout / y, x_shape)
+        dy = _unbroadcast_to(-dout * x / (y ** 2), y_shape)
         return dx, dy
 
+    return x / y, grad
 
-@_typecheck(exclude_args=('x', 'y'))
-def divide(x: Array, y: Array, name: str = None) -> Array:
+
+def divide(x: TensorLike, y: TensorLike) -> Tensor:
     """Return element-wise division of two arrays.
 
     Parameters
     ----------
-    x : Array
-        Input array.
-    y : Array
-        Another input array.
-    name : str, optional
-        Name of the operation, by default None.
+    x : TensorLike
+        Input tensor-like object.
+    y : TensorLike
+        Another tensor-like object.
 
     Returns
     -------
-    Array
+    Tensor
         Element-wise division of two arrays.
 
     Examples
     --------
-    >>> import pygrad as gd
     >>> gd.divide([[1, 2], [2, 3]], [-1, 2])
-    array([[-1. ,  1. ],
-           [-2. ,  1.5]])
+    Tensor([[-1. ,  1. ],
+            [-2. ,  1.5]])
+    >>> gd.Tensor([[1, 2], [2, 3]]) / np.array([-1, 2])
+    Tensor([[-1. ,  1. ],
+            [-2. ,  1.5]])
     """
-    return _Divide(x, y, name=name).forward()
+    return _divide(x, y)

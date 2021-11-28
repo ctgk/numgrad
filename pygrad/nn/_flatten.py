@@ -1,5 +1,5 @@
-from pygrad._core._array import Array
 from pygrad._core._module import Module
+from pygrad._core._tensor import Tensor, TensorLike
 from pygrad._manipulation._reshape import reshape
 
 
@@ -10,17 +10,5 @@ class Flatten(Module):
         """Initialize module."""
         super().__init__()
 
-    def __call__(self, x: Array, **kwargs) -> Array:
-        """Return flattened array.
-
-        Parameters
-        ----------
-        x : Array
-            Input.
-
-        Returns
-        -------
-        Array
-            Flattened array.
-        """
+    def __call__(self, x: TensorLike, **kwargs) -> Tensor:  # noqa: D102
         return reshape(x, (x.shape[0], -1))

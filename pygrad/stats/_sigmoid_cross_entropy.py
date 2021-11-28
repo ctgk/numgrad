@@ -1,41 +1,38 @@
 import numpy as np
 
-from pygrad._core._array import Array
-from pygrad._core._operator import _Operator
+from pygrad._core._differentiable_operator import differentiable_operator
+from pygrad._core._tensor import Tensor, TensorLike
 from pygrad._utils._typecheck import _typecheck
 from pygrad._utils._unbroadcast import _unbroadcast_to
 
 
-class _SigmoidCrossEntropy(_Operator):
-
-    def __init__(self, labels, logits, name=None):
-        super().__init__(labels, logits, name=name)
-
-    @staticmethod
-    def _forward_numpy(labels, logits):
-        return (
-            np.maximum(logits, 0)
-            - labels * logits
-            + np.log1p(np.exp(-np.abs(logits)))
-        )
-
-    def _backward_numpy(self, delta, labels, logits):
-        probs = np.tanh(logits * 0.5) * 0.5 + 0.5
+@_typecheck()
+@differentiable_operator
+def _sigmoid_cross_entropy(labels: TensorLike, logits: TensorLike):
+    def grad(dout):
+        proba = np.tanh(logits * 0.5) * 0.5 + 0.5
         dlabels = _unbroadcast_to(
-            delta * np.arctanh(1 - 2 * probs) * 2, labels.shape,
-        ) if self._args[0].is_variable else None
+            dout * np.arctanh(1 - 2 * proba) * 2,
+            labels.shape,
+        )
         dlogits = _unbroadcast_to(
-            delta * (probs - labels), logits.shape,
-        ) if self._args[1].is_variable else None
+            dout * (proba - labels),
+            logits.shape,
+        )
         return dlabels, dlogits
 
+    out = (
+        np.maximum(logits, 0)
+        - labels * logits
+        + np.log1p(np.exp(-np.abs(logits)))
+    )
+    return out, grad
 
-@_typecheck(exclude_args=('labels', 'logits'))
+
 def sigmoid_cross_entropy(
-        labels: Array,
-        logits: Array,
-        *,
-        name: str = None) -> Array:
+    labels: TensorLike,
+    logits: TensorLike,
+) -> Tensor:
     r"""Return cross entropy of sigmoid of logits relative to given labels.
 
     .. math::
@@ -43,22 +40,20 @@ def sigmoid_cross_entropy(
 
     Parameters
     ----------
-    labels : Array
+    labels : TensorLike
         Target probability distribution
-    logits : Array
+    logits : TensorLike
         Logits of probabilities.
-    name : str, optional
-        Name of the operation, by default None
 
     Returns
     -------
-    Array
+    Tensor
         Cross entropy of sigmoid of logits relative to the labels.
 
     Examples
     --------
     >>> import pygrad as gd
     >>> gd.stats.sigmoid_cross_entropy([0, 1], [0.5, 100])
-    array([9.74076984e-01, 3.72007598e-44])
+    Tensor([9.74076984e-01, 3.72007598e-44])
     """
-    return _SigmoidCrossEntropy(labels, logits, name=name).forward()
+    return _sigmoid_cross_entropy(labels, logits)

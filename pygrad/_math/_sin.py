@@ -1,42 +1,35 @@
 import numpy as np
 
-from pygrad._core._array import Array
-from pygrad._core._operator import _Operator
+from pygrad._core._differentiable_operator import differentiable_operator
+from pygrad._core._tensor import Tensor, TensorLike
 from pygrad._utils._typecheck import _typecheck
 
 
-class _Sin(_Operator):
-
-    def __init__(self, x: Array, name: str = None):
-        super().__init__(x, name=name)
-
-    def _forward_numpy(self, x):
-        return np.sin(x)
-
-    def _backward_numpy(self, dy, x):
-        return dy * np.cos(x)
+@_typecheck()
+@differentiable_operator
+def _sin(x: TensorLike):
+    def grad(dout):
+        return np.cos(x) * dout
+    return np.sin(x), grad
 
 
-@_typecheck(exclude_args=('x',))
-def sin(x: Array, *, name: str = None) -> Array:
+def sin(x: TensorLike) -> Tensor:
     """Return trigonometric sine of each element.
 
     Parameters
     ----------
-    x : Array
-        Input array.
-    name : str, optional
-        Name of the operation, by default None.
+    x : TensorLike
+        Input tensor-like object.
 
     Returns
     -------
-    Array
+    Tensor
         Trigonometric sine of each element
 
     Examples
     --------
-    >>> import pygrad as gd; from math import pi
+    >>> from math import pi
     >>> gd.sin([0, -pi / 6, 17 * pi / 6, -pi / 2])
-    array([ 0. , -0.5,  0.5, -1. ])
+    Tensor([ 0. , -0.5,  0.5, -1. ])
     """
-    return _Sin(x, name=name).forward()
+    return _sin(x)

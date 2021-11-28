@@ -2,35 +2,32 @@ import typing as tp
 
 import numpy as np
 
-from pygrad._core._array import Array
-from pygrad._core._config import config
-from pygrad._core._operator import _Operator
+from pygrad._core._differentiable_operator import differentiable_operator
+from pygrad._core._tensor import Tensor, TensorLike
 from pygrad._utils._typecheck import _typecheck
 from pygrad._utils._unbroadcast import _unbroadcast_to
 
 
-class _Exponential(_Operator):
-
-    def __init__(self, scale, size: tp.Tuple[int] = None, name: str = None):
-        super().__init__(scale, name=name)
-        self._size = self._args[0].shape if size is None else size
-
-    def _forward_numpy(self, scale):
-        self._eps = np.random.standard_exponential(self._size).astype(
-            config.dtype)
-        return self._eps * scale
-
-    def _backward_numpy(self, delta, scale):
-        return _unbroadcast_to(delta * self._eps, scale.shape)
-
-
-@_typecheck(exclude_args=('scale',))
-def exponential(
-    scale: Array,
-    size: tp.Union[int, tp.Iterable[int], None] = None,
+@_typecheck()
+@differentiable_operator
+def _exponential(
+    scale: TensorLike,
     *,
-    name: str = None,
-) -> Array:
+    size: tp.Union[int, tp.Tuple[int, ...], tp.List[int], None] = None,
+):
+    size = scale.shape if size is None else size
+    e = np.random.standard_exponential(size).astype(scale.dtype)
+
+    def grad(dout):
+        return _unbroadcast_to(e * dout, scale.shape)
+
+    return scale * e, grad
+
+
+def exponential(
+    scale: TensorLike,
+    size: tp.Union[int, tp.Tuple[int, ...], tp.List[int], None] = None,
+) -> Tensor:
     r"""Return random samples from exponential distribution.
 
     .. math::
@@ -39,20 +36,14 @@ def exponential(
     Parameters
     ----------
     scale : Array
-        Scale parameter of exponential distribution
-    size : tp.Union[int, tp.Iterable[int], None], optional
+        Scale parameter of exponential distribution. Larger this value is,
+        larger the resulting samples.
+    size : tp.Union[int, tp.Tuple[int, ...], tp.List[int], None], optional
         Size of returned random samples, by default None
-    name : str, optional
-        The name of the operation, by default None
 
     Returns
     -------
-    Array
+    Tensor
         Random samples from the distribution
     """
-    size = (size,) if isinstance(size, int) else size
-    if isinstance(scale, Array):
-        return _Exponential(scale, size, name=name).forward()
-    return Array(
-        np.random.exponential(scale, size=size),
-        name=None if name is None else name + '.out')
+    return _exponential(scale, size=size)

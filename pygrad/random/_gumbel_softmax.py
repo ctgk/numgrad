@@ -1,60 +1,67 @@
+import typing as tp
+
 import numpy as np
 import scipy.special as sp
 
-from pygrad._core._array import Array
-from pygrad._core._operator import _Operator
+from pygrad._core._differentiable_operator import differentiable_operator
+from pygrad._core._tensor import Tensor, TensorLike
 from pygrad._utils._typecheck import _typecheck
+from pygrad._utils._unbroadcast import _unbroadcast_to
 
 
-class _GumbelSoftmax(_Operator):
+@_typecheck()
+@differentiable_operator
+def _gumbel_softmax(
+    logits: TensorLike,
+    *,
+    temperature: float,
+    axis: int,
+    size: tp.Union[int, tp.Tuple[int, ...], tp.List[int], None] = None,
+):
+    size = logits.shape if size is None else size
+    g = np.random.gumbel(size=size).astype(logits.dtype)
+    out = sp.softmax(logits + g / temperature, axis=axis)
 
-    def __init__(
-            self,
-            logits,
-            temperature: float,
-            axis: int = -1,
-            name: str = None):
-        super().__init__(logits, name=name)
-        self._temperature = temperature
-        self._axis = axis
-
-    def _forward_numpy(self, logits):
-        g = np.random.gumbel(size=logits.shape).astype(logits.dtype)
-        self.output = sp.softmax(
-            (logits + g) / self._temperature, axis=self._axis)
-        return self.output
-
-    def _backward_numpy(self, delta, logits):
-        dx = self.output * delta
-        dx -= self.output * dx.sum(axis=self._axis, keepdims=True)
-        dlogits = dx / self._temperature
+    def grad(dout):
+        dx = out * dout
+        dx -= out * dx.sum(axis=axis, keepdims=True)
+        dlogits = _unbroadcast_to(dx / temperature, logits.shape)
         return dlogits
 
+    return out, grad
 
-@_typecheck(exclude_args=('logits',))
+
 def gumbel_softmax(
-    logits: Array,
-    temperature: float = 1e-3,
+    logits: TensorLike,
+    temperature: float = 0.1,
     axis: int = -1,
-    *,
-    name: str = None,
-) -> Array:
+    size: tp.Union[int, tp.Tuple[int, ...], tp.List[int], None] = None,
+) -> Tensor:
     """Return random sample from gumbel softmax distribution.
 
     Parameters
     ----------
-    logits : Array
-        Logit of probabilities.
+    logits : TensorLike
+        Logits of probabilities.
     temperature : float, optional
-        Temperature parameter for smoothing softmax activation, by default 1e-3
+        Temperature parameter for smoothing softmax activation, by default 0.1
     axis : int, optional
         Axis of probabilities, by default -1
-    name : str, optional
-        The name of the operation, by default None
+    size : tp.Union[int, tp.Tuple[int, ...], tp.List[int], None], optional
+        Size of the resulting array, by default None
 
     Returns
     -------
-    Array
+    Tensor
         Samples from gumbel softmax distribution.
+
+    Examples
+    --------
+    >>> np.random.seed(0)
+    >>> gd.random.gumbel_softmax([2, 0, -1], size=(3, 3))
+    Tensor([[9.87461184e-01, 1.39546848e-03, 1.11433480e-02],
+            [1.72606944e-01, 8.26853058e-01, 5.39997891e-04],
+            [9.99999816e-01, 1.82637560e-07, 1.23878050e-09]])
     """
-    return _GumbelSoftmax(logits, temperature, axis=axis, name=name).forward()
+    return _gumbel_softmax(
+        logits, temperature=temperature, axis=axis, size=size)

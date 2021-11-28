@@ -2,62 +2,55 @@ import typing as tp
 
 import numpy as np
 
-from pygrad._core._array import Array
-from pygrad._core._operator import _Operator
+from pygrad._core._differentiable_operator import differentiable_operator
+from pygrad._core._tensor import Tensor, TensorLike
 from pygrad._utils._typecheck import _typecheck
 
 
-class _Transpose(_Operator):
-
-    def __init__(self, x, axes: tp.Iterable[int], name: str = None):
-        super().__init__(x, name=name)
-        self._axes = axes
-
-    def _forward_numpy(self, x):
-        return np.transpose(x, self._axes)
-
-    def _backward_numpy(self, delta, x):
-        if self._axes is None:
-            return np.transpose(delta)
-        return np.transpose(delta, np.argsort(self._axes))
-
-
 @_typecheck()
-def transpose(x, axes: tp.Iterable[int] = None, *, name: str = None) -> Array:
+@differentiable_operator
+def _transpose(x: TensorLike, *, axes: tp.Optional[tp.Tuple[int, ...]] = None):
+
+    def grad(dout):
+        if axes is None:
+            return np.transpose(dout)
+        return np.transpose(dout, np.argsort(axes))
+
+    return np.transpose(x, axes), grad
+
+
+def transpose(x, axes: tp.Optional[tp.Tuple[int, ...]] = None) -> Tensor:
     """Return a transposed array.
 
     Parameters
     ----------
-    x : Array
-        Input array.
-    axes : tp.Iterable[int], optional
-        New shape
-    name : str, optional
-        Name of the operation, by default None.
+    x : TensorLike
+        Input tensor-like object.
+    axes : tp.Optional[tp.Tuple[int, ...]], optional
+        Order of axes of new shape.
 
     Returns
     -------
-    Array
+    Tensor
         Transposed array.
 
     Examples
     --------
-    >>> import pygrad as gd
     >>> gd.transpose([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
-    array([[1., 4., 7.],
-           [2., 5., 8.],
-           [3., 6., 9.]])
-    >>> gd.transpose([[[1, 2, 3], [4, 5, 6], [7, 8, 9]]], (1, 2, 0))
-    array([[[1.],
-            [2.],
-            [3.]],
+    Tensor([[1., 4., 7.],
+            [2., 5., 8.],
+            [3., 6., 9.]])
+    >>> gd.Tensor([[[1, 2, 3], [4, 5, 6], [7, 8, 9]]]).transpose(1, 2, 0)
+    Tensor([[[1.],
+             [2.],
+             [3.]],
     <BLANKLINE>
-           [[4.],
-            [5.],
-            [6.]],
+            [[4.],
+             [5.],
+             [6.]],
     <BLANKLINE>
-           [[7.],
-            [8.],
-            [9.]]])
+            [[7.],
+             [8.],
+             [9.]]])
     """
-    return _Transpose(x, axes, name=name).forward()
+    return _transpose(x, axes=axes)

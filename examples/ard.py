@@ -38,7 +38,7 @@ class Qa(gd.distributions.Exponential):
 
     def __init__(self, size, rv: str):
         super().__init__(rv=rv, name='q')
-        self.s = gd.Array(np.ones(size), gd.config.dtype, is_variable=True)
+        self.s = gd.Tensor(np.ones(size), gd.config.dtype, is_variable=True)
 
     def forward(self) -> gd.stats.Exponential:
         return gd.stats.Exponential(gd.nn.softplus(self.s))
@@ -48,8 +48,8 @@ class Qw(gd.distributions.Normal):
 
     def __init__(self, size, rv: str):
         super().__init__(rv=rv, name='q')
-        self.loc = gd.Array(np.zeros(size), gd.config.dtype, is_variable=True)
-        self.s = gd.Array(
+        self.loc = gd.Tensor(np.zeros(size), gd.config.dtype, is_variable=True)
+        self.s = gd.Tensor(
             np.zeros(size) - 5, gd.config.dtype, is_variable=True)
 
     def forward(self) -> gd.stats.Normal:
@@ -100,13 +100,13 @@ if __name__ == "__main__":
     gd.config.dtype = gd.Float32
     model = ARD(scale=10)
     optimizer = gd.optimizers.Adam(model, 0.1)
-    with gd.Graph() as g:
-        elbo = model.elbo(x, y)
     pbar = trange(10000)
+    elbo = model.elbo(x, y)
     elbo_ma = elbo.data
     for _ in pbar:
-        g.forward()
-        optimizer.maximize(g)
+        model.clear()
+        elbo = model.elbo(x, y)
+        optimizer.maximize(elbo)
         elbo_ma = 0.9 * elbo_ma + 0.1 * elbo.data
         pbar.set_description(f'{elbo_ma: g}')
         if optimizer.n_iter % 100 == 0:
@@ -123,7 +123,7 @@ if __name__ == "__main__":
         ),
         sum(
             list(
-                list(v.data.ravel()) for k, v in model.trainables.items()
+                list(v.data.ravel()) for k, v in model.variables.items()
                 if 'Qw.loc' in k
             ),
             [],

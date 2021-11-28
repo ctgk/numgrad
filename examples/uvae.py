@@ -14,7 +14,7 @@ import pygrad as gd
 
 class Encoder(gd.Module):
 
-    def __init__(self, n_classes: int = 10, temperature: float = 0.01):
+    def __init__(self, n_classes: int = 10, temperature: float = 0.1):
         super().__init__()
         self.layers = gd.nn.Sequential(
             gd.nn.Conv2D(1, 20, 5, strides=2),
@@ -25,7 +25,7 @@ class Encoder(gd.Module):
             gd.nn.Dense(4 * 4 * 20, 100),
             gd.nn.ReLU(),
         )
-        self.c = gd.nn.Dense(100, 10, bias=False)
+        self.c = gd.nn.Dense(100, n_classes, bias=False)
         self.m = gd.nn.Dense(100, 2, bias=False)
         self.s = gd.nn.Dense(100, 2)
         self.temperature = temperature
@@ -60,7 +60,7 @@ class Decoder(gd.Module):
 
 class UVAE(gd.Module):
 
-    def __init__(self, n_classes: int = 10, temperature: float = 1e-2):
+    def __init__(self, n_classes: int = 10, temperature: float = 1e-1):
         super().__init__()
         self.encoder = Encoder(n_classes, temperature)
         self.decoder = Decoder(n_classes)
@@ -160,25 +160,21 @@ if __name__ == "__main__":
 
     x, y = fetch_openml('mnist_784', return_X_y=True, as_frame=False)
     x = (x > 127).reshape(-1, 28, 28, 1).astype(np.float32)
-    y = y.astype(np.int)
+    y = y.astype(int)
     x_train, x_test, y_train, y_test = train_test_split(
         x, y, test_size=10000, stratify=y)
 
     uvae = UVAE()
     optimizer = gd.optimizers.Adam(uvae)
-    x1 = gd.Array(x_train[:args.batch], dtype=gd.Float32)
-    x2 = gd.Array(x1.data, dtype=gd.Float32)
-    with gd.Graph() as g:
-        elbo = uvae.elbo(x1, x2)
-
     for e in range(1, args.epoch + 1):
         pbar = tqdm(range(0, len(x_train), args.batch))
         elbos = []
         for i in pbar:
-            x1.data = rotate_random(x_train[i: i + args.batch])
-            x2.data = rotate_random(x_train[i: i + args.batch])
-            g.forward()
-            optimizer.maximize(g)
+            uvae.clear()
+            x1 = gd.Tensor(rotate_random(x_train[i: i + args.batch]))
+            x2 = gd.Tensor(rotate_random(x_train[i: i + args.batch]))
+            elbo = uvae.elbo(x1, x2)
+            optimizer.maximize(elbo)
             if optimizer.n_iter % 10 == 0:
                 elbos.append(elbo.data)
                 pbar.set_description(f'Epoch={e:2}, ELBO={np.mean(elbos): g}')

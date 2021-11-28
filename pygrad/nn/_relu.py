@@ -1,27 +1,22 @@
 import numpy as np
 
-from pygrad._core._array import Array
+from pygrad._core._differentiable_operator import differentiable_operator
 from pygrad._core._module import Module
-from pygrad._core._operator import _Operator
+from pygrad._core._tensor import Tensor, TensorLike
 from pygrad._utils._typecheck import _typecheck
 
 
-class _ReLU(_Operator):
+@_typecheck()
+@differentiable_operator
+def _relu(x: TensorLike):
 
-    def __init__(self, x, name=None):
-        super().__init__(x, name=name)
+    def grad(dout):
+        return (x > 0) * dout
 
-    @staticmethod
-    def _forward_numpy(x):
-        return np.maximum(x, 0)
-
-    @staticmethod
-    def _backward_numpy(delta, x):
-        return delta * (x > 0)
+    return np.maximum(x, 0), grad
 
 
-@_typecheck(exclude_args=('x',))
-def relu(x: Array, *, name: str = None) -> Array:
+def relu(x: TensorLike) -> Tensor:
     r"""Element-wise rectified linear unit.
 
     .. math::
@@ -29,23 +24,20 @@ def relu(x: Array, *, name: str = None) -> Array:
 
     Parameters
     ----------
-    x : Array
-        Input array.
-    name : str, optional
-        The name of the operation, by default None
+    x : TensorLike
+        Input tensor-like object.
 
     Returns
     -------
-    Array
+    Tensor
         The output of rectified linear unit.
 
     Examples
     --------
-    >>> import pygrad as gd
     >>> gd.nn.relu([1, -1, 2, -3])
-    array([1., 0., 2., 0.])
+    Tensor([1., 0., 2., 0.])
     """
-    return _ReLU(x, name=name).forward()
+    return _relu(x)
 
 
 class ReLU(Module):
@@ -55,17 +47,17 @@ class ReLU(Module):
         """Initialize ReLU module."""
         super().__init__()
 
-    def __call__(self, x: Array, **kwargs) -> Array:
+    def __call__(self, x: TensorLike, **kwargs) -> Tensor:
         """Pass through ReLU.
 
         Parameters
         ----------
-        x : Array
+        x : TensorLike
             Input
 
         Returns
         -------
-        Array
+        Tensor
             Activation.
         """
-        return _ReLU(x).forward()
+        return _relu(x)

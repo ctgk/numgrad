@@ -12,14 +12,14 @@ def test_sequential():
     )
     x = gd.random.normal(0, 1, size=(100, 6, 6, 1))
     y = gd.random.uniform(0, 1, size=(100, 1))
-    parameters = tuple(model.trainables.values())
+    parameters = tuple(model.variables.values())
     assert len(parameters) == 4
     optimizer = gd.optimizers.Adam(parameters)
     loss_prev = None
     for _ in range(100):
-        with gd.Graph() as g:
-            loss = gd.stats.sigmoid_cross_entropy(y, model(x)).sum()
-        optimizer.minimize(g)
+        model.clear()
+        loss = gd.stats.sigmoid_cross_entropy(y, model(x)).sum()
+        optimizer.minimize(loss)
         if loss_prev is not None:
             assert loss_prev > loss.data
         loss_prev = loss.data

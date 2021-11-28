@@ -1,5 +1,6 @@
-from pygrad._core._array import Array
-from pygrad.random._categorical import categorical
+from pygrad._core._differentiation_error import DifferentiationError
+from pygrad._core._tensor import Tensor, TensorLike
+from pygrad._utils._typecheck import _typecheck
 from pygrad.stats._softmax_cross_entropy import softmax_cross_entropy
 from pygrad.stats._statistics import Statistics
 
@@ -11,49 +12,48 @@ class Categorical(Statistics):
         {\rm Cat}({\boldsymbol x}) = \prod_{k=0}^{K-1} \mu_k^{x_k}
     """
 
-    def __init__(self, logits: Array):
+    @_typecheck()
+    def __init__(self, logits: TensorLike):
         """Initialize statistics of categorical distribution.
 
         Parameters
         ----------
-        logits : Array
+        logits : TensorLike
             Logits parameter of categorical distribution.
         """
         super().__init__()
         self._logits = logits
 
     @property
-    def logits(self) -> Array:
+    def logits(self) -> TensorLike:
         """Return logits parameter of the categorical distribution.
 
         Returns
         -------
-        Array
+        TensorLike
             Logits parameter of the categorical distribution.
         """
         return self._logits
 
-    def logpdf(self, x):
+    @_typecheck()
+    def logpdf(self, x: TensorLike) -> Tensor:
         """Return logarithm of probability density (mass) function.
 
         Parameters
         ----------
-        x : Array
+        x : TensorLike
             Observed data.
 
         Returns
         -------
-        Array
+        Tensor
             Logarithm of probability density (mass) function.
         """
         return -softmax_cross_entropy(x, self._logits)
 
-    def sample(self):
-        """Return random sample according to the statistics.
-
-        Returns
-        -------
-        Array
-            Random sample.
-        """
-        return categorical(self._logits)
+    def sample(self):  # noqa: D102
+        raise DifferentiationError(
+            'Sampling from categorical distribution is not differentiable. '
+            'Please use `RelaxedCategorical` if you want an approximation '
+            'of differentiable sampling from categorical distribution.',
+        )

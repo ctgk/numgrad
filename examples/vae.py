@@ -50,7 +50,7 @@ class VAE(gd.Module):
         z = self.encoder.sample(conditions={'x': x})['z']
         return gd.stats.sigmoid(self.decoder(z=z).logits)
 
-    def elbo(self, x) -> gd.Array:
+    def elbo(self, x) -> gd.Tensor:
         z = self.encoder.sample(conditions={'x': x})
         p = self.decoder * self.pz
         return p.logpdf(obs={'x': x, **z}) - self.encoder.logpdf(
@@ -66,22 +66,20 @@ if __name__ == "__main__":
     gd.config.dtype = gd.Float32
     x, y = fetch_openml('mnist_784', return_X_y=True, as_frame=False)
     x = (x > 127).astype(np.float32)
-    y = y.astype(np.int)
+    y = y.astype(int)
     x_train, x_test, _, _ = train_test_split(x, y, test_size=10000, stratify=y)
 
     vae = VAE()
     optimizer = gd.optimizers.Adam(vae)
-    x = gd.Array(x_train[:args.batch])
-    with gd.Graph() as g:
-        elbo = vae.elbo(x)
     for e in range(1, args.epoch + 1):
         pbar = tqdm(range(0, len(x_train), args.batch))
         total_elbo = 0
         total_count = 0
         for i in pbar:
-            x.data = x_train[i: i + args.batch]
-            g.forward()
-            optimizer.maximize(g)
+            vae.clear()
+            x = gd.Tensor(x_train[i: i + args.batch])
+            elbo = vae.elbo(x)
+            optimizer.maximize(elbo)
             if optimizer.n_iter % 10 == 0:
                 total_elbo = total_elbo + elbo.data
                 total_count += 1

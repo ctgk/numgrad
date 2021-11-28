@@ -1,28 +1,31 @@
-from contextlib import contextmanager
+import abc
 import typing as tp
 
-from pygrad._core._array import Array
-from pygrad._core._graph import Graph
 from pygrad._core._module import Module
+from pygrad._core._tensor import Tensor
+from pygrad._utils._typecheck import _typecheck
 
 
-class Optimizer(object):
+class Optimizer(abc.ABC):
     """Base optimizer class."""
 
-    def __init__(self, parameters: tp.Union[Module, tp.Iterable[Array]]):
+    def __init__(
+        self,
+        parameters: tp.Union[Module, tp.List[Tensor], tp.Tuple[Tensor]],
+    ):
         """Initialize optimizer object.
 
         Parameters
         ----------
-        parameters : tp.Union[Module, tp.Iterable[Array]]
-            Parameters to optimize
+        parameters : tp.Union[Module, tp.List[Tensor], tp.Tuple[Tensor]]
+            Parameters to optimize.
         """
         if isinstance(parameters, Module):
             self._module = parameters
-            parameters = tuple(parameters.trainables.values())
+            parameters = tuple(self._module.variables.values())
         if not all(p.is_variable for p in parameters):
-            raise ValueError('All \'parameters\' must be differentiable.')
-        if any(p._graph is not None for p in parameters):
+            raise ValueError('All \'parameters\' must be variable.')
+        if any(p._parent is not None for p in parameters):
             raise ValueError('All \'parameters\' must not have parent nodes.')
         self._parameters = parameters
         self._n_iter: int = 0
@@ -52,41 +55,39 @@ class Optimizer(object):
                 f'Value of arg "{name}" must be in range [{min_}, {max_}), '
                 f'but was {value}')
 
-    @contextmanager
-    def _increment_count_calc_grad_clear(
+    def _increment_count_calc_grad(
         self,
-        graph: Graph = None,
-        clear: bool = True,
+        leaf_node: Tensor,
     ):
         self._n_iter += 1
-        if graph is not None:
-            graph.backward()
-        try:
-            yield
-        finally:
-            if clear:
-                if hasattr(self, '_module'):
-                    self._module.clear()
-                else:
-                    for p in self._parameters:
-                        p.clear_grad()
+        leaf_node.backward()
 
-    def minimize(self, graph: Graph):
-        """Minimize leaf node value in the graph w.r.t. the parameters.
+    @_typecheck()
+    def maximize(self, score: Tensor):
+        """Make small update of each parameter to maximize the given score.
 
         Parameters
         ----------
-        graph : Graph
-            Computational graph.
+        score : Tensor
+            Tensor to maximize.
         """
-        raise NotImplementedError
+        self._maximize(score)
 
-    def maximize(self, graph: Graph):
-        """Maximize leaf node value in the graph w.r.t. the parameters.
+    @_typecheck()
+    def minimize(self, loss: Tensor):
+        """Make small update of each parameter to minimize the given loss.
 
         Parameters
         ----------
-        graph : Graph
-            Computational graph.
+        loss : Tensor
+            Tensor to minimize.
         """
-        raise NotImplementedError
+        self._minimize(loss)
+
+    @abc.abstractmethod
+    def _maximize(self, score: Tensor):
+        pass
+
+    @abc.abstractmethod
+    def _minimize(self, loss: Tensor):
+        pass

@@ -1,25 +1,22 @@
 import numpy as np
 
-from pygrad._core._array import Array
-from pygrad._core._operator import _Operator
+from pygrad._core._differentiable_operator import differentiable_operator
+from pygrad._core._tensor import Tensor, TensorLike
 from pygrad._utils._typecheck import _typecheck
 
 
-class _Tanh(_Operator):
+@_typecheck()
+@differentiable_operator
+def _tanh(x: TensorLike):
+    out = np.tanh(x)
 
-    def __init__(self, x: Array, name: str = None):
-        super().__init__(x, name=name)
+    def grad(dout):
+        return (1 - np.square(out)) * dout
 
-    def _forward_numpy(self, x):
-        self.output = np.tanh(x)
-        return self.output
-
-    def _backward_numpy(self, dy, x):
-        return dy * (1 - np.square(self.output))
+    return out, grad
 
 
-@_typecheck(exclude_args=('x',))
-def tanh(x: Array, *, name: str = None) -> Array:
+def tanh(x: TensorLike) -> Tensor:
     r"""Return hyperbolic tangent of each element.
 
     .. math::
@@ -29,20 +26,19 @@ def tanh(x: Array, *, name: str = None) -> Array:
 
     Parameters
     ----------
-    x : Array
-        Input array.
-    name : str, optional
-        Name of the operation, by default None.
+    x : TensorLike
+        Input tensor-like object.
+
+
 
     Returns
     -------
-    Array
+    Tensor
         Hyperbolic tangent of each element
 
     Examples
     --------
-    >>> import pygrad as gd
     >>> gd.tanh([0, 1, 2])
-    array([0.        , 0.76159416, 0.96402758])
+    Tensor([0.        , 0.76159416, 0.96402758])
     """
-    return _Tanh(x, name=name).forward()
+    return _tanh(x)

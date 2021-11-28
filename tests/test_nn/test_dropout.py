@@ -4,12 +4,12 @@ import pytest
 import pygrad as gd
 
 
-@pytest.mark.parametrize('x, droprate, name', [
-    (np.random.normal(size=(2, 5)), 0.5, 'dropout'),
-    (np.random.normal(size=(4, 3)), 0.2, 'dropout'),
+@pytest.mark.parametrize('x, droprate', [
+    (np.random.normal(size=(2, 5)), 0.5),
+    (np.random.normal(size=(4, 3)), 0.2),
 ])
-def test_forward(x, droprate, name):
-    actual = gd.nn.dropout(x, droprate, name=name)
+def test_forward(x, droprate):
+    actual = gd.nn.dropout(x, droprate)
     print(x)
     print(actual)
     for i in range(x.size):
@@ -18,7 +18,7 @@ def test_forward(x, droprate, name):
                 x.ravel()[i] / (1 - droprate), actual.data.ravel()[i])
             or np.isclose(actual.data.ravel()[i], 0)
         )
-    assert actual.name == name + '.out'
+    assert actual.name == 'dropout.out'
 
 
 @pytest.mark.parametrize('x', [
@@ -31,13 +31,12 @@ def test_forward_2(x):
 
 
 @pytest.mark.parametrize('x, droprate', [
-    (gd.Array(np.random.rand(2, 3), is_variable=True), 0.1),
-    (gd.Array(np.random.rand(4, 2, 3), is_variable=True), 0.5),
+    (gd.Tensor(np.random.rand(2, 3), is_variable=True), 0.1),
+    (gd.Tensor(np.random.rand(4, 2, 3), is_variable=True), 0.5),
 ])
 def test_backward(x, droprate):
-    with gd.Graph() as g:
-        y = gd.nn.dropout(x, droprate)
-    g.backward()
+    y = gd.nn.dropout(x, droprate)
+    y.backward()
     dx = x.grad
     for i in range(x.size):
         if np.isclose(y.data.ravel()[i], 0):

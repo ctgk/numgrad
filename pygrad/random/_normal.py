@@ -2,43 +2,36 @@ import typing as tp
 
 import numpy as np
 
-from pygrad._core._array import Array
-from pygrad._core._operator import _Operator
+from pygrad._core._differentiable_operator import differentiable_operator
+from pygrad._core._tensor import Tensor, TensorLike
 from pygrad._utils._typecheck import _typecheck
 from pygrad._utils._unbroadcast import _unbroadcast_to
 
 
-class _Normal(_Operator):
+@_typecheck()
+@differentiable_operator
+def _normal(
+    loc: TensorLike,
+    scale: TensorLike,
+    *,
+    size: tp.Union[int, tp.Tuple[int, ...], tp.List[int], None] = None,
+):
+    size = size if size is not None else np.broadcast(loc, scale).shape
+    n = np.random.normal(size=size).astype(loc.dtype)
 
-    def __init__(
-            self,
-            loc,
-            scale,
-            size: tp.Tuple[int] = None,
-            name: str = None):
-        super().__init__(loc, scale, name=name)
-        self._size = np.broadcast(
-            *tuple(arg.data for arg in self._args),
-        ).shape if size is None else size
-
-    def _forward_numpy(self, loc, scale):
-        self.eps = np.random.normal(size=self._size).astype(loc.dtype)
-        return loc + scale * self.eps
-
-    def _backward_numpy(self, delta, loc, scale):
-        dloc = _unbroadcast_to(delta, loc.shape)
-        dscale = _unbroadcast_to(delta * self.eps, scale.shape)
+    def grad(dout):
+        dloc = _unbroadcast_to(dout, loc.shape)
+        dscale = _unbroadcast_to(dout * n, scale.shape)
         return dloc, dscale
 
+    return loc + scale * n, grad
 
-@_typecheck(exclude_args=('loc', 'scale'))
+
 def normal(
-    loc: Array,
-    scale: Array,
-    size: tp.Union[int, tp.Iterable[int], None] = None,
-    *,
-    name: str = None,
-) -> Array:
+    loc: TensorLike,
+    scale: TensorLike,
+    size: tp.Union[int, tp.Tuple[int, ...], tp.List[int], None] = None,
+) -> Tensor:
     r"""Return array with normally distributed values.
 
     .. math::
@@ -47,30 +40,24 @@ def normal(
 
     Parameters
     ----------
-    loc : Array
+    loc : TensorLike
         Location parameter of the normal distribution.
-    scale : Array
+    scale : TensorLike
         Scale parameter of the normal distribution.
-    size : tp.Union[tp.Iterable[int], None], optional
+    size : tp.Union[int, tp.Tuple[int, ...], tp.List[int], None], optional
         Size of the resulting array, by default None
-    name : str, optional
-        Name of this operation or the resulting array, by default None
 
     Returns
     -------
-    Array
-        Array with normally distributed values.
+    Tensor
+        Tensor with normally distributed values.
 
     Examples
     --------
-    >>> import pygrad as gd; import numpy as np; np.random.seed(0)
+    >>> np.random.seed(0)
     >>> gd.random.normal(0, 1, (4,))
-    array([1.76405235, 0.40015721, 0.97873798, 2.2408932 ])
+    Tensor([1.76405235, 0.40015721, 0.97873798, 2.2408932 ])
     >>> gd.random.normal([-1, 2, 0], 0.1, (3,))
-    array([-0.8132442 ,  1.90227221,  0.09500884])
+    Tensor([-0.8132442 ,  1.90227221,  0.09500884])
     """
-    if isinstance(loc, Array) or isinstance(scale, Array):
-        return _Normal(loc, scale, name=name).forward()
-    return Array(
-        np.random.normal(loc, scale, size=size),
-        name=None if name is None else name + '.out')
+    return _normal(loc, scale, size=size)

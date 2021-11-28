@@ -1,6 +1,6 @@
 import typing as tp
 
-from pygrad._core._array import Array
+from pygrad._core._tensor import TensorLike
 from pygrad._utils._typecheck import _typecheck
 from pygrad.distributions._distribution import Distribution
 from pygrad.stats._normal import Normal as NormalStats
@@ -11,27 +11,27 @@ class Normal(Distribution):
 
     Examples
     --------
-    >>> import pygrad as gd; import numpy as np; np.random.seed(0)
+    >>> np.random.seed(0)
     >>> n = gd.distributions.Normal(rv='x')
     >>> n
     N(x)
     >>> n.logpdf(1)
-    array(-1.41893853)
+    Tensor(-1.41893853)
     >>> n.sample()['x']
-    array(1.76405235)
+    Tensor(1.76405235)
     >>> n.sample()['x']
-    array(0.40015721)
+    Tensor(0.40015721)
     """
 
-    @_typecheck(exclude_args=('loc', 'scale'))
+    @_typecheck()
     def __init__(
         self,
         rv: str = 'x',
         name: str = 'N',
         *,
-        conditions: tp.Union[tp.List[str], None] = None,
-        loc: Array = 0,
-        scale: Array = 1,
+        conditions: tp.Union[tp.List[str], tp.Tuple[str, ...], None] = None,
+        loc: TensorLike = 0,
+        scale: TensorLike = 1,
     ):
         """Initialize normal distribution.
 
@@ -42,11 +42,11 @@ class Normal(Distribution):
             by default 'x'
         name : str, optional
             Name of the distribution, by default 'N'
-        conditions : tp.Union[tp.List[str], None], optional
+        conditions : tp.Union[tp.List[str], tp.Tuple[str, ...], None], optional
             Names of the random variables if exist, by default None
-        loc : Array, optional
+        loc : TensorLike, optional
             Location parameter of the normal distribution, by default 0
-        scale : Array, optional
+        scale : TensorLike, optional
             Scale parameter of the normal distribution, by default 1
         """
         super().__init__(rv=rv, name=name, conditions=conditions)

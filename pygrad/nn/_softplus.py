@@ -1,38 +1,32 @@
 import numpy as np
 
-from pygrad._core._array import Array
-from pygrad._core._operator import _Operator
+from pygrad._core._differentiable_operator import differentiable_operator
+from pygrad._core._tensor import Tensor, TensorLike
 from pygrad._utils._typecheck import _typecheck
 
 
-class _Softplus(_Operator):
+@_typecheck()
+@differentiable_operator
+def _softplus(x: TensorLike):
 
-    def __init__(self, x: Array, name: str = None):
-        super().__init__(x, name=name)
+    def grad(dout):
+        return (np.tanh(0.5 * x) * 0.5 + 0.5) * dout
 
-    @staticmethod
-    def _forward_numpy(x):
-        return np.maximum(x, 0) + np.log1p(np.exp(-np.abs(x)))
-
-    @staticmethod
-    def _backward_numpy(delta, x):
-        return (np.tanh(0.5 * x) * 0.5 + 0.5) * delta
+    out = np.maximum(x, 0) + np.log1p(np.exp(-np.abs(x)))
+    return out, grad
 
 
-@_typecheck(exclude_args=('x',))
-def softplus(x: Array, *, name: str = None) -> Array:
+def softplus(x: TensorLike) -> Tensor:
     """Return element-wise softplus activation of the input.
 
     Parameters
     ----------
-    x : Array
-        Input
-    name : str, optional
-        Name of the operation, by default None
+    x : TensorLike
+        Input tensor-like object
 
     Returns
     -------
-    Array
+    Tensor
         Element-wise softplus activation of the input.
     """
-    return _Softplus(x, name=name).forward()
+    return _softplus(x)

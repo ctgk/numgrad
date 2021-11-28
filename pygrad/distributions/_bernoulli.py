@@ -8,16 +8,16 @@ class Bernoulli(Distribution):
 
     Examples
     --------
-    >>> import pygrad as gd; import numpy as np; np.random.seed(111)
+    >>> np.random.seed(111)
     >>> b = gd.distributions.Bernoulli()
     >>> b
     Bern(x)
     >>> b.logpdf(1)
-    array(-0.69314718)
+    Tensor(-0.69314718)
     >>> b.sample()['x']
-    array(0)
-    >>> b.sample()['x']
-    array(1)
+    Traceback (most recent call last):
+    ...
+    pygrad.DifferentiationError: ...
     """
 
     @_typecheck()

@@ -2,8 +2,8 @@ import typing as tp
 
 import numpy as np
 
-from pygrad._core._array import Array
 from pygrad._core._module import Module
+from pygrad._core._tensor import Tensor
 from pygrad._utils._typecheck import _typecheck
 from pygrad.optimizers._gradient import Gradient
 
@@ -14,7 +14,7 @@ class Momentum(Gradient):
     @_typecheck(exclude_args=('parameters', 'learning_rate'))
     def __init__(
         self,
-        parameters: tp.Union[Module, tp.Iterable[Array]],
+        parameters: tp.Union[Module, tp.List[Tensor], tp.Tuple[Tensor]],
         learning_rate: float = 0.001,
         momentum: float = 0.9,
     ):
@@ -22,7 +22,7 @@ class Momentum(Gradient):
 
         Parameters
         ----------
-        parameters : tp.Union[Module, tp.Iterable[Array]]
+        parameters : tp.Union[Module, tp.List[Tensor], tp.Tuple[Tensor]]
             Parameters to optimize.
         learning_rate : float, optional
             Learning rate, by default 0.001

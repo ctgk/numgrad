@@ -20,22 +20,20 @@ def test_matmul_forward(x, y):
 
 @pytest.mark.parametrize('x, y', [
     (
-        gd.Array(np.random.rand(3, 4), is_variable=True),
-        gd.Array(np.random.rand(4, 6), is_variable=True),
+        gd.Tensor(np.random.rand(3, 4), is_variable=True),
+        gd.Tensor(np.random.rand(4, 6), is_variable=True),
     ),
     (
-        gd.Array(np.random.rand(4), is_variable=True),
-        gd.Array(np.random.rand(4, 6), is_variable=True),
+        gd.Tensor(np.random.rand(4), is_variable=True),
+        gd.Tensor(np.random.rand(4, 6), is_variable=True),
     ),
     (
-        gd.Array(np.random.rand(3, 4), is_variable=True),
-        gd.Array(np.random.rand(4), is_variable=True),
+        gd.Tensor(np.random.rand(3, 4), is_variable=True),
+        gd.Tensor(np.random.rand(4), is_variable=True),
     ),
 ])
 def test_matmul_numerical_grad(x, y):
-    with gd.Graph() as g:
-        x @ y
-    g.backward()
+    (x @ y).backward()
     dx, dy = _numerical_grad(gd.matmul, x, y, epsilon=1e-3)
     assert np.allclose(dx, x.grad, rtol=0, atol=1e-2)
     assert np.allclose(dy, y.grad, rtol=0, atol=1e-2)

@@ -1,44 +1,36 @@
 import numpy as np
 
-from pygrad._core._array import Array
-from pygrad._core._operator import _Operator
+from pygrad._core._differentiable_operator import differentiable_operator
+from pygrad._core._tensor import Tensor, TensorLike
 from pygrad._utils._typecheck import _typecheck
 
 
-class _Square(_Operator):
-
-    def __init__(self, x: Array, name: str = None):
-        super().__init__(x, name=name)
-
-    @staticmethod
-    def _forward_numpy(x):
-        return np.square(x)
-
-    @staticmethod
-    def _backward_numpy(dy, x):
-        return 2 * x * dy
+@_typecheck()
+@differentiable_operator
+def _square(x: TensorLike):
+    def grad(dout):
+        return 2 * x * dout
+    return np.square(x), grad
 
 
-@_typecheck(exclude_args=('x',))
-def square(x: Array, *, name: str = None) -> Array:
+def square(x: TensorLike) -> Tensor:
     """Return square of each element.
 
     Parameters
     ----------
-    x : Array
-        Input array.
-    name : str, optional
-        Name of the operation, by default None.
+    x : TensorLike
+        Input tensor-like object.
+
+
 
     Returns
     -------
-    Array
+    Tensor
         Square of each element
 
     Examples
     --------
-    >>> import pygrad as gd
     >>> gd.square([1, 2, -3])
-    array([1., 4., 9.])
+    Tensor([1., 4., 9.])
     """
-    return _Square(x, name=name).forward()
+    return _square(x)

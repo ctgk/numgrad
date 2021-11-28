@@ -2,8 +2,8 @@ import abc
 import inspect
 import typing as tp
 
-from pygrad._core._array import Array
 from pygrad._core._module import Module
+from pygrad._core._tensor import Tensor, TensorLike
 from pygrad._utils._typecheck import _typecheck
 from pygrad.stats._statistics import Statistics
 
@@ -82,7 +82,7 @@ class Distribution(Module, abc.ABC):
         self,
         *,
         use_cache: bool = False,
-        **conditions: Array,
+        **conditions: TensorLike,
     ) -> Statistics:
         """Return statistics of the distribution given conditions.
 
@@ -106,29 +106,29 @@ class Distribution(Module, abc.ABC):
         super().clear()
         self._stats = None
 
-    @_typecheck(exclude_types=(Array,))
+    @_typecheck()
     def logpdf(
         self,
-        obs: tp.Union[Array, tp.Dict[str, Array]],
-        conditions: tp.Dict[str, Array] = {},
+        obs: tp.Union[TensorLike, tp.Dict[str, TensorLike]],
+        conditions: tp.Dict[str, TensorLike] = {},
         *,
         use_cache: bool = False,
         reduce: tp.Union[str, None] = 'sum',
-    ) -> Array:
+    ) -> Tensor:
         """Return sum of logarithm of pdf (or pmf) given conditions.
 
         Parameters
         ----------
-        obs : tp.Union[Array, tp.Dict[str, Array]]
+        obs : tp.Union[TensorLike, tp.Dict[str, TensorLike]]
             Observation of the random variable
-        conditions : tp.Dict[str, Array], optional
+        conditions : tp.Dict[str, TensorLike], optional
             Dict of conditional variables, by default {}
         use_cache : bool, optional
             Use cached statistics if True and available, by default False
 
         Returns
         -------
-        Array
+        Tensor
             Summation of logarithm of probability density (mass) function
         """
         statistics = self.__call__(use_cache=use_cache, **conditions)
@@ -141,32 +141,32 @@ class Distribution(Module, abc.ABC):
         else:
             return out
 
-    @_typecheck(exclude_types=(Array,))
+    @_typecheck()
     def sample(
         self,
-        conditions: tp.Dict[str, Array] = {},
+        conditions: tp.Dict[str, TensorLike] = {},
         *,
         use_cache: bool = False,
-    ) -> tp.Dict[str, Array]:
+    ) -> tp.Dict[str, Tensor]:
         """Return random sample of the random variable given conditions.
 
         Parameters
         ----------
-        conditions : tp.Dict[str, Array], optional
+        conditions : tp.Dict[str, TensorLike], optional
             Dict of conditional variables, by default {}
         use_cache : bool, optional
             Use cached statistics if True and available, by default False
 
         Returns
         -------
-        Dict[str, Array]
+        Dict[str, Tensor]
             Random sample of the random variable
         """
         statistics = self.__call__(use_cache=use_cache, **conditions)
         return {self._rv[0]: statistics.sample()}
 
     @abc.abstractmethod
-    def forward(self, **conditions: Array) -> Statistics:
+    def forward(self, **conditions: TensorLike) -> Statistics:
         """Return statistics of this distribution given conditions."""
         pass
 
@@ -209,29 +209,29 @@ class JointDistribution(Distribution):
     def _get_conditions_of(self, p: Distribution, **kwargs):
         return {k: v for k, v in kwargs.items() if k in p._conditions}
 
-    @_typecheck(exclude_types=(Array,))
+    @_typecheck()
     def logpdf(
         self,
-        obs: tp.Dict[str, Array],
-        conditions: tp.Dict[str, Array] = {},
+        obs: tp.Dict[str, TensorLike],
+        conditions: tp.Dict[str, TensorLike] = {},
         *,
         use_cache: bool = False,
         reduce: tp.Union[str, None] = 'sum',
-    ) -> Array:
+    ) -> Tensor:
         """Return sum of logarithm of pdf (pmf) given conditions.
 
         Parameters
         ----------
-        obs : tp.Union[Array, tp.Dict[str, Array]]
+        obs : tp.Union[TensorLike, tp.Dict[str, TensorLike]]
             Observation of the random variable
-        conditions : tp.Dict[str, Array], optional
+        conditions : tp.Dict[str, TensorLike], optional
             Dict of conditional variables, by default {}
         use_cache : bool, optional
             Use cached statistics if True and available, by default False
 
         Returns
         -------
-        Array
+        Tensor
             Summation of logarithm of probability density (mass) function
         """
         p1_logpdf = self.p1.logpdf(
@@ -244,25 +244,25 @@ class JointDistribution(Distribution):
             use_cache=use_cache, reduce=reduce)
         return p1_logpdf + p2_logpdf
 
-    @_typecheck(exclude_types=(Array,))
+    @_typecheck()
     def sample(
         self,
-        conditions: tp.Dict[str, Array] = {},
+        conditions: tp.Dict[str, TensorLike] = {},
         *,
         use_cache: bool = False,
-    ) -> tp.Dict[str, Array]:
+    ) -> tp.Dict[str, Tensor]:
         """Return random sample of the random variable given conditions.
 
         Parameters
         ----------
-        conditions : tp.Dict[str, Array], optional
+        conditions : tp.Dict[str, TensorLike], optional
             Dict of conditional variables, by default {}
         use_cache : bool, optional
             Use cached statistics if True and available, by default False
 
         Returns
         -------
-        Dict[str, Array]
+        Dict[str, Tensor]
             Random sample of the random variable
         """
         p2_sample = self.p2.sample(
@@ -271,12 +271,12 @@ class JointDistribution(Distribution):
             self._get_conditions_of(self.p1, **conditions, **p2_sample))
         return {**p1_sample, **p2_sample}
 
-    def forward(self, **conditions: Array):
+    def forward(self, **conditions: TensorLike):
         """Return statistics."""
         raise NotImplementedError
 
-    def _logpdf(self) -> Array:
+    def _logpdf(self) -> Tensor:
         raise NotImplementedError
 
-    def _sample(self) -> Array:
+    def _sample(self) -> Tensor:
         raise NotImplementedError

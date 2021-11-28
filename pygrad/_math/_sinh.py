@@ -1,24 +1,19 @@
 import numpy as np
 
-from pygrad._core._array import Array
-from pygrad._core._operator import _Operator
+from pygrad._core._differentiable_operator import differentiable_operator
+from pygrad._core._tensor import Tensor, TensorLike
 from pygrad._utils._typecheck import _typecheck
 
 
-class _Sinh(_Operator):
-
-    def __init__(self, x: Array, name: str = None):
-        super().__init__(x, name=name)
-
-    def _forward_numpy(self, x):
-        return np.sinh(x)
-
-    def _backward_numpy(self, dy, x):
-        return dy * np.cosh(x)
+@_typecheck()
+@differentiable_operator
+def _sinh(x: TensorLike):
+    def grad(dout):
+        return np.cosh(x) * dout
+    return np.sinh(x), grad
 
 
-@_typecheck(exclude_args=('x',))
-def sinh(x: Array, *, name: str = None) -> Array:
+def sinh(x: TensorLike) -> Tensor:
     r"""Return hyperbolic sine of each element.
 
     .. math::
@@ -28,20 +23,17 @@ def sinh(x: Array, *, name: str = None) -> Array:
 
     Parameters
     ----------
-    x : Array
-        Input array.
-    name : str, optional
-        Name of the operation, by default None.
+    x : TensorLike
+        Input tensor-like object.
 
     Returns
     -------
-    Array
+    Tensor
         Hyperbolic sine of each element
 
     Examples
     --------
-    >>> import pygrad as gd
     >>> gd.sinh([0, 1, 2])
-    array([0.        , 1.17520119, 3.62686041])
+    Tensor([0.        , 1.17520119, 3.62686041])
     """
-    return _Sinh(x, name=name).forward()
+    return _sinh(x)

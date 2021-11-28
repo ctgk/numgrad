@@ -2,8 +2,8 @@ import typing as tp
 
 import numpy as np
 
-from pygrad._core._array import Array
 from pygrad._core._module import Module
+from pygrad._core._tensor import Tensor
 from pygrad._utils._typecheck import _typecheck
 from pygrad.optimizers._gradient import Gradient
 
@@ -11,10 +11,10 @@ from pygrad.optimizers._gradient import Gradient
 class Adam(Gradient):
     """Adam optimizer."""
 
-    @_typecheck(exclude_args=('parameters', 'learning_rate'))
+    @_typecheck()
     def __init__(
         self,
-        parameters: tp.Union[Module, tp.Iterable[Array]],
+        parameters: tp.Union[Module, tp.Tuple[Tensor], tp.List[Tensor]],
         learning_rate: float = 0.001,
         beta1: float = 0.9,
         beta2: float = 0.999,
@@ -23,7 +23,7 @@ class Adam(Gradient):
 
         Parameters
         ----------
-        parameters : tp.Iterable[Array]
+        parameters : tp.Union[Module, tp.Tuple[Tensor], tp.List[Tensor]]
             Parameters to be optimized
         learning_rate : float, optional
             Learning rate of this optimizer, by default 0.001

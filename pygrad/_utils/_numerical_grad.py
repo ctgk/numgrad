@@ -2,12 +2,12 @@ from typing import Tuple
 
 import numpy as np
 
-from pygrad._core._array import Array
+from pygrad._core._tensor import Tensor
 
 
 def _numerical_grad(
         op: callable,
-        *args: Array,
+        *args: Tensor,
         epsilon: float = 1e-5,
         **kwargs) -> Tuple[np.ndarray]:
     dargs = []
@@ -17,11 +17,11 @@ def _numerical_grad(
             eps = np.zeros_like(arg._data)
             eps.ravel()[i] = epsilon
             args_p = [
-                Array(a._data + (eps if a is arg else 0), a.dtype)
+                Tensor(a._data + (eps if a is arg else 0), a.dtype)
                 for a in args
             ]
             args_m = [
-                Array(a._data - (eps if a is arg else 0), a.dtype)
+                Tensor(a._data - (eps if a is arg else 0), a.dtype)
                 for a in args
             ]
             out_p = op(*args_p, **kwargs)

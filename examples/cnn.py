@@ -18,7 +18,7 @@ if __name__ == "__main__":
     gd.config.dtype = gd.Float32
     x, y = fetch_openml('mnist_784', return_X_y=True, as_frame=False)
     x = x.astype(np.float32).reshape(-1, 28, 28, 1)
-    y = y.astype(np.int)
+    y = y.astype(int)
     x_train, x_test, y_train, y_test = train_test_split(
         x, y, test_size=10000, stratify=y)
     cnn = gd.nn.Sequential(
@@ -34,22 +34,19 @@ if __name__ == "__main__":
         gd.nn.Dense(100, 10),
     )
     optimizer = gd.optimizers.Adam(cnn)
-    x = gd.Array(np.zeros((args.batch, 28, 28, 1), dtype=np.float32))
-    y = gd.Array(np.zeros(args.batch, dtype=np.int))
-    with gd.Graph() as g:
-        logits = cnn(x)
-        loss = gd.stats.sparse_softmax_cross_entropy(y, logits).sum()
     for e in range(1, args.epoch + 1):
         pbar = tqdm(range(0, len(x_train), args.batch))
         tp = 0
         total = 0
         for i in pbar:
-            x.data = x_train[i: i + args.batch]
-            y.data = y_train[i: i + args.batch]
-            g.forward()
-            optimizer.minimize(g)
+            cnn.clear()
+            x = gd.Tensor(x_train[i: i + args.batch])
+            y = y_train[i: i + args.batch]
+            logits = cnn(x)
+            loss = gd.stats.sparse_softmax_cross_entropy(y, logits).sum()
+            optimizer.minimize(loss)
             if optimizer.n_iter % 10 == 0:
-                tp += np.sum(y.data == np.argmax(logits.data, -1))
+                tp += np.sum(y == np.argmax(logits.data, -1))
                 total += args.batch
                 pbar.set_description(
                     f'Epoch={e}, Accuracy={int(100 * tp / total)}%')

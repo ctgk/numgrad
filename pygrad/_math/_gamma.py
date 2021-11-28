@@ -1,25 +1,21 @@
 import scipy.special as sp
 
-from pygrad._core._array import Array
-from pygrad._core._operator import _Operator
+from pygrad._core._differentiable_operator import differentiable_operator
+from pygrad._core._tensor import Tensor, TensorLike
 from pygrad._utils._typecheck import _typecheck
 
 
-class _Gamma(_Operator):
+@_typecheck()
+@differentiable_operator
+def _gamma(x: TensorLike):
+    out = sp.gamma(x)
 
-    def __init__(self, x, name=None):
-        super().__init__(x, name=name)
-
-    def _forward_numpy(self, x):
-        self.output = sp.gamma(x)
-        return self.output
-
-    def _backward_numpy(self, delta, x):
-        return delta * sp.digamma(x) * self.output
+    def grad(dout):
+        return sp.digamma(x) * out * dout
+    return out, grad
 
 
-@_typecheck(exclude_args=('x',))
-def gamma(x: Array, *, name: str = None) -> Array:
+def gamma(x: TensorLike) -> Tensor:
     r"""Element-wise gamma function.
 
     .. math::
@@ -31,20 +27,17 @@ def gamma(x: Array, *, name: str = None) -> Array:
 
     Parameters
     ----------
-    x : Array
-        Input array.
-    name : str, optional
-        Name of this operation, by default None
+    x : TensorLike
+        Input tensor-like object.
 
     Returns
     -------
-    Array
+    Tensor
         Value of element-wise gamma function.
 
     Examples
     --------
-    >>> import pygrad as gd
     >>> gd.gamma([1, 2, 3, 4])
-    array([1., 1., 2., 6.])
+    Tensor([1., 1., 2., 6.])
     """
-    return _Gamma(x, name=name).forward()
+    return _gamma(x)

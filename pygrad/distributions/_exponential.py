@@ -18,7 +18,7 @@ class Exponential(Distribution):
         rv: str = 'x',
         name: str = 'Exp',
         *,
-        conditions: tp.Union[tp.List[str], None] = None,
+        conditions: tp.Union[tp.List[str], tp.Tuple[str, ...], None] = None,
     ):
         """Initialize an exponential distribution.
 
@@ -28,7 +28,7 @@ class Exponential(Distribution):
             Name of the random variable, by default 'x'
         name : str, optional
             Name of the distribution, by default 'Exp'
-        conditions : tp.Union[tp.List[str], None], optional
+        conditions : tp.Union[tp.List[str], tp.Tuple[str, ...], None], optional
             Name of the conditional random variables, by default None
         """
         super().__init__(rv=rv, name=name, conditions=conditions)

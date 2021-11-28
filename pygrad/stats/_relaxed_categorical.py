@@ -1,4 +1,4 @@
-from pygrad._core._array import Array
+from pygrad._core._tensor import Tensor, TensorLike
 from pygrad._utils._typecheck import _typecheck
 from pygrad.random._gumbel_softmax import gumbel_softmax
 from pygrad.stats._categorical import Categorical
@@ -7,13 +7,13 @@ from pygrad.stats._categorical import Categorical
 class RelaxedCategorical(Categorical):
     """Class for statistics of relaxed categorical distribution."""
 
-    @_typecheck(exclude_args=('logits',))
-    def __init__(self, logits: Array, temperature: float = 1e-3):
+    @_typecheck()
+    def __init__(self, logits: TensorLike, temperature: float = 1e-3):
         """Initialize the statistics object.
 
         Parameters
         ----------
-        logits : Array
+        logits : TensorLike
             Logits parameter.
         temperature : float, optional
             Relaxation parameter, by default 1e-3
@@ -32,12 +32,12 @@ class RelaxedCategorical(Categorical):
         """
         return self._temperature
 
-    def sample(self) -> Array:
+    def sample(self) -> Tensor:
         """Return random sample.
 
         Returns
         -------
-        Array
+        Tensor
             Random sample.
         """
         return gumbel_softmax(self._logits, self._temperature)

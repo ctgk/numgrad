@@ -1,10 +1,18 @@
 import typing as tp
 
-from pygrad._core._types import _is_int, DataType, Float64, Int64
+from pygrad._core._dtypes import _is_int, DataType, Float64, Int64
 from pygrad._utils._typecheck import _typecheck
 
 
-class Config:
+class _Singleton:
+
+    def __new__(cls, *args, **kargs):
+        if not hasattr(cls, "_instance"):
+            cls._instance = super(_Singleton, cls).__new__(cls)
+        return cls._instance
+
+
+class Config(_Singleton):
     """Configuration of pygrad module."""
 
     def __init__(self):

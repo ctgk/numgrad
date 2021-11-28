@@ -3,38 +3,30 @@ import pytest
 from pygrad._core._node import _Node
 
 
-@pytest.mark.parametrize('args, error', [
+@pytest.mark.parametrize('name, error', [
     (
-        tuple(),
+        None,
         None,
     ),
     (
-        (tuple(), 1),
+        1,
         TypeError,
     ),
     (
-        (list(), 'a'),
-        TypeError,
-    ),
-    (
-        ((_Node(),), 'a'),
+        'a',
         None,
     ),
     (
-        ((1,), 'a'),
-        TypeError,
-    ),
-    (
-        ((_Node(),), 'a,'),
+        'a,',
         ValueError,
     ),
 ])
-def test_init(args, error):
+def test_init(name, error):
     if error is None:
-        _Node(*args)
+        _Node(name)
     else:
         with pytest.raises(error):
-            _Node(*args)
+            _Node(name)
 
 
 if __name__ == '__main__':

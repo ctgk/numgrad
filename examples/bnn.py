@@ -12,9 +12,9 @@ class Posterior(gd.distributions.Normal):
             rv: str,
             name: str = 'N'):
         super().__init__(rv=rv, name=name)
-        self.loc = gd.Array(
+        self.loc = gd.Tensor(
             np.zeros(size), dtype=gd.config.dtype, is_variable=True)
-        self.lns = gd.Array(
+        self.lns = gd.Tensor(
             np.zeros(size) - 5, dtype=gd.config.dtype, is_variable=True)
 
     def forward(self) -> gd.stats.Normal:
@@ -61,13 +61,14 @@ if __name__ == "__main__":
         * Posterior(1, rv='b2', name='q')
     )
     optimizer = gd.optimizers.Adam(q, 0.1)
-    with gd.Graph() as g:
-        q_sample = q.sample()
-        elbo = p_joint.logpdf({'x': x, 'y': y, **q_sample}) - q.logpdf(
-            q_sample, use_cache=True)
     for _ in range(1000):
-        g.forward()
-        optimizer.maximize(g)
+        q.clear()
+        p_joint.clear()
+        q_sample = q.sample()
+        elbo = p_joint.logpdf(
+            {'x': gd.Tensor(x), 'y': gd.Tensor(y), **q_sample},
+        ) - q.logpdf(q_sample, use_cache=True)
+        optimizer.maximize(elbo)
         if optimizer.n_iter % 100 == 0:
             optimizer.learning_rate *= 0.8
     plt.scatter(x.ravel(), y.ravel())

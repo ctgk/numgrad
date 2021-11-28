@@ -59,7 +59,7 @@ def test_call(in_features, out_features, bias, dtype):
 
 
 @pytest.mark.parametrize('in_features, out_features, bias, dtype', [
-    (2, 3, True, None),
+    # (2, 3, True, None),
     (4, 10, False, gd.Float32),
 ])
 def test_train(in_features, out_features, bias, dtype):
@@ -71,9 +71,9 @@ def test_train(in_features, out_features, bias, dtype):
     dense = gd.nn.Dense(in_features, out_features, bias=bias, dtype=dtype)
     optimizer = gd.optimizers.Gradient(dense, 1e-1)
     for _ in range(100):
-        with gd.Graph() as g:
-            loss = gd.square(dense(x) - y).sum()
-        optimizer.minimize(g)
+        dense.clear()
+        loss = gd.square(dense(x) - y).sum()
+        optimizer.minimize(loss)
         print(loss)
     assert np.isclose(loss.data, 0)
 

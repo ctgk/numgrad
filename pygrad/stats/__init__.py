@@ -29,17 +29,20 @@ _classes = [
 
 
 for _cls in _classes:
-    _cls.__module__ = 'pygrad.stats'
+    _cls.__module__ = __name__
+
+
+_functions = [
+    log_softmax,
+    sigmoid,
+    sigmoid_cross_entropy,
+    softmax,
+    softmax_cross_entropy,
+    sparse_softmax_cross_entropy,
+]
 
 
 __all__ = (
     [_cls.__name__ for _cls in _classes]
-    + [
-        'log_softmax',
-        'sigmoid',
-        'sigmoid_cross_entropy',
-        'softmax',
-        'softmax_cross_entropy',
-        'sparse_softmax_cross_entropy',
-    ]
+    + [_func.__name__ for _func in _functions]
 )

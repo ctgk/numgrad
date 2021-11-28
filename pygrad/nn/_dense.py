@@ -2,10 +2,10 @@ import typing as tp
 
 import numpy as np
 
-from pygrad._core._array import Array
 from pygrad._core._config import config
+from pygrad._core._dtypes import DataType
 from pygrad._core._module import Module
-from pygrad._core._types import DataType
+from pygrad._core._tensor import Tensor, TensorLike
 from pygrad._math._matmul import matmul
 from pygrad._utils._typecheck import _typecheck
 
@@ -15,7 +15,6 @@ class Dense(Module):
 
     Examples
     --------
-    >>> import pygrad as gd; import numpy as np
     >>> d = Dense(2, 3)
     >>> d(np.random.normal(size=(4, 2))).shape
     (4, 3)
@@ -23,19 +22,20 @@ class Dense(Module):
 
     @_typecheck()
     def __init__(
-            self,
-            in_features: int,
-            out_features: int,
-            bias: bool = True,
-            dtype: tp.Union[tp.Type[DataType], None] = None):
+        self,
+        in_features: int,
+        out_features: int,
+        bias: bool = True,
+        dtype: tp.Union[tp.Type[DataType], None] = None,
+    ):
         """Constrct densely connected layer.
 
         Parameters
         ----------
         in_features : int
-            Dimesionality of input features
+            Dimensionality of input features
         out_features : int
-            Dimesionality of output features
+            Dimensionality of output features
         bias : bool, optional
             Whether to add bias or not, by default True
         dtype : tp.Union[tp.Type[DataType], None], optional
@@ -46,29 +46,17 @@ class Dense(Module):
         self._in_features = in_features
         self._out_features = out_features
         v = 1 / np.sqrt(in_features)
-        self.weight = Array(
+        self.weight = Tensor(
             np.random.uniform(-v, v, (in_features, out_features)),
             dtype=dtype,
             is_variable=True)
         if bias:
-            self.bias = Array(
+            self.bias = Tensor(
                 np.random.uniform(-v, v, (out_features,)),
                 dtype=dtype,
                 is_variable=True)
 
-    def __call__(self, x: Array, **kwargs) -> Array:
-        """Return densely connected layer output.
-
-        Parameters
-        ----------
-        x : Array
-            Input.
-
-        Returns
-        -------
-        Array
-            Output of densely connected layer.
-        """
+    def __call__(self, x: TensorLike, **kwargs) -> Tensor:  # noqa: D102
         x = matmul(x, self.weight)
         if hasattr(self, 'bias'):
             x = x + self.bias

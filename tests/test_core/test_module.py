@@ -41,7 +41,7 @@ def test_init_error_4():
     class Derived(gd.Module):
         def __init__(self):
             super().__init__()
-            a = gd.Array(1., is_variable=True)
+            a = gd.Tensor(1., is_variable=True)
             self.a = a
             self.b = a
 

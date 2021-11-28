@@ -1,14 +1,17 @@
 """Simple gradient computation library for Python."""
 
 from pygrad import distributions, nn, optimizers, random, stats
-from pygrad._core._array import Array
 from pygrad._core._config import config
-from pygrad._core._errors import DifferentiationError
-from pygrad._core._graph import Graph
-from pygrad._core._module import Module
-from pygrad._core._types import (  # noqa: I101
-    DataType, Int8, Int16, Int32, Int64, Float16, Float32, Float64,
+from pygrad._core._differentiable_operator import differentiable_operator
+from pygrad._core._differentiation_error import DifferentiationError
+from pygrad._core._dtypes import (  # noqa: I101
+    DataType,
+    Int8, Int16, Int32, Int64,  # noqa: I100
+    Float16, Float32, Float64,
 )
+from pygrad._core._module import Module
+from pygrad._core._tensor import Tensor
+from pygrad._manipulation._getitem import _getitem_from_tensor
 from pygrad._manipulation._reshape import reshape
 from pygrad._manipulation._transpose import transpose
 from pygrad._math._add import add
@@ -35,77 +38,85 @@ from pygrad._math._tan import tan
 from pygrad._math._tanh import tanh
 
 
-def _reshape(x: Array, *newshape):
+def _reshape(x: Tensor, *newshape):
     return reshape(x, newshape)
 
 
-def _transpose(x: Array, *axes):
+def _transpose(x: Tensor, *axes):
     return transpose(x, axes) if axes else transpose(x)
 
 
-Array.__add__ = add
-Array.__matmul__ = matmul
-Array.__mul__ = multiply
-Array.__neg__ = negate
-Array.__sub__ = subtract
-Array.__truediv__ = divide
-Array.__radd__ = add
-Array.__rmatmul__ = lambda x, y: matmul(y, x)
-Array.__rmul__ = multiply
-Array.__rsub__ = lambda x, y: subtract(y, x)
-Array.__rtruediv__ = lambda x, y: divide(y, x)
-Array.max = max
-Array.mean = mean
-Array.min = min
-Array.reshape = _reshape
-Array.sum = sum
-Array.transpose = _transpose
-Array.T = property(lambda self: transpose(self))
+Tensor.__getitem__ = _getitem_from_tensor
+Tensor.__add__ = add
+Tensor.__matmul__ = matmul
+Tensor.__mul__ = multiply
+Tensor.__neg__ = negate
+Tensor.__sub__ = subtract
+Tensor.__truediv__ = divide
+Tensor.__radd__ = add
+Tensor.__rmatmul__ = lambda x, y: matmul(y, x)
+Tensor.__rmul__ = multiply
+Tensor.__rsub__ = lambda x, y: subtract(y, x)
+Tensor.__rtruediv__ = lambda x, y: divide(y, x)
+Tensor.max = max
+Tensor.mean = mean
+Tensor.min = min
+Tensor.reshape = _reshape
+Tensor.sum = sum
+Tensor.transpose = _transpose
+Tensor.T = property(lambda self: transpose(self))
 
 
 _classes = [
-    Array,
     DifferentiationError,
-    Graph,
     Module,
+    Tensor,
     DataType, Int8, Int16, Int32, Int64, Float16, Float32, Float64,
 ]
 
+_functions = [
+    add,
+    cos,
+    cosh,
+    differentiable_operator,
+    divide,
+    exp,
+    gamma,
+    log,
+    logsumexp,
+    matmul,
+    max,
+    mean,
+    min,
+    multiply,
+    negate,
+    sin,
+    sinh,
+    sqrt,
+    square,
+    subtract,
+    sum,
+    tan,
+    tanh,
+]
+
+_modules = [
+    distributions,
+    nn,
+    optimizers,
+    random,
+    stats,
+]
+
 for _cls in _classes:
-    _cls.__module__ = 'pygrad'
+    _cls.__module__ = __name__
 
 
 __all__ = (
     [_cls.__name__ for _cls in _classes]
+    + [_func.__name__ for _func in _functions]
+    + [_mod.__name__ for _mod in _modules]
     + [
         'config',
-
-        'reshape',
-        'transpose',
-
-        'add',
-        'cos',
-        'cosh',
-        'divide',
-        'exp',
-        'gamma',
-        'log',
-        'logsumexp',
-        'matmul',
-        'max',
-        'mean',
-        'min',
-        'multiply',
-        'negate',
-        'sin',
-        'sinh',
-        'sqrt',
-        'square',
-        'subtract',
-        'sum',
-        'tan',
-        'tanh',
-
-        'distributions', 'nn', 'optimizers', 'random', 'stats',
     ]
 )

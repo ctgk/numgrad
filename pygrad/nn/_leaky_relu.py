@@ -1,26 +1,23 @@
 import numpy as np
 
-from pygrad._core._array import Array
+from pygrad._core._differentiable_operator import differentiable_operator
 from pygrad._core._module import Module
-from pygrad._core._operator import _Operator
+from pygrad._core._tensor import Tensor, TensorLike
 from pygrad._utils._typecheck import _typecheck
 
 
-class _LeakyReLU(_Operator):
+@_typecheck()
+@differentiable_operator
+def _leaky_relu(x: TensorLike, *, alpha: float = 0.2):
 
-    def __init__(self, x, alpha: float = 0.2, name: str = None):
-        super().__init__(x, name=name)
-        self._alpha = alpha
+    def grad(dout):
+        return ((x > 0) + alpha * (x <= 0)) * dout
 
-    def _forward_numpy(self, x):
-        return np.maximum(x, 0) + np.minimum(x, 0) * self._alpha
-
-    def _backward_numpy(self, delta, x):
-        return delta * ((x > 0) + self._alpha * (x <= 0))
+    out = np.maximum(x, 0) + np.minimum(x, 0) * alpha
+    return out, grad
 
 
-@_typecheck(exclude_args=('x',))
-def leaky_relu(x: Array, alpha: float = 0.2, *, name: str = None) -> Array:
+def leaky_relu(x: TensorLike, alpha: float = 0.2) -> Tensor:
     r"""Element-wise leaky rectified linear unit.
 
     .. math::
@@ -31,25 +28,22 @@ def leaky_relu(x: Array, alpha: float = 0.2, *, name: str = None) -> Array:
 
     Parameters
     ----------
-    x : Array
-        Input array.
+    x : TensorLike
+        Input tensor-like object.
     alpha : float, optional
         Coefficient of leakage, by default 0.2
-    name : str, optional
-        The name of the operation, by default None
 
     Returns
     -------
-    Array
+    Tensor
         The output of leaky rectified linear unit.
 
     Examples
     --------
-    >>> import pygrad as gd
     >>> gd.nn.leaky_relu([1, -1, 2, -3])
-    array([ 1. , -0.2,  2. , -0.6])
+    Tensor([ 1. , -0.2,  2. , -0.6])
     """
-    return _LeakyReLU(x, alpha, name=name).forward()
+    return _leaky_relu(x, alpha=alpha)
 
 
 class LeakyReLU(Module):
@@ -67,17 +61,17 @@ class LeakyReLU(Module):
         super().__init__()
         self._alpha = alpha
 
-    def __call__(self, x: Array, **kwargs) -> Array:
+    def __call__(self, x: TensorLike, **kwargs) -> Tensor:
         """Return result of leaky ReLU function.
 
         Parameters
         ----------
-        x : Array
+        x : TensorLike
             Input.
 
         Returns
         -------
-        Array
+        Tensor
             Result of leaky ReLU.
         """
-        return _LeakyReLU(x, self._alpha).forward()
+        return _leaky_relu(x, alpha=self._alpha)

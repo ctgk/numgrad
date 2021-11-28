@@ -1,8 +1,7 @@
 import typing as tp
 
-from pygrad._core._array import Array
-from pygrad._core._graph import Graph
 from pygrad._core._module import Module
+from pygrad._core._tensor import Tensor
 from pygrad._utils._typecheck import _typecheck
 from pygrad.optimizers._optimizer import Optimizer
 
@@ -20,36 +19,37 @@ class Gradient(Optimizer):
 
     Examples
     --------
-    >>> import pygrad as gd
-    >>> theta = gd.Array(10., is_variable=True)
-    >>> with gd.Graph() as g:
-    ...     loss = theta * 1
+    >>> theta = gd.Tensor(10., is_variable=True)
     >>> optimizer = gd.optimizers.Gradient([theta], 0.1)
-    >>> g.forward(); optimizer.minimize(g)
+    >>> loss = theta * 1
+    >>> optimizer.minimize(loss)
     >>> theta
-    array(9.9)
-    >>> g.forward(); optimizer.minimize(g)
+    Tensor(9.9)
+    >>> theta.clear(); loss = theta * 1
+    >>> optimizer.minimize(loss)
     >>> theta
-    array(9.8)
-    >>> g.forward(); optimizer.minimize(g)
+    Tensor(9.8)
+    >>> theta.clear(); loss = theta * 1
+    >>> optimizer.minimize(loss)
     >>> theta
-    array(9.7)
-    >>> g.forward(); optimizer.maximize(g)
+    Tensor(9.7)
+    >>> theta.clear(); loss = theta * 1
+    >>> optimizer.maximize(loss)
     >>> theta
-    array(9.8)
+    Tensor(9.8)
     """
 
     @_typecheck()
     def __init__(
         self,
-        parameters: tp.Union[Module, tp.Iterable[Array]],
+        parameters: tp.Union[Module, tp.Tuple[Tensor], tp.List[Tensor]],
         learning_rate: float = 1e-3,
     ):
         """Initialize gradient optimizer.
 
         Parameters
         ----------
-        parameters : tp.Union[Module, tp.Iterable[Array]]
+        parameters : tp.Union[Module, tp.Tuple[Tensor], tp.List[Tensor]]
             Parameter to optimize.
         learning_rate : float, optional
             Learning rate of the update, by default 1e-3
@@ -77,36 +77,10 @@ class Gradient(Optimizer):
         for p in self._parameters:
             p._data += learning_rate * p.grad
 
-    @_typecheck()
-    def minimize(self, graph: Graph = None, clear_grad: bool = True):
-        """Small updation of each parameter to minimize the given loss.
+    def _minimize(self, loss: Tensor):
+        self._increment_count_calc_grad(loss)
+        self._update(-self._learning_rate)
 
-        Parameters
-        ----------
-        graph : Graph
-            Graph whose terminal node is loss value to minimize,
-            default is None which assumes that backward() method of loss value
-            has been already called.
-        clear_grad : bool
-            Clear gradient of parameters after updation if True,
-            default is True
-        """
-        with self._increment_count_calc_grad_clear(graph, clear_grad):
-            self._update(-self._learning_rate)
-
-    @_typecheck()
-    def maximize(self, graph: Graph = None, clear_grad: bool = True):
-        """Small updation of each parameter to maximize the given score.
-
-        Parameters
-        ----------
-        graph : Graph
-            Graph whose terminal node is score value to maximize,
-            default is None which assumes that backward() method of score value
-            has been already called.
-        clear_grad : bool
-            Clear gradient of parameters after updation if True,
-            default is True
-        """
-        with self._increment_count_calc_grad_clear(graph, clear_grad):
-            self._update(self._learning_rate)
+    def _maximize(self, score: Tensor):
+        self._increment_count_calc_grad(score)
+        self._update(self._learning_rate)

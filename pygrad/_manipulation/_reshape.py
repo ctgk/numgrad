@@ -1,46 +1,41 @@
 import typing as tp
 
-from pygrad._core._array import Array
-from pygrad._core._operator import _Operator
+from pygrad._core._differentiable_operator import differentiable_operator
+from pygrad._core._tensor import Tensor, TensorLike
 from pygrad._utils._typecheck import _typecheck
 
 
-class _Reshape(_Operator):
-
-    def __init__(self, x, newshape: tp.Iterable[int], name: str = None):
-        super().__init__(x, name=name)
-        self._newshape = newshape
-
-    def _forward_numpy(self, x):
-        return x.reshape(*self._newshape)
-
-    def _backward_numpy(self, delta, x):
-        return delta.reshape(*x.shape)
-
-
 @_typecheck()
-def reshape(x, newshape: tp.Iterable[int], *, name: str = None) -> Array:
+@differentiable_operator
+def _reshape(x: TensorLike, *, newshape: tp.Tuple[int, ...]):
+
+    def grad(dout):
+        return dout.reshape(*x.shape)
+
+    return x.reshape(*newshape), grad
+
+
+def reshape(x, newshape: tp.Tuple[int, ...]) -> Tensor:
     """Return a reshaped array.
 
     Parameters
     ----------
-    x : Array
-        Input array.
-    newshape : tp.Iterable[int]
+    x : TensorLike
+        Input tensor-like object.
+    newshape : tp.Tuple[int, ...]
         New shape
-    name : str, optional
-        Name of the operation, by default None.
 
     Returns
     -------
-    Array
+    Tensor
         Reshaped array.
 
     Examples
     --------
-    >>> import pygrad as gd
     >>> gd.reshape([1, 2, 3, 4, 5, 6], (2, -1))
-    array([[1., 2., 3.],
-           [4., 5., 6.]])
+    Tensor([[1., 2., 3.],
+            [4., 5., 6.]])
+    >>> gd.Tensor([1, 2, 3, 4, 5, 6]).reshape(1, 6)
+    Tensor([[1., 2., 3., 4., 5., 6.]])
     """
-    return _Reshape(x, newshape, name=name).forward()
+    return _reshape(x, newshape=newshape)

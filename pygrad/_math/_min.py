@@ -2,56 +2,52 @@ import typing as tp
 
 import numpy as np
 
-from pygrad._core._array import Array
-from pygrad._core._operator import _Operator
+from pygrad._core._differentiable_operator import differentiable_operator
+from pygrad._core._tensor import Tensor, TensorLike
 from pygrad._utils._typecheck import _typecheck
 
 
-class _Min(_Operator):
+@_typecheck()
+@differentiable_operator
+def _min(
+    x: TensorLike,
+    *,
+    axis: tp.Union[int, tp.Tuple[int, ...], None] = None,
+    keepdims: bool = False,
+):
+    out = np.min(x, axis=axis, keepdims=keepdims)
 
-    def __init__(
-            self,
-            x,
-            axis: tp.Union[int, tp.Iterable[int]] = None,
-            keepdims: bool = False,
-            name=None):
-        super().__init__(x, name=name)
-        self._axis = (axis,) if isinstance(axis, int) else axis
-        self._keepdims = keepdims
-
-    def _forward_numpy(self, x):
-        return np.min(x, axis=self._axis, keepdims=self._keepdims)
-
-    def _backward_numpy(self, dy, x):
+    def grad(dout):
+        if x.ndim == 0:
+            return dout
         if all((
-            isinstance(dy, np.ndarray),
-            (not self._keepdims),
-            (self._axis is not None),
+            isinstance(dout, np.ndarray),
+            (not keepdims),
+            (axis is not None),
         )):
             axis_positive = []
-            for axis in self._axis:
-                axis_positive.append(x.ndim + axis if axis < 0 else axis)
-            for axis in sorted(axis_positive):
-                dy = np.expand_dims(dy, axis)
-        dx = 1 * np.broadcast_to(dy, x.shape)
-        dx[np.where(x != x.min(axis=self._axis, keepdims=True))] = 0
+            for ax in axis if isinstance(axis, tuple) else (axis,):
+                axis_positive.append(x.ndim + ax if ax < 0 else ax)
+            for ax in sorted(axis_positive):
+                dout = np.expand_dims(dout, ax)
+        dx = 1 * np.broadcast_to(dout, x.shape)
+        dx[np.where(x != x.min(axis=axis, keepdims=True))] = 0
         return dx
 
+    return out, grad
 
-@_typecheck(exclude_args=('x',))
+
 def min(
-    x: Array,
-    axis: tp.Union[int, tp.Iterable[int]] = None,
+    x: TensorLike,
+    axis: tp.Union[int, tp.Tuple[int, ...], None] = None,
     keepdims: bool = False,
-    *,
-    name: str = None,
-) -> Array:
+) -> Tensor:
     """Return minimum element along given axis.
 
     Parameters
     ----------
-    x : Array
-        Input array.
+    x : TensorLike
+        Input tensor-like object.
     axis : tp.Union[int, tp.Iterable[int]], optional
         Axis to find minimum value along, by default None
     keepdims : bool, optional
@@ -61,19 +57,18 @@ def min(
 
     Returns
     -------
-    Array
+    Tensor
         Minimum element.
 
     Examples
     --------
-    >>> import pygrad as gd
-    >>> a = gd.Array([[2, 3], [-1, -9]])
+    >>> a = gd.Tensor([[2, 3], [-1, -9]])
     >>> a.min()
-    array(-9)
+    Tensor(-9.)
     >>> a.min(axis=0)
-    array([-1, -9])
+    Tensor([-1., -9.])
     >>> a.min(axis=1, keepdims=True)
-    array([[ 2],
-           [-9]])
+    Tensor([[ 2.],
+            [-9.]])
     """
-    return _Min(x, axis, keepdims, name=name).forward()
+    return _min(x, axis=axis, keepdims=keepdims)

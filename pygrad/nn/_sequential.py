@@ -1,7 +1,7 @@
 import typing as tp
 
-from pygrad._core._array import Array
 from pygrad._core._module import Module
+from pygrad._core._tensor import Tensor, TensorLike
 
 
 class Sequential(Module):
@@ -16,18 +16,18 @@ class Sequential(Module):
                 'instance of pygrad.Module')
         self.layers = layers
 
-    def __call__(self, x: Array, **kwargs) -> Array:
+    def __call__(self, x: TensorLike, **kwargs) -> Tensor:
         """Process the input through the sequence of the layers.
 
         Parameters
         ----------
-        x : Array
-            Input array
+        x : TensorLike
+            Input tensor-like object.
 
         Returns
         -------
-        Array
-            Processed array
+        Tensor
+            Processed tensor
         """
         for layer in self.layers:
             x = layer(x, **kwargs)

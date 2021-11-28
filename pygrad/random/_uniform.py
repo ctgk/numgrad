@@ -2,37 +2,37 @@ import typing as tp
 
 import numpy as np
 
-from pygrad._core._array import Array
-from pygrad._core._operator import _Operator
+from pygrad._core._differentiable_operator import differentiable_operator
+from pygrad._core._tensor import Tensor, TensorLike
 from pygrad._utils._typecheck import _typecheck
 from pygrad._utils._unbroadcast import _unbroadcast_to
 
 
-class _Uniform(_Operator):
-
-    def __init__(self, low, high, size: tp.Tuple[int] = None, name=None):
-        super().__init__(low, high, name=name)
-        self._size = np.broadcast(low, high).shape if size is None else size
-
-    def _forward_numpy(self, low, high):
-        self._u = np.random.uniform(0, 1, size=self._size)
-        return low + (high - low) * self._u
-
-    def _backward_numpy(self, delta, low, high):
-        du = delta * self._u
-        dmin = _unbroadcast_to(delta - du, low.shape)
-        dmax = _unbroadcast_to(du, high.shape)
-        return dmin, dmax
-
-
-@_typecheck(exclude_args=('low', 'high'))
-def uniform(
-    low: Array,
-    high: Array,
-    size: tp.Union[tp.Iterable[int], None] = None,
+@_typecheck()
+@differentiable_operator
+def _uniform(
+    low: TensorLike,
+    high: TensorLike,
     *,
-    name: str = None,
-) -> Array:
+    size: tp.Union[int, tp.Tuple[int, ...], None] = None,
+):
+    size = size if size is not None else np.broadcast(low, high).shape
+    u = np.random.uniform(0, 1, size=size).astype(low.dtype)
+
+    def grad(dout):
+        du = dout * u
+        dlow = _unbroadcast_to(dout - du, low.shape)
+        dhigh = _unbroadcast_to(du, high.shape)
+        return dlow, dhigh
+
+    return low + (high - low) * u, grad
+
+
+def uniform(
+    low: TensorLike,
+    high: TensorLike,
+    size: tp.Union[int, tp.Tuple[int, ...], None] = None,
+) -> Tensor:
     r"""Return array with uniformly distributed values.
 
     .. math::
@@ -43,30 +43,24 @@ def uniform(
 
     Parameters
     ----------
-    low : Array
+    low : TensorLike
         Lower boundary of the output interval.
-    high : Array
+    high : TensorLike
         Upper boundary of the output interval.
-    size : tp.Union[tp.Iterable[int], None], optional
+    size : tp.Union[int, tp.Tuple[int, ...], None], optional
         Output shape, by default None
-    name : str, optional
-        Name of this operation or the output array, by default None
 
     Returns
     -------
-    Array
-        Array with uniformly distributed values.
+    Tensor
+        Tensor with uniformly distributed values.
 
     Examples
     --------
-    >>> import pygrad as gd; import numpy as np; np.random.seed(0)
-    >>> gd.random.uniform(0, 1, (4,))
-    array([0.5488135 , 0.71518937, 0.60276338, 0.54488318])
-    >>> gd.random.uniform([1, -2], [2, 0], size=(2,))
-    array([ 1.4236548 , -0.70821177])
+    >>> np.random.seed(0)
+    >>> gd.random.uniform(0, 1, 4)
+    Tensor([0.5488135 , 0.71518937, 0.60276338, 0.54488318])
+    >>> gd.random.uniform([1, -2], [2, 0], size=2)
+    Tensor([ 1.4236548 , -0.70821177])
     """
-    if isinstance(low, Array) or isinstance(high, Array):
-        return _Uniform(low, high, size=size, name=name).forward()
-    return Array(
-        np.random.uniform(low, high, size),
-        name=None if name is None else name + '.out')
+    return _uniform(low, high, size=size)

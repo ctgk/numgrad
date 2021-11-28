@@ -1,43 +1,41 @@
 import numpy as np
 import scipy.special as sp
 
-from pygrad._core._array import Array
-from pygrad._core._operator import _Operator
+from pygrad._core._differentiable_operator import differentiable_operator
+from pygrad._core._tensor import Tensor, TensorLike
 from pygrad._utils._typecheck import _typecheck
 from pygrad._utils._unbroadcast import _unbroadcast_to
 
 
-class _SoftmaxCrossEntropy(_Operator):
+@_typecheck()
+@differentiable_operator
+def _softmax_cross_entropy(
+    labels: TensorLike,
+    logits: TensorLike,
+    *,
+    axis: int = -1,
+    keepdims: bool = False,
+):
+    log_softmax = sp.log_softmax(logits, axis=axis)
 
-    def __init__(self, labels, logits, axis: int = -1, name=None):
-        super().__init__(labels, logits, name=name)
-        self._axis = axis
-
-    def _forward_numpy(self, labels, logits):
-        self.log_softmax = sp.log_softmax(logits, axis=self._axis)
-        return -(labels * self.log_softmax).sum(axis=self._axis)
-
-    def _backward_numpy(self, delta, labels, logits):
-        delta = np.expand_dims(delta, self._axis)
-        if self._args[0].is_variable:
-            dlabels = _unbroadcast_to(-delta * self.log_softmax, labels.shape)
-        else:
-            dlabels = None
-        if self._args[1].is_variable:
-            probs = np.exp(self.log_softmax)
-            dlogits = _unbroadcast_to(delta * (probs - labels), logits.shape)
-        else:
-            dlogits = None
+    def grad(dout):
+        if not keepdims:
+            dout = np.expand_dims(dout, axis)
+        proba = np.exp(log_softmax)
+        dlabels = _unbroadcast_to(-dout * log_softmax, labels.shape)
+        dlogits = _unbroadcast_to(dout * (proba - labels), logits.shape)
         return dlabels, dlogits
 
+    out = -(labels * log_softmax).sum(axis=axis, keepdims=keepdims)
+    return out, grad
 
-@_typecheck(exclude_args=('labels', 'logits'))
+
 def softmax_cross_entropy(
-        labels: Array,
-        logits: Array,
-        axis: int = -1,
-        *,
-        name: str = None) -> Array:
+    labels: TensorLike,
+    logits: TensorLike,
+    axis: int = -1,
+    keepdims: bool = False,
+) -> Tensor:
     r"""Return cross entropy of softmax of logits relative to given labels.
 
     .. math::
@@ -46,27 +44,26 @@ def softmax_cross_entropy(
 
     Parameters
     ----------
-    labels : Array
+    labels : TensorLike
         Target probability distribution along the given axis.
         Typically one-of-k coding format along the given axis.
-    logits : Array
-        Logits of probailities along the given axis.
+    logits : TensorLike
+        Logits of probabilities along the given axis.
     axis : int, optional
         Axis of distribution, by default -1
-    name : str, optional
-        Name of the operation, by default None
+    keepdims : bool, optional
+        True to keep dimensionality of the resulting tensor, otherwise false.
 
     Returns
     -------
-    Array
+    Tensor
         Cross entropy of softmax of logits relative to given labels.
 
     Examples
     --------
-    >>> import pygrad as gd
     >>> gd.stats.softmax_cross_entropy([1, 0, 0], [0, 1, -1])
-    array(1.40760596)
+    Tensor(1.40760596)
     >>> gd.stats.softmax_cross_entropy([1, 0, 0], [10, -10, -10])
-    array(4.12230738e-09)
+    Tensor(4.12230738e-09)
     """
-    return _SoftmaxCrossEntropy(labels, logits, axis=axis, name=name).forward()
+    return _softmax_cross_entropy(labels, logits, axis=axis, keepdims=keepdims)

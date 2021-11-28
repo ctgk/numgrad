@@ -1,6 +1,6 @@
 import numpy as np
 
-from pygrad._core._array import Array
+from pygrad._core._tensor import Tensor, TensorLike
 from pygrad._math._log import log
 from pygrad._math._square import square
 from pygrad.random._normal import normal
@@ -13,14 +13,14 @@ _ln2pi_hf = 0.5 * np.log(2 * np.pi)
 class Normal(Statistics):
     """Statistics of a normal distribution."""
 
-    def __init__(self, loc: Array, scale: Array):
+    def __init__(self, loc: TensorLike, scale: TensorLike):
         """Initialize the statistics object.
 
         Parameters
         ----------
-        loc : Array
+        loc : TensorLike
             Location parameter.
-        scale : Array
+        scale : TensorLike
             Scale parameter.
         """
         super().__init__()
@@ -28,50 +28,50 @@ class Normal(Statistics):
         self._scale = scale
 
     @property
-    def loc(self) -> Array:
+    def loc(self) -> TensorLike:
         """Return location parameter of the statistics.
 
         Returns
         -------
-        Array
+        TensorLike
             Location parameter.
         """
         return self._loc
 
     @property
-    def scale(self) -> Array:
+    def scale(self) -> TensorLike:
         """Return scale parameter of the statistics.
 
         Returns
         -------
-        Array
+        TensorLike
             Scale parameter.
         """
         return self._scale
 
-    def logpdf(self, x) -> Array:
+    def logpdf(self, x: TensorLike) -> Tensor:
         """Return logarithm of pdf.
 
         Parameters
         ----------
-        x : Array
+        x : TensorLike
             Observed data
 
         Returns
         -------
-        Array
+        Tensor
             Logarithm of pdf.
         """
         return (
             -0.5 * (square((x - self._loc) / self._scale))
             - log(self._scale) - _ln2pi_hf)
 
-    def sample(self) -> Array:
+    def sample(self) -> Tensor:
         """Return random sample.
 
         Returns
         -------
-        Array
+        Tensor
             Random sample.
         """
         return normal(self._loc, self._scale)

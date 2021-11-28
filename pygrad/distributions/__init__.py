@@ -22,7 +22,7 @@ _classes = [
 
 
 for _cls in _classes:
-    _cls.__module__ = 'pygrad.distributions'
+    _cls.__module__ = __name__
 
 
 Distribution.__mul__ = lambda a, b: JointDistribution(a, b)
