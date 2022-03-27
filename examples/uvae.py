@@ -32,15 +32,17 @@ class Encoder(gd.Module):
 
     def __call__(self, x):
         h = self.layers(x)
-        y = gd.stats.RelaxedCategorical(self.c(h), self.temperature)
-        z = gd.stats.Normal(self.m(h), gd.nn.softplus(self.s(h)))
+        y = gd.distributions.RelaxedCategorical(
+            self.c(h), self.temperature, notation='q(y)')
+        z = gd.distributions.Normal(
+            self.m(h), gd.nn.softplus(self.s(h)), notation='q(z)')
         return y, z
 
 
-class Decoder(gd.Module):
+class Decoder(gd.distributions.Distribution):
 
     def __init__(self, n_classes: int = 10):
-        super().__init__()
+        super().__init__('p(x|y,z)')
         self.dy = gd.nn.Dense(n_classes, 100, bias=False)
         self.dz = gd.nn.Dense(2, 100)
         self.layers = gd.nn.Sequential(
@@ -53,9 +55,9 @@ class Decoder(gd.Module):
             gd.nn.Conv2DTranspose(20, 1, 5, strides=2, shape=(28, 28)),
         )
 
-    def __call__(self, y, z):
+    def forward(self, y, z) -> gd.distributions.Bernoulli:
         h = self.dy(gd.log(y + 1e-5)) + self.dz(z)
-        return gd.stats.Bernoulli(self.layers(h))
+        return gd.distributions.Bernoulli(self.layers(h))
 
 
 class UVAE(gd.Module):
@@ -64,31 +66,33 @@ class UVAE(gd.Module):
         super().__init__()
         self.encoder = Encoder(n_classes, temperature)
         self.decoder = Decoder(n_classes)
-        self.py = gd.distributions.Categorical(n_classes)
-        self.pz = gd.distributions.Normal()
+        self.py = gd.distributions.Categorical(
+            np.ones(n_classes) / n_classes, notation='p(y)')
+        self.pz = gd.distributions.Normal(0., 1., notation='p(z)')
 
     def __call__(self, x):
-        return self.encoder(x)[0].logits
+        qy, qz = self.encoder(x)
+        return qy.logits, qz.loc
 
     def elbo(self, x1, x2):
-        y1, z1 = self.encoder(x1)
-        y2, z2 = self.encoder(x2)
-        y1s = y1.sample()
-        z1s = z1.sample()
-        y2s = y2.sample()
-        z2s = z2.sample()
-        x11 = self.decoder(y1s, z1s)
-        x12 = self.decoder(y1s, z2s)
-        x21 = self.decoder(y2s, z1s)
-        x22 = self.decoder(y2s, z2s)
+        qy1, qz1 = self.encoder(x1)
+        qy2, qz2 = self.encoder(x2)
+        y1s = qy1.sample()
+        z1s = qz1.sample()
+        y2s = qy2.sample()
+        z2s = qz2.sample()
+        px11 = self.decoder({**y1s, **z1s})
+        px12 = self.decoder({**y1s, **z2s})
+        px21 = self.decoder({**y2s, **z1s})
+        px22 = self.decoder({**y2s, **z2s})
         elbo = 0.25 * (
-            x11.logpdf(x1).sum() + x12.logpdf(x2).sum()
-            + x21.logpdf(x1).sum() + x22.logpdf(x2).sum()) / x1.shape[0]
+            px11.logp(x1).sum() + px12.logp(x2).sum()
+            + px21.logp(x1).sum() + px22.logp(x2).sum()) / x1.shape[0]
         elbo += 0.5 * (
-            self.py.logpdf(y1s).sum() + self.pz.logpdf(z1s).sum()
-            - y1.logpdf(y1s).sum() - z1.logpdf(z1s).sum()
-            + self.py.logpdf(y2s).sum() + self.pz.logpdf(z2s).sum()
-            - y2.logpdf(y2s).sum() - z2.logpdf(z2s).sum()) / x1.shape[0]
+            self.py.logp(y1s).sum() + self.pz.logp(z1s).sum()
+            - qy1.logp(y1s).sum() - qz1.logp(z1s).sum()
+            + self.py.logp(y2s).sum() + self.pz.logp(z2s).sum()
+            - qy2.logp(y2s).sum() - qz2.logp(z2s).sum()) / x1.shape[0]
         return elbo
 
 
@@ -118,13 +122,13 @@ def visualize_encoding(encoder, x, indices, figname):
     plt.close()
 
 
-def visualize_decoding(generator, figname):
+def visualize_decoding(generator: gd.distributions.Distribution, figname):
     z = np.asarray(np.meshgrid(
         np.linspace(-1, 1, 5), np.linspace(-1, 1, 5))).T.reshape(-1, 2)
     samples = []
     for i in range(10):
         y = np.array([[i == j for j in range(10)]] * 25)
-        x_gen = gd.stats.sigmoid(generator(y, z).logits).data
+        x_gen = gd.stats.sigmoid(generator.forward(y, z).logits).data
         samples.append(x_gen.reshape(25, 28, 28))
     samples = np.asarray(samples).reshape(2, 5, 5, 5, 28, 28)
     for i in range(10 * (5 * 5)):
@@ -186,4 +190,4 @@ if __name__ == "__main__":
         visualize_decoding(uvae.decoder, f'uvae_decode_epoch{e:02}.png')
 
     visualize_encoding(uvae.encoder, x_test, y_test, 'uvae_encoding.png')
-    print(confusion_matrix(y_test, np.argmax(uvae(x_test).data, -1)))
+    print(confusion_matrix(y_test, np.argmax(uvae(x_test)[0].data, -1)))

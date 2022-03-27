@@ -1,20 +1,26 @@
+from pygrad._core._differentiation_error import DifferentiationError
+from pygrad._core._tensor import Tensor, TensorLike
 from pygrad._utils._typecheck import _typecheck
-from pygrad.distributions._distribution import Distribution
-from pygrad.stats._bernoulli import Bernoulli as BernoulliStats
+from pygrad.distributions._distribution import BasicDistribution
+from pygrad.stats._sigmoid import sigmoid
+from pygrad.stats._sigmoid_cross_entropy import sigmoid_cross_entropy
 
 
-class Bernoulli(Distribution):
-    """Bernoulli distribution.
+class Bernoulli(BasicDistribution):
+    r"""Bernoulli distribution.
+
+    .. math::
+        {\rm Bern}(x; \mu) = \mu^x(1-\mu)^{(1-x)}
 
     Examples
     --------
     >>> np.random.seed(111)
-    >>> b = gd.distributions.Bernoulli()
+    >>> b = gd.distributions.Bernoulli(logits=0, notation='Bern(x)')
     >>> b
     Bern(x)
-    >>> b.logpdf(1)
+    >>> b.logp(1)
     Tensor(-0.69314718)
-    >>> b.sample()['x']
+    >>> b.sample()
     Traceback (most recent call last):
     ...
     pygrad.DifferentiationError: ...
@@ -23,27 +29,43 @@ class Bernoulli(Distribution):
     @_typecheck()
     def __init__(
         self,
-        rv: str = 'x',
-        name: str = 'Bern',
+        logits: TensorLike,
+        *,
+        notation: str = 'Bern(x)',
     ):
         """Initialize Bernoulli distribution.
 
         Parameters
         ----------
-        rv : str, optional
-            Name of the random variable, by default 'x'
-        name : str, optional
-            Name of the distribution, by default 'Bern'
+        logits : TensorLike
+            Log probability(s) parameter of the distribution.
+        notation : str, optional
+            Notation of the distribution, by default 'Bern(x)'
         """
-        super().__init__(rv=rv, name=name)
+        super().__init__(notation=notation)
+        self._logits = logits
 
-    @staticmethod
-    def forward() -> BernoulliStats:
-        """Return statistics of Bernoulli distribution.
+    @property
+    def logits(self) -> TensorLike:
+        """Return log probability(s) parameter of the distribution.
 
         Returns
         -------
-        BernoulliStats
-            Statistics of Bernoulli distribution.
+        TensorLike
+            Log probability(s) parameter of the distribution.
         """
-        return BernoulliStats(logits=0)
+        return self._logits
+
+    def _entropy(self) -> Tensor:
+        mu = sigmoid(self._logits)
+        return sigmoid_cross_entropy(mu, self._logits)
+
+    def _logp(self, observed) -> Tensor:
+        return -sigmoid_cross_entropy(observed, self._logits)
+
+    def _sample(self) -> Tensor:
+        raise DifferentiationError(
+            'Sampling from bernoulli distribution is not differentiable. '
+            'Please use `RelaxedBernoulli` if you want an approximation of '
+            'differentiable sampling from bernoulli distribution.',
+        )

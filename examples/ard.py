@@ -5,55 +5,45 @@ from tqdm import trange
 import pygrad as gd
 
 
-class Pa(gd.distributions.Exponential):
+class Pw(gd.distributions.Distribution):
 
-    def __init__(self, scale: float, rv: str):
-        super().__init__(rv=rv, name='p')
-        self.scale = scale
+    def __init__(self, notation: str):
+        super().__init__(notation)
 
-    def forward(self) -> gd.stats.Exponential:
-        return gd.stats.Exponential(self.scale)
-
-
-class Pw(gd.distributions.Normal):
-
-    def __init__(self, rv: str, condition: str):
-        super().__init__(rv=rv, name='p', conditions=[condition])
-
-    def forward(self, alpha) -> gd.stats.Normal:
-        return gd.stats.Normal(0, 1 / alpha)
+    def forward(self, a) -> gd.distributions.Normal:
+        return gd.distributions.Normal(0, 1 / a)
 
 
-class Py(gd.distributions.Normal):
+class Py(gd.distributions.Distribution):
 
     def __init__(self):
-        super().__init__(rv='y', name='p')
+        super().__init__(notation='p(y|x,w1,b1,w2,b2)')
 
-    def forward(self, x, w1, b1, w2, b2) -> gd.stats.Normal:
+    def forward(self, x, w1, b1, w2, b2) -> gd.distributions.Normal:
         h = gd.tanh(x @ w1 + b1)
-        return gd.stats.Normal(h @ w2 + b2, 0.1)
+        return gd.distributions.Normal(h @ w2 + b2, 0.1)
 
 
-class Qa(gd.distributions.Exponential):
+class Qa(gd.distributions.Distribution):
 
-    def __init__(self, size, rv: str):
-        super().__init__(rv=rv, name='q')
+    def __init__(self, size, notation: str):
+        super().__init__(notation=notation)
         self.s = gd.Tensor(np.ones(size), gd.config.dtype, is_variable=True)
 
-    def forward(self) -> gd.stats.Exponential:
-        return gd.stats.Exponential(gd.nn.softplus(self.s))
+    def forward(self) -> gd.distributions.Exponential:
+        return gd.distributions.Exponential(scale=gd.nn.softplus(self.s))
 
 
-class Qw(gd.distributions.Normal):
+class Qw(gd.distributions.Distribution):
 
-    def __init__(self, size, rv: str):
-        super().__init__(rv=rv, name='q')
+    def __init__(self, size, notation: str):
+        super().__init__(notation=notation)
         self.loc = gd.Tensor(np.zeros(size), gd.config.dtype, is_variable=True)
         self.s = gd.Tensor(
             np.zeros(size) - 5, gd.config.dtype, is_variable=True)
 
-    def forward(self) -> gd.stats.Normal:
-        return gd.stats.Normal(self.loc, gd.nn.softplus(self.s))
+    def forward(self) -> gd.distributions.Normal:
+        return gd.distributions.Normal(self.loc, gd.nn.softplus(self.s))
 
 
 class ARD(gd.Module):
@@ -61,33 +51,34 @@ class ARD(gd.Module):
     def __init__(self, scale):
         super().__init__()
         self.prior = (
-            Pw(rv='w1', condition='a_w1')
-            * Pa(scale, rv='a_w1')
-            * Pw(rv='b1', condition='a_b1')
-            * Pa(scale, 'a_b1')
-            * Pw(rv='w2', condition='a_w2')
-            * Pa(scale, 'a_w2')
-            * Pw(rv='b2', condition='a_b2')
-            * Pa(scale, 'a_b2')
+            Pw(notation='p(w1|a_w1)')
+            * gd.distributions.Exponential(scale=scale, notation='p(a_w1)')
+            * Pw(notation='p(b1|a_b1)')
+            * gd.distributions.Exponential(scale=scale, notation='p(a_b1)')
+            * Pw(notation='p(w2|a_w2)')
+            * gd.distributions.Exponential(scale=scale, notation='p(a_w2)')
+            * Pw(notation='p(b2|a_b2)')
+            * gd.distributions.Exponential(scale=scale, notation='p(a_b2)')
         )
         self.py = Py()
+        self.p_joint = self.py * self.prior
         self.q = (
-            Qa((1, 10), rv='a_w1') * Qw((1, 10), rv='w1')
-            * Qa(10, rv='a_b1') * Qw(10, rv='b1')
-            * Qa((10, 1), rv='a_w2') * Qw((10, 1), rv='w2')
-            * Qa(1, rv='a_b2') * Qw(1, rv='b2')
+            Qa((1, 10), notation='q(a_w1)') * Qw((1, 10), notation='q(w1)')
+            * Qa(10, notation='q(a_b1)') * Qw(10, notation='q(b1)')
+            * Qa((10, 1), notation='q(a_w2)') * Qw((10, 1), notation='q(w2)')
+            * Qa(1, notation='q(a_b2)') * Qw(1, notation='q(b2)')
         )
 
     def __call__(self, x):
-        sample = self.q.sample()
-        return self.py(x=x, **sample).loc
+        return self.py({
+            'x': x,
+            **{k: v for k, v in self.q.sample().items() if k[0] != 'a'},
+        }).loc
 
     def elbo(self, x, y):
-        sample = self.q.sample()
         return (
-            self.py.logpdf(y, {'x': x, **sample})
-            + self.prior.logpdf(sample)
-            - self.q.logpdf(sample, use_cache=True)
+            self.p_joint.logp({'y': y, **self.q.sample()}, {'x': x})
+            + self.q.entropy()
         )
 
 

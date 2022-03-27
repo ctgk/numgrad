@@ -9,33 +9,34 @@ from tqdm import tqdm
 import pygrad as gd
 
 
-class Encoder(gd.distributions.Normal):
+class Encoder(gd.distributions.Distribution):
 
-    def __init__(self, rv='z', name='N'):
-        super().__init__(rv=rv, name=name)
+    def __init__(self):
+        super().__init__(notation='q(z|x)')
         self.d1 = gd.nn.Dense(784, 256)
         self.d2 = gd.nn.Dense(256, 128)
         self.dm = gd.nn.Dense(128, 2)
         self.ds = gd.nn.Dense(128, 2)
 
-    def forward(self, x) -> gd.stats.Normal:
+    def forward(self, x) -> gd.distributions.Normal:
         x = gd.tanh(self.d1(x))
         x = gd.tanh(self.d2(x))
-        return gd.stats.Normal(loc=self.dm(x), scale=gd.exp(self.ds(x)))
+        return gd.distributions.Normal(
+            loc=self.dm(x), scale=gd.exp(self.ds(x)))
 
 
-class Decoder(gd.distributions.Bernoulli):
+class Decoder(gd.distributions.Distribution):
 
-    def __init__(self, rv='x', name='Bern'):
-        super().__init__(rv=rv, name=name)
+    def __init__(self):
+        super().__init__(notation='p(x|z)')
         self.d1 = gd.nn.Dense(2, 128)
         self.d2 = gd.nn.Dense(128, 256)
         self.d3 = gd.nn.Dense(256, 784)
 
-    def forward(self, z) -> gd.stats.Bernoulli:
+    def forward(self, z) -> gd.distributions.Bernoulli:
         z = gd.tanh(self.d1(z))
         z = gd.tanh(self.d2(z))
-        return gd.stats.Bernoulli(logits=self.d3(z))
+        return gd.distributions.Bernoulli(logits=self.d3(z))
 
 
 class VAE(gd.Module):
@@ -44,22 +45,21 @@ class VAE(gd.Module):
         super().__init__()
         self.encoder = Encoder()
         self.decoder = Decoder()
-        self.pz = gd.distributions.Normal('z')
+        self.pz = gd.distributions.Normal(0, 1, notation='p(z)')
 
     def __call__(self, x):
-        z = self.encoder.sample(conditions={'x': x})['z']
-        return gd.stats.sigmoid(self.decoder(z=z).logits)
+        qz = self.encoder({'x': x})
+        return gd.stats.sigmoid(self.decoder({'z': qz.loc}).logits)
 
     def elbo(self, x) -> gd.Tensor:
-        z = self.encoder.sample(conditions={'x': x})
-        p = self.decoder * self.pz
-        return p.logpdf(obs={'x': x, **z}) - self.encoder.logpdf(
-            obs=z, conditions={'x': x}, use_cache=True)
+        qz = self.encoder({'x': x})
+        p_joint = self.decoder * self.pz
+        return p_joint.logp({'x': x, **qz.sample()}) + qz.entropy().sum()
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('-e', '--epoch', type=int, default=5)
+    parser.add_argument('-e', '--epoch', type=int, default=10)
     parser.add_argument('-b', '--batch', type=int, default=50)
     args = parser.parse_args()
 
@@ -100,7 +100,7 @@ if __name__ == "__main__":
 
     z = np.asarray(np.meshgrid(
         np.linspace(-1, 1, 10), np.linspace(-1, 1, 10))).T.reshape(-1, 2)
-    x_gen = gd.stats.sigmoid(vae.decoder(z=z).logits).data
+    x_gen = gd.stats.sigmoid(vae.decoder({'z': z}).logits).data
     for i in range(100):
         plt.subplot(10, 10, i + 1)
         plt.axis('off')
