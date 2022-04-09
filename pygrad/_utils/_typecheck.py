@@ -65,6 +65,8 @@ def _typecheck_arg(
             return issubclass(obj, type_.__args__)
         else:
             return False
+    elif type_ is callable:
+        return callable(obj)
     else:
         try:
             return isinstance(obj, type_)
