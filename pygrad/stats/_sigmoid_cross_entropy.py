@@ -11,10 +11,7 @@ from pygrad._utils._unbroadcast import _unbroadcast_to
 def _sigmoid_cross_entropy(labels: TensorLike, logits: TensorLike):
     def grad(dout):
         proba = np.tanh(logits * 0.5) * 0.5 + 0.5
-        dlabels = _unbroadcast_to(
-            dout * np.arctanh(1 - 2 * proba) * 2,
-            labels.shape,
-        )
+        dlabels = _unbroadcast_to(dout * -logits, labels.shape)
         dlogits = _unbroadcast_to(
             dout * (proba - labels),
             logits.shape,

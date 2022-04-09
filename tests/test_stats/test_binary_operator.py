@@ -13,6 +13,10 @@ np.random.seed(0)
         gd.Tensor(np.random.rand(2, 3), is_variable=True),
         gd.Tensor(np.random.uniform(-9, 9, (4, 2, 3)), is_variable=True),
     ),
+    (
+        gd.Tensor(np.random.rand(2, 3), is_variable=True),
+        gd.Tensor(np.random.uniform(-100, 100, (4, 2, 3)), is_variable=True),
+    ),
 ])
 def test_sigmoid_cross_entropy_1(labels, logits):
     gd.stats.sigmoid_cross_entropy(labels, logits).backward()
