@@ -39,16 +39,13 @@ class Module(abc.ABC):
             for k, v in value.items():
                 self._add_if_variable(name + '_' + k, v)
         elif isinstance(value, Tensor) and value.is_variable:
-            if value in self._variables.values():
-                raise ValueError('Duplicate assignment of parameter')
             if value not in self._variables.values():
                 self._variables[self._module_name + '.' + name] = value
         elif isinstance(value, Module):
-            if value in self._modules.values():
-                raise ValueError('Duplicate assignment of module')
-            self._modules[self._module_name + '.' + name] = value
+            if value not in self._modules.values():
+                self._modules[self._module_name + '.' + name] = value
             for k, v in value._variables.items():
-                self._variables['.'.join((self._module_name, name, k))] = v
+                self._add_if_variable(name + '.' + k, v)
 
     def clear(self):
         """Clear gradient of variables."""
