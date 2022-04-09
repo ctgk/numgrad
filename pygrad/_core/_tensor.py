@@ -68,8 +68,8 @@ class Tensor(_Node):
             raise ValueError(
                 'Please call `gd.Tensor.backward()` method of a leaf node.')
         raise ValueError(
-            'This node may have multiple leaf nodes, '
-            'please remove unnecessary operations.',
+            'There may be multiple leaf nodes under the node '
+            f'(name={self._name}), please remove unnecessary operations.',
         )
 
     @property
