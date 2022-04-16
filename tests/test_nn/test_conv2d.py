@@ -15,7 +15,7 @@ np.random.seed(0)
 def test_forward(x, w):
     actual = gd.nn.conv2d(x, w)
     assert np.allclose(
-        np.squeeze(actual.data),
+        np.squeeze(actual.numpy()),
         correlate2d(np.squeeze(x), np.squeeze(w), mode='valid'))
 
 

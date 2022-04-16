@@ -21,8 +21,8 @@ def test_sequential():
         loss = gd.stats.sigmoid_cross_entropy(y, model(x)).sum()
         optimizer.minimize(loss)
         if loss_prev is not None:
-            assert loss_prev > loss.data
-        loss_prev = loss.data
+            assert loss_prev > loss.numpy()
+        loss_prev = loss.numpy()
 
 
 if __name__ == "__main__":

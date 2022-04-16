@@ -50,7 +50,7 @@ if __name__ == "__main__":
     for _ in range(10):
         plt.plot(
             x_test.ravel(),
-            py(x=x_test, **prior.sample()).loc.data.ravel(),
+            py(x=x_test, **prior.sample()).loc.numpy().ravel(),
             color='r')
     plt.show()
 
@@ -75,6 +75,6 @@ if __name__ == "__main__":
     for _ in range(10):
         plt.plot(
             x_test.ravel(),
-            py(x=x_test, **q.sample()).loc.data.ravel(),
+            py(x=x_test, **q.sample()).loc.numpy().ravel(),
             color='r')
     plt.show()

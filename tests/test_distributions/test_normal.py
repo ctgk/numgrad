@@ -23,8 +23,8 @@ def test_normal_logpdf():
         n.clear()
         score = n.logpdf(x)
         optimizer.maximize(score)
-    assert np.isclose(n.loc.data, 1)
-    assert np.isclose(n.lns.data, 0, rtol=0, atol=1e-5)
+    assert np.isclose(n.loc.numpy(), 1)
+    assert np.isclose(n.lns.numpy(), 0, rtol=0, atol=1e-5)
 
 
 if __name__ == "__main__":

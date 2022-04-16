@@ -43,7 +43,7 @@ def test_minimize():
         d = theta - [-2, 4]
         loss = gd.square(d).sum()
         optimizer.minimize(loss)
-    assert np.allclose(theta.data, [-2, 4], rtol=0, atol=0.1)
+    assert np.allclose(theta.numpy(), [-2, 4], rtol=0, atol=0.1)
 
 
 def test_maximize():
@@ -54,7 +54,7 @@ def test_maximize():
         d = theta - [-2, 4]
         score = -gd.square(d).sum()
         optimizer.maximize(score)
-    assert np.allclose(theta.data, [-2, 4], rtol=0, atol=0.1)
+    assert np.allclose(theta.numpy(), [-2, 4], rtol=0, atol=0.1)
 
 
 if __name__ == "__main__":

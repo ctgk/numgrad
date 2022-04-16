@@ -15,7 +15,7 @@ np.random.seed(0)
 ])
 def test_matmul_forward(x, y):
     actual = gd.matmul(x, y)
-    assert np.allclose(actual.data, np.matmul(x, y))
+    assert np.allclose(actual.numpy(), np.matmul(x, y))
 
 
 @pytest.mark.parametrize('x, y', [

@@ -94,8 +94,8 @@ class UVAE(gd.Module):
 
 def visualize_encoding(encoder, x, indices, figname):
     y, z = encoder(x)
-    y = y.logits.data
-    z = z.loc.data
+    y = y.logits.numpy()
+    z = z.loc.numpy()
     k = y.shape[1]
     y = np.argmax(y, axis=-1)
     for i in range(k):
@@ -124,7 +124,7 @@ def visualize_decoding(generator, figname):
     samples = []
     for i in range(10):
         y = np.array([[i == j for j in range(10)]] * 25)
-        x_gen = gd.stats.sigmoid(generator(y, z).logits).data
+        x_gen = gd.stats.sigmoid(generator(y, z).logits).numpy()
         samples.append(x_gen.reshape(25, 28, 28))
     samples = np.asarray(samples).reshape(2, 5, 5, 5, 28, 28)
     for i in range(10 * (5 * 5)):
@@ -176,7 +176,7 @@ if __name__ == "__main__":
             elbo = uvae.elbo(x1, x2)
             optimizer.maximize(elbo)
             if optimizer.n_iter % 10 == 0:
-                elbos.append(elbo.data)
+                elbos.append(elbo.numpy())
                 pbar.set_description(f'Epoch={e:2}, ELBO={np.mean(elbos): g}')
         indices = np.random.permutation(len(x_train))
         x_train, y_train = x_train[indices], y_train[indices]
@@ -186,4 +186,4 @@ if __name__ == "__main__":
         visualize_decoding(uvae.decoder, f'uvae_decode_epoch{e:02}.png')
 
     visualize_encoding(uvae.encoder, x_test, y_test, 'uvae_encoding.png')
-    print(confusion_matrix(y_test, np.argmax(uvae(x_test).data, -1)))
+    print(confusion_matrix(y_test, np.argmax(uvae(x_test).numpy(), -1)))

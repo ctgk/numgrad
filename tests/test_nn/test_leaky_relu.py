@@ -11,7 +11,7 @@ from pygrad._utils._numerical_grad import _numerical_grad
 ])
 def test_forward(x, alpha, expected):
     actual = gd.nn.leaky_relu(x, alpha)
-    assert np.allclose(actual.data, expected)
+    assert np.allclose(actual.numpy(), expected)
     assert actual.name == 'leaky_relu.out'
 
 
@@ -21,7 +21,7 @@ def test_forward(x, alpha, expected):
 ])
 def test_backward(x, alpha):
     gd.nn.leaky_relu(x, alpha).backward()
-    dx = (x.data > 0) + alpha * (x.data < 0)
+    dx = (x.numpy() > 0) + alpha * (x.numpy() < 0)
     assert np.allclose(dx, x.grad, rtol=0, atol=1e-2)
 
 

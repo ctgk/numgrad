@@ -10,7 +10,7 @@ from pygrad._utils._numerical_grad import _numerical_grad
 ])
 def test_forward(x, axes):
     actual = gd.transpose(x, axes)
-    assert np.allclose(actual.data, np.transpose(x, axes))
+    assert np.allclose(actual.numpy(), np.transpose(x, axes))
     assert actual.shape == np.transpose(x, axes).shape
     assert actual.name == 'transpose.out'
 

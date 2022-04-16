@@ -102,19 +102,19 @@ if __name__ == "__main__":
     optimizer = gd.optimizers.Adam(model, 0.1)
     pbar = trange(10000)
     elbo = model.elbo(x, y)
-    elbo_ma = elbo.data
+    elbo_ma = elbo.numpy()
     for _ in pbar:
         model.clear()
         elbo = model.elbo(x, y)
         optimizer.maximize(elbo)
-        elbo_ma = 0.9 * elbo_ma + 0.1 * elbo.data
+        elbo_ma = 0.9 * elbo_ma + 0.1 * elbo.numpy()
         pbar.set_description(f'{elbo_ma: g}')
         if optimizer.n_iter % 100 == 0:
             optimizer.learning_rate *= 0.95
     plt.subplot(1, 2, 1)
     plt.scatter(x.ravel(), y.ravel())
     for _ in range(10):
-        plt.plot(x_test.ravel(), model(x_test).data.ravel(), color='C1')
+        plt.plot(x_test.ravel(), model(x_test).numpy().ravel(), color='C1')
     plt.subplot(1, 2, 2)
     plt.plot(
         (
@@ -123,7 +123,7 @@ if __name__ == "__main__":
         ),
         sum(
             list(
-                list(v.data.ravel()) for k, v in model.variables.items()
+                list(v.numpy().ravel()) for k, v in model.variables.items()
                 if 'Qw.loc' in k
             ),
             [],

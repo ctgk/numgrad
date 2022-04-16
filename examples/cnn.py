@@ -46,7 +46,7 @@ if __name__ == "__main__":
             loss = gd.stats.sparse_softmax_cross_entropy(y, logits).sum()
             optimizer.minimize(loss)
             if optimizer.n_iter % 10 == 0:
-                tp += np.sum(y == np.argmax(logits.data, -1))
+                tp += np.sum(y == np.argmax(logits.numpy(), -1))
                 total += args.batch
                 pbar.set_description(
                     f'Epoch={e}, Accuracy={int(100 * tp / total)}%')
@@ -54,5 +54,5 @@ if __name__ == "__main__":
         x_train = x_train[indices]
         y_train = y_train[indices]
 
-    y_pred = np.argmax(cnn(x_test, droprate=None).data, -1)
+    y_pred = np.argmax(cnn(x_test, droprate=None).numpy(), -1)
     print(confusion_matrix(y_test, y_pred))

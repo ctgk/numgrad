@@ -81,14 +81,14 @@ if __name__ == "__main__":
             elbo = vae.elbo(x)
             optimizer.maximize(elbo)
             if optimizer.n_iter % 10 == 0:
-                total_elbo = total_elbo + elbo.data
+                total_elbo = total_elbo + elbo.numpy()
                 total_count += 1
                 pbar.set_description(
                     f'Epoch={e}, ELBO={total_elbo / total_count: g}')
         indices = np.random.permutation(len(x_train))
         x_train = x_train[indices]
 
-    x_reconst = vae(x_test[:50]).data
+    x_reconst = vae(x_test[:50]).numpy()
     for i in range(50):
         plt.subplot(10, 10, 2 * i + 1)
         plt.axis('off')
@@ -100,7 +100,7 @@ if __name__ == "__main__":
 
     z = np.asarray(np.meshgrid(
         np.linspace(-1, 1, 10), np.linspace(-1, 1, 10))).T.reshape(-1, 2)
-    x_gen = gd.stats.sigmoid(vae.decoder(z=z).logits).data
+    x_gen = gd.stats.sigmoid(vae.decoder(z=z).logits).numpy()
     for i in range(100):
         plt.subplot(10, 10, i + 1)
         plt.axis('off')

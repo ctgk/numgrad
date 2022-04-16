@@ -10,7 +10,7 @@ from pygrad._utils._numerical_grad import _numerical_grad
 ])
 def test_forward(x, expected):
     actual = gd.nn.relu(x)
-    assert np.allclose(actual.data, expected)
+    assert np.allclose(actual.numpy(), expected)
     assert actual.name == 'relu.out'
 
 
@@ -20,7 +20,7 @@ def test_forward(x, expected):
 ])
 def test_backward(x):
     gd.nn.relu(x).backward()
-    dx = x.data > 0
+    dx = x.numpy() > 0
     assert np.allclose(dx, x.grad, rtol=0, atol=1e-2)
 
 

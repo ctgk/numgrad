@@ -10,7 +10,7 @@ from pygrad._utils._numerical_grad import _numerical_grad
 ])
 def test_forward(x, newshape):
     actual = gd.reshape(x, newshape)
-    assert np.allclose(actual.data, np.reshape(x, newshape))
+    assert np.allclose(actual.numpy(), np.reshape(x, newshape))
     assert actual.shape == np.reshape(x, newshape).shape
     assert actual.name == 'reshape.out'
 

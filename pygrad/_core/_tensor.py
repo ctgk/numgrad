@@ -54,8 +54,14 @@ class Tensor(_Node):
         self._parent = kwargs.get('_parent', None)
         self._is_variable = is_variable
 
-    @property
-    def data(self) -> np.ndarray:  # noqa: D102
+    def numpy(self) -> np.ndarray:
+        """Return a numpy array of the tensor.
+
+        Returns
+        -------
+        np.ndarray
+            Numpy array of the tensor.
+        """
         return self._data
 
     @property

@@ -15,8 +15,8 @@ def test_forward(x, droprate):
     for i in range(x.size):
         assert (
             np.isclose(
-                x.ravel()[i] / (1 - droprate), actual.data.ravel()[i])
-            or np.isclose(actual.data.ravel()[i], 0)
+                x.ravel()[i] / (1 - droprate), actual.numpy().ravel()[i])
+            or np.isclose(actual.numpy().ravel()[i], 0)
         )
     assert actual.name == 'dropout.out'
 
@@ -39,7 +39,7 @@ def test_backward(x, droprate):
     y.backward()
     dx = x.grad
     for i in range(x.size):
-        if np.isclose(y.data.ravel()[i], 0):
+        if np.isclose(y.numpy().ravel()[i], 0):
             assert np.isclose(dx.ravel()[i], 0)
         else:
             assert np.isclose(dx.ravel()[i], 1 / (1 - droprate))

@@ -35,10 +35,10 @@ def test_minimize():
         theta.clear()
         d = theta - [-2, 4]
         loss = gd.square(d).sum()
-        expected = theta.data - 0.1 * 2 * d.data
+        expected = theta.numpy() - 0.1 * 2 * d.numpy()
         optimizer.minimize(loss)
-        assert np.allclose(theta.data, expected)
-    assert np.allclose(theta.data, [-2, 4])
+        assert np.allclose(theta.numpy(), expected)
+    assert np.allclose(theta.numpy(), [-2, 4])
 
 
 def test_maximize():
@@ -48,10 +48,10 @@ def test_maximize():
         theta.clear()
         d = theta - [-2, 4]
         score = -gd.square(d).sum()
-        expected = theta.data - 0.1 * 2 * d.data
+        expected = theta.numpy() - 0.1 * 2 * d.numpy()
         optimizer.maximize(score)
-        assert np.allclose(theta.data, expected)
-    assert np.allclose(theta.data, [-2, 4])
+        assert np.allclose(theta.numpy(), expected)
+    assert np.allclose(theta.numpy(), [-2, 4])
 
 
 if __name__ == "__main__":
