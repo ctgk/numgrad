@@ -54,6 +54,21 @@ class Tensor(_Node):
         self._parent = kwargs.get('_parent', None)
         self._is_variable = is_variable
 
+    def __array__(self, dtype=None) -> np.ndarray:
+        """Return reference or copy of the tensor in numpy array.
+
+        Parameters
+        ----------
+        dtype : type, optional
+            Desired data type, by default None
+
+        Returns
+        -------
+        np.ndarray
+            Reference or copy of the tensor in numpy array.
+        """
+        return np.asarray(self._data, dtype=dtype)
+
     def numpy(self) -> np.ndarray:
         """Return a numpy array of the tensor.
 

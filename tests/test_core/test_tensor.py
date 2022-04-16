@@ -148,5 +148,10 @@ def test_grad_value_error_1():
         a.grad
 
 
+def test_asarray():
+    actual = np.asarray(gd.Tensor([1, 2, 3]))
+    assert np.allclose([1, 2, 3], actual)
+
+
 if __name__ == '__main__':
     pytest.main([__file__])

@@ -34,13 +34,11 @@ def parameter_function(request):
 def test_backward_reduce_all(parameter_data, parameter_function):
     x = gd.Tensor(parameter_data['data'], is_variable=True)
     f = parameter_function['function']
-    g = eval('np.' + f.__name__) if f.__name__ != 'logsumexp' else sp.logsumexp
-    try:
-        g(x)
-    except Exception:
-        return
     y = f(x)
     y.backward()
+
+    g = eval('np.' + f.__name__) if f.__name__ != 'logsumexp' else sp.logsumexp
+    assert np.allclose(y.numpy(), g(x.numpy()))
     dx = _numerical_grad(f, x)[0]
     assert np.allclose(dx, x.grad, rtol=0, atol=1e-2)
 
@@ -48,13 +46,11 @@ def test_backward_reduce_all(parameter_data, parameter_function):
 def test_backward_reduce_all_keepdims(parameter_data, parameter_function):
     x = gd.Tensor(parameter_data['data'], is_variable=True)
     f = parameter_function['function']
-    g = eval('np.' + f.__name__) if f.__name__ != 'logsumexp' else sp.logsumexp
-    try:
-        g(x, keepdims=True)
-    except Exception:
-        return
     y = f(x, keepdims=True)
     y.backward()
+
+    g = eval('np.' + f.__name__) if f.__name__ != 'logsumexp' else sp.logsumexp
+    assert np.allclose(y.numpy(), g(x.numpy(), keepdims=True))
     dx = _numerical_grad(lambda a: f(a, keepdims=True), x)[0]
     assert np.allclose(dx, x.grad, rtol=0, atol=1e-2)
 
@@ -62,17 +58,15 @@ def test_backward_reduce_all_keepdims(parameter_data, parameter_function):
 def test_backward_reduce_one_axis(parameter_data, parameter_function):
     x = gd.Tensor(parameter_data['data'], is_variable=True)
     if x.ndim == 0:
-        axis = 0
+        return
     else:
         axis = np.random.choice(x.ndim)
     f = parameter_function['function']
-    g = eval('np.' + f.__name__) if f.__name__ != 'logsumexp' else sp.logsumexp
-    try:
-        g(x, axis)
-    except Exception:
-        return
     y = f(x, axis)
     y.backward()
+
+    g = eval('np.' + f.__name__) if f.__name__ != 'logsumexp' else sp.logsumexp
+    assert np.allclose(y.numpy(), g(x.numpy(), axis))
     dx = _numerical_grad(lambda a: f(a, axis), x)[0]
     assert np.allclose(dx, x.grad, rtol=0, atol=1e-2)
 
@@ -80,17 +74,15 @@ def test_backward_reduce_one_axis(parameter_data, parameter_function):
 def test_backward_reduce_one_axis_keepdims(parameter_data, parameter_function):
     x = gd.Tensor(parameter_data['data'], is_variable=True)
     if x.ndim == 0:
-        axis = 0
+        return
     else:
         axis = np.random.choice(x.ndim)
     f = parameter_function['function']
-    g = eval('np.' + f.__name__) if f.__name__ != 'logsumexp' else sp.logsumexp
-    try:
-        g(x, axis, keepdims=True)
-    except Exception:
-        return
     y = f(x, axis, keepdims=True)
     y.backward()
+
+    g = eval('np.' + f.__name__) if f.__name__ != 'logsumexp' else sp.logsumexp
+    assert np.allclose(y.numpy(), g(x.numpy(), axis, keepdims=True))
     dx = _numerical_grad(lambda a: f(a, axis, keepdims=True), x)[0]
     assert np.allclose(dx, x.grad, rtol=0, atol=1e-2)
 
@@ -102,13 +94,11 @@ def test_backward_reduce_two_axis(parameter_data, parameter_function):
     else:
         axis = tuple(np.random.choice(x.ndim, size=2, replace=False).tolist())
     f = parameter_function['function']
-    g = eval('np.' + f.__name__) if f.__name__ != 'logsumexp' else sp.logsumexp
-    try:
-        g(x, axis)
-    except Exception:
-        return
     y = f(x, axis)
     y.backward()
+
+    g = eval('np.' + f.__name__) if f.__name__ != 'logsumexp' else sp.logsumexp
+    assert np.allclose(y.numpy(), g(x.numpy(), axis))
     dx = _numerical_grad(lambda a: f(a, axis), x)[0]
     assert np.allclose(dx, x.grad, rtol=0, atol=1e-2)
 
@@ -120,13 +110,11 @@ def test_backward_reduce_two_axis_keepdims(parameter_data, parameter_function):
     else:
         axis = tuple(np.random.choice(x.ndim, size=2, replace=False).tolist())
     f = parameter_function['function']
-    g = eval('np.' + f.__name__) if f.__name__ != 'logsumexp' else sp.logsumexp
-    try:
-        g(x, axis, keepdims=True)
-    except Exception:
-        return
     y = f(x, axis, keepdims=True)
     y.backward()
+
+    g = eval('np.' + f.__name__) if f.__name__ != 'logsumexp' else sp.logsumexp
+    assert np.allclose(y.numpy(), g(x.numpy(), axis, keepdims=True))
     dx = _numerical_grad(lambda a: f(a, axis, keepdims=True), x)[0]
     assert np.allclose(dx, x.grad, rtol=0, atol=1e-2)
 

@@ -17,8 +17,11 @@ def _logsumexp(
     keepdims: bool = False,
 ):
     out = sp.logsumexp(x, axis=axis, keepdims=keepdims)
+    if isinstance(axis, int):
+        axis = (axis,)
 
     def grad(dout):
+        out_ = out  # To prevent UnboundLocalError
         if all((
             isinstance(dout, np.ndarray),
             (not keepdims),
@@ -30,10 +33,9 @@ def _logsumexp(
                     axis_positive.append(x.ndim + ax)
                 else:
                     axis_positive.append(ax)
-            out_ = out
             for ax in sorted(axis_positive):
                 dout = np.expand_dims(dout, ax)
-                out_ = np.expand_dims(out_, axis)
+                out_ = np.expand_dims(out_, ax)
         dout = np.broadcast_to(dout, x.shape)
         out_ = np.broadcast_to(out_, x.shape)
         return dout * np.exp(x - out_)
