@@ -9,6 +9,7 @@ from pygrad._core._dtypes import (  # noqa: I101
     Int8, Int16, Int32, Int64,  # noqa: I100
     Float16, Float32, Float64,
 )
+from pygrad._core._graph import Graph
 from pygrad._core._module import Module
 from pygrad._core._tensor import Tensor
 from pygrad._manipulation._getitem import _getitem_from_tensor
@@ -69,6 +70,7 @@ Tensor.T = property(lambda self: transpose(self))
 
 _classes = [
     DifferentiationError,
+    Graph,
     Module,
     Tensor,
     DataType, Int8, Int16, Int32, Int64, Float16, Float32, Float64,

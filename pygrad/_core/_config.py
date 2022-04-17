@@ -52,5 +52,16 @@ class Config(_Singleton):
                 f'Arg \'type_\' of Config.int() must be int type, not {type_}')
         self._int = type_
 
+    @property
+    def graph(self):
+        """Return graph currently under construction.
+
+        Returns
+        -------
+        tp.Union[None, Graph]
+            Graph currently under construction.
+        """
+        return self._graph
+
 
 config = Config()
