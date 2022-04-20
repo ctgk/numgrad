@@ -62,6 +62,8 @@ class _DifferentiableOperator(_Node):
         )
         if has_variable:
             self._child = out
+            if config._graph is not None:
+                config._graph._operations.append(self)
         return out
 
     def backward(self, dout: np.ndarray):

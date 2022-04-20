@@ -1,4 +1,5 @@
 from collections import OrderedDict
+import typing as tp
 
 import numpy as np
 
@@ -12,6 +13,7 @@ class Graph(object):
     def __init__(self):
         """Construct computational graph."""
         super().__init__()
+        self._operations: tp.List = []
         self._parent = OrderedDict()
         self._children = {}
         self._backward_counts = {}
