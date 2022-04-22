@@ -5,6 +5,7 @@ import numpy as np
 
 from pygrad._core._config import config
 from pygrad._core._tensor import Tensor
+from pygrad._utils._typecheck import _typecheck
 
 
 class Graph(object):
@@ -86,3 +87,35 @@ class Graph(object):
         """Run backpropagation through the computational graph."""
         self._terminal._grad = np.ones_like(self._terminal._data)
         self._backward(self._terminal)
+
+    @_typecheck()
+    def gradient(
+        self,
+        target: Tensor,
+        sources: tp.Union[tp.List[Tensor], tp.Tuple[Tensor, ...]],
+    ) -> tp.List[Tensor]:
+        """Return gradient of target with respect to each source.
+
+        Parameters
+        ----------
+        target : Tensor
+            Target to be differentiated.
+        sources : tp.Union[tp.List[Tensor], tp.Tuple[Tensor, ...]]
+            Source tensors to differentiated against.
+
+        Returns
+        -------
+        tp.List[Tensor]
+            Gradients of target with respect to each source.
+        """
+        def get_grad_and_clear(a: Tensor):
+            try:
+                out = a.grad
+            except ValueError:
+                out = None
+            a.clear()
+            return out
+
+        assert all(s._grad is None for s in sources)
+        target.backward()
+        return [get_grad_and_clear(s) for s in sources]
