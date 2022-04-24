@@ -5,7 +5,6 @@ import typing as tp
 import numpy as np
 
 from pygrad._core._config import config
-from pygrad._core._differentiation_error import DifferentiationError
 from pygrad._core._dtypes import _to_pygrad_type, DataType
 from pygrad._core._node import _Node
 from pygrad._utils._typecheck import _typecheck
@@ -128,10 +127,8 @@ class Tensor(_Node):
         return Tensor(self._data, dtype=dtype)
 
     def backward(self, dout: TensorLike = 1.):  # noqa: D102
-        if self._is_variable is False:
-            raise DifferentiationError(
-                'An attempt to backpropagate gradient from a constant object',
-            )
+        if dout is None:
+            return
         self._accumulate_grad(dout)
         if self._parent is None:
             return

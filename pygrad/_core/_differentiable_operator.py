@@ -60,10 +60,9 @@ class _DifferentiableOperator(_Node):
             name=None if self._name is None else self._name + '.out',
             _parent=self if has_variable else None,
         )
-        if has_variable:
-            self._child = out
-            if config._graph is not None:
-                config._graph._operations.append(self)
+        self._child = out
+        if config._graph is not None:
+            config._graph._operations.append(self)
         return out
 
     def backward(self, dout: np.ndarray):
@@ -71,8 +70,7 @@ class _DifferentiableOperator(_Node):
         if not isinstance(dargs, tuple):
             dargs = (dargs,)
         for arg, darg in zip(self._args, dargs):
-            if arg.is_variable:
-                arg.backward(darg)
+            arg.backward(darg)
 
 
 def differentiable_operator(func: callable) -> callable:

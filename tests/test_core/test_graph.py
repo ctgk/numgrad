@@ -27,13 +27,6 @@ def test_automatic_operation_storing():
     assert g._operations[0]._args[0] is a
 
 
-def test_no_automatic_operation_storing():
-    a = gd.Tensor(-1)
-    with gd.Graph() as g:
-        gd.square(a)
-    assert len(g._operations) == 0
-
-
 def test_gradient():
     a = gd.Tensor(-1., is_variable=True)
     with gd.Graph() as g:
@@ -43,16 +36,7 @@ def test_gradient():
     assert np.allclose(grads[0], -2)
 
 
-def test_gradient_2():
-    a = gd.Tensor(-1)
-    with gd.Graph() as g:
-        b = gd.square(a)
-    grads = g.gradient(b, [a])
-    assert len(grads) == 1
-    assert grads[0] is None
-
-
-def test_gradient_3():
+def test_gradient_multiple_sources():
     a = gd.Tensor(-1, is_variable=True)
     b = gd.Tensor(1)
     with gd.Graph() as g:
@@ -60,10 +44,10 @@ def test_gradient_3():
     grads = g.gradient(c, [a, b])
     assert len(grads) == 2
     assert np.allclose(grads[0], 1)
-    assert grads[1] is None
+    assert np.allclose(grads[1], 1)
 
 
-def test_gradient_4():
+def test_gradient_multiple_terminal_nodes():
     a = gd.Tensor(-1, is_variable=True)
     with gd.Graph() as g:
         b = gd.square(a)
