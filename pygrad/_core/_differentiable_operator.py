@@ -46,9 +46,18 @@ class _DifferentiableOperator(_Node):
             arg._children.append(self)
         return args
 
+    def _call_numpy_array(self, *args: np.ndarray, **kwargs) -> np.ndarray:
+        self._args = tuple(np.asarray(a) for a in args)
+        out, self._grad_func = self._function(*self._args, **kwargs)
+        self._child = np.asarray(out)
+        return self._child
+
     def __call__(self, *args: TensorLike, **kwargs) -> Tensor:
+        if config._graph is not None:
+            out = self._call_numpy_array(*args, **kwargs)
+            config._graph._operations.append(self)
+            return out
         self._args: tp.Tuple[Tensor] = self._check_args(*args)
-        has_variable = any(a._is_variable for a in self._args)
         out_data, self._grad_func = self._function(
             *tuple(a._data for a in self._args),
             **kwargs,
@@ -56,13 +65,11 @@ class _DifferentiableOperator(_Node):
         out = Tensor(
             data=out_data,
             dtype=out_data.dtype,
-            is_variable=has_variable,
+            is_variable=True,
             name=None if self._name is None else self._name + '.out',
-            _parent=self if has_variable else None,
+            _parent=self,
         )
         self._child = out
-        if config._graph is not None:
-            config._graph._operations.append(self)
         return out
 
     def backward(self, dout: np.ndarray):

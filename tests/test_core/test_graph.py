@@ -19,7 +19,7 @@ def test_enter_exit_error():
 
 
 def test_automatic_operation_storing():
-    a = gd.Tensor(-1., is_variable=True)
+    a = np.array(-1)
     with gd.Graph() as g:
         b = gd.square(a)
     assert len(g._operations) == 1
@@ -28,7 +28,7 @@ def test_automatic_operation_storing():
 
 
 def test_gradient():
-    a = gd.Tensor(-1., is_variable=True)
+    a = np.array(-1)
     with gd.Graph() as g:
         b = gd.square(a)
     grads = g.gradient(b, [a])
@@ -37,10 +37,10 @@ def test_gradient():
 
 
 def test_gradient_multiple_sources():
-    a = gd.Tensor(-1, is_variable=True)
-    b = gd.Tensor(1)
+    a = np.array(-1)
+    b = np.array(1)
     with gd.Graph() as g:
-        c = a + b
+        c = gd.add(a, b)
     grads = g.gradient(c, [a, b])
     assert len(grads) == 2
     assert np.allclose(grads[0], 1)
@@ -48,10 +48,10 @@ def test_gradient_multiple_sources():
 
 
 def test_gradient_multiple_terminal_nodes():
-    a = gd.Tensor(-1, is_variable=True)
+    a = np.array(-1)
     with gd.Graph() as g:
         b = gd.square(a)
-        c = 2 * a  # noqa: F841
+        c = gd.multiply(2, a)  # noqa: F841
     grads = g.gradient(b, [a])
     assert len(grads) == 1
     assert np.allclose(grads[0], -2)

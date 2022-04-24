@@ -41,21 +41,21 @@ class Graph(object):
     @_typecheck()
     def gradient(
         self,
-        target: Tensor,
-        sources: tp.Union[tp.List[Tensor], tp.Tuple[Tensor, ...]],
-    ) -> tp.List[Tensor]:
+        target: np.ndarray,
+        sources: tp.Union[tp.List[np.ndarray], tp.Tuple[np.ndarray, ...]],
+    ) -> tp.Tuple[np.ndarray]:
         """Return gradient of target with respect to each source.
 
         Parameters
         ----------
-        target : Tensor
+        target : np.ndarray
             Target to be differentiated.
-        sources : tp.Union[tp.List[Tensor], tp.Tuple[Tensor, ...]]
+        sources : tp.Union[tp.List[np.ndarray], tp.Tuple[np.ndarray, ...]]
             Source tensors to differentiated against.
 
         Returns
         -------
-        tp.List[Tensor]
+        tp.Tuple[np.ndarray]
             Gradients of target with respect to each source.
         """
         def get_grad_and_clear(a: Tensor):
@@ -63,12 +63,20 @@ class Graph(object):
             a.clear()
             return out
 
-        assert all(s._grad is None for s in sources)
-        assert target._grad is None
-        target._grad = np.ones_like(target._data)
+        child_id_and_grad: tp.Dict[int, np.ndarray] = {}
+        child_id_and_grad[id(target)] = np.ones_like(target)
         for op in reversed(self._operations):
-            child = op._child
-            if child._grad is None:
+            child_id = id(op._child)
+            if child_id not in child_id_and_grad:
                 continue
-            op.backward(child._grad)
-        return [get_grad_and_clear(s) for s in sources]
+            dargs = op._grad_func(child_id_and_grad[child_id])
+            if not isinstance(dargs, tuple):
+                dargs = (dargs,)
+            for arg, darg in zip(op._args, dargs):
+                if darg is None:
+                    continue
+                if id(arg) in child_id_and_grad:
+                    child_id_and_grad[id(arg)] += darg
+                else:
+                    child_id_and_grad[id(arg)] = np.ones_like(arg) * darg
+        return tuple(child_id_and_grad.get(id(s), None) for s in sources)
