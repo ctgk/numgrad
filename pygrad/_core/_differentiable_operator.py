@@ -16,7 +16,7 @@ class _DifferentiableOperator(_Node):
         super().__init__(name=function.__name__.lstrip('_'))
         self._function = function
         self._args: tp.Tuple[Tensor] = None
-        self._grad: callable = None
+        self._grad_func: callable = None
         self._child: Tensor = None
 
     def _get_out_dtype(*args: TensorLike) -> tp.Type[DataType]:
@@ -49,7 +49,7 @@ class _DifferentiableOperator(_Node):
     def __call__(self, *args: TensorLike, **kwargs) -> Tensor:
         self._args: tp.Tuple[Tensor] = self._check_args(*args)
         has_variable = any(a._is_variable for a in self._args)
-        out_data, self._grad = self._function(
+        out_data, self._grad_func = self._function(
             *tuple(a._data for a in self._args),
             **kwargs,
         )
@@ -67,7 +67,7 @@ class _DifferentiableOperator(_Node):
         return out
 
     def backward(self, dout: np.ndarray):
-        dargs = self._grad(dout)
+        dargs = self._grad_func(dout)
         if not isinstance(dargs, tuple):
             dargs = (dargs,)
         for arg, darg in zip(self._args, dargs):

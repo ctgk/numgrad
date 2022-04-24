@@ -44,6 +44,15 @@ def test_gradient():
 
 
 def test_gradient_2():
+    a = gd.Tensor(-1)
+    with gd.Graph() as g:
+        b = gd.square(a)
+    grads = g.gradient(b, [a])
+    assert len(grads) == 1
+    assert grads[0] is None
+
+
+def test_gradient_3():
     a = gd.Tensor(-1, is_variable=True)
     b = gd.Tensor(1)
     with gd.Graph() as g:
@@ -54,12 +63,14 @@ def test_gradient_2():
     assert grads[1] is None
 
 
-def test_gradient_error():
-    a = gd.Tensor(-1)
+def test_gradient_4():
+    a = gd.Tensor(-1, is_variable=True)
     with gd.Graph() as g:
         b = gd.square(a)
-    with pytest.raises(gd.DifferentiationError):
-        g.gradient(b, [a])
+        c = 2 * a  # noqa: F841
+    grads = g.gradient(b, [a])
+    assert len(grads) == 1
+    assert np.allclose(grads[0], -2)
 
 
 if __name__ == '__main__':

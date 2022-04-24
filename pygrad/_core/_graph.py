@@ -4,6 +4,7 @@ import typing as tp
 import numpy as np
 
 from pygrad._core._config import config
+from pygrad._core._differentiable_operator import _DifferentiableOperator
 from pygrad._core._tensor import Tensor
 from pygrad._utils._typecheck import _typecheck
 
@@ -14,7 +15,7 @@ class Graph(object):
     def __init__(self):
         """Construct computational graph."""
         super().__init__()
-        self._operations: tp.List = []
+        self._operations: tp.List[_DifferentiableOperator] = []
         self._parent = OrderedDict()
         self._children = {}
         self._backward_counts = {}
@@ -109,13 +110,16 @@ class Graph(object):
             Gradients of target with respect to each source.
         """
         def get_grad_and_clear(a: Tensor):
-            try:
-                out = a.grad
-            except ValueError:
-                out = None
+            out = a._grad
             a.clear()
             return out
 
         assert all(s._grad is None for s in sources)
-        target.backward()
+        assert target._grad is None
+        target._grad = np.ones_like(target._data)
+        for op in reversed(self._operations):
+            child = op._child
+            if child._grad is None:
+                continue
+            op.backward(child._grad)
         return [get_grad_and_clear(s) for s in sources]
