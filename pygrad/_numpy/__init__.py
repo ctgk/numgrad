@@ -30,3 +30,18 @@ def _sin_gradient(doutput, output, x):
 @register_gradient(np.tan)
 def _tan_gradient(doutput, output, x):
     return (1 + np.square(output)) * doutput
+
+
+@register_gradient(np.cosh)
+def _cosh_gradient(doutput, output, x):
+    return np.sinh(x) * doutput
+
+
+@register_gradient(np.sinh)
+def _sinh_gradient(doutput, output, x):
+    return np.cosh(x) * doutput
+
+
+@register_gradient(np.tanh)
+def _tanh_gradient(doutput, output, x):
+    return (1 - np.square(output)) * doutput
