@@ -114,3 +114,23 @@ def _max_gradient(doutput, output, x, axis=None, keepdims=False, **kwargs):
     dx = 1 * np.broadcast_to(doutput, x.shape)
     dx[np.where(x != x.max(axis=axis, keepdims=True))] = 0
     return dx
+
+
+@register_gradient(np.mean)
+def _mean_gradient(doutput, output, x, axis=None, keepdims=False):
+    if all((
+        isinstance(doutput, np.ndarray),
+        (not keepdims),
+        (axis is not None),
+    )):
+        axis_positive = []
+        for ax in axis if isinstance(axis, tuple) else (axis,):
+            if ax < 0:
+                axis_positive.append(x.ndim + ax)
+            else:
+                axis_positive.append(ax)
+        for ax in sorted(axis_positive):
+            doutput = np.expand_dims(doutput, ax)
+    dx = np.broadcast_to(doutput, x.shape)
+    dx = dx * doutput.size / x.size
+    return dx

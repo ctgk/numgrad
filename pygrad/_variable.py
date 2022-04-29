@@ -88,4 +88,7 @@ class Variable(np.ndarray):
         return result
 
 
+Variable.mean = lambda *args, **kwargs: np.mean(*args, **kwargs)
+
+
 VariableLike = tp.Union[Variable, ArrayLike]
