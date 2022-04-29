@@ -4,6 +4,16 @@ from pygrad._decorators import register_gradient
 from pygrad._utils._unbroadcast import _unbroadcast_to
 
 
+@register_gradient(np.positive)
+def _positive_gradient(doutput, output, x):
+    return doutput
+
+
+@register_gradient(np.negative)
+def _negative_gradient(doutput, output, x):
+    return -doutput
+
+
 @register_gradient(np.add)
 def _add_gradient(doutput, output, x, y):
     return (

@@ -7,6 +7,12 @@ from pygrad._utils._numerical_grad import _numerical_grad
 
 
 @pytest.mark.parametrize('function, x', [
+    # signs
+    (np.positive, gd.Variable(-3)),
+    (lambda a: +a, gd.Variable(-3)),
+    (np.negative, gd.Variable(-3)),
+    (lambda a: -a, gd.Variable(-3)),
+
     (lambda a: a + [[1, 2], [3, 4]], gd.Variable([1, 2])),
 
     # powers
