@@ -46,6 +46,13 @@ from pygrad._utils._numerical_grad import _numerical_grad
         lambda a: sp.log_softmax(a, axis=-1),
         gd.Variable([[0.5, 0, -0.5], [0, 1, 2]]),
     ),
+    (lambda a: sp.logsumexp(a), gd.Variable(-1)),
+    (lambda a: sp.logsumexp(a), gd.Variable([-1, 1])),
+    (lambda a: sp.logsumexp(a, axis=1), gd.Variable(np.random.rand(3, 2))),
+    (
+        lambda a: sp.logsumexp(a, axis=(0, 2), keepdims=True),
+        gd.Variable(np.random.rand(4, 2, 3)),
+    ),
     (
         lambda a: sp.log_softmax(a, axis=(0, 2)),
         gd.Variable(np.random.rand(2, 3, 4)),
