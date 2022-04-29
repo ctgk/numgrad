@@ -32,5 +32,11 @@ def test_ufunc():
     assert type(a + 0) == gd.Variable
 
 
+@pytest.mark.xfail
+def test_view():
+    a = np.array([1, 2]).view(gd.Variable)
+    assert a.dtype == float
+
+
 if __name__ == '__main__':
     pytest.main([__file__])
