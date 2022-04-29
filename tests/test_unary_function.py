@@ -9,6 +9,12 @@ from pygrad._utils._numerical_grad import _numerical_grad
 @pytest.mark.parametrize('function, x', [
     (lambda a: a + [[1, 2], [3, 4]], gd.Variable([1, 2])),
     (np.square, gd.Variable([2, -1])),
+
+    # trigonometric functions
+    (np.cos, gd.Variable(np.random.uniform(-10, 10, (3, 2)))),
+    (np.sin, gd.Variable(np.random.uniform(-10, 10, (2, 5)))),
+    (np.tan, gd.Variable(np.random.uniform(-10, 10, (4, 1)))),
+
     (lambda a: sp.log_softmax(a), gd.Variable([0.5, 0, -0.5])),
     (
         lambda a: sp.log_softmax(a, axis=-1),
