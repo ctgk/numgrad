@@ -1,6 +1,7 @@
 """Simple gradient computation library for Python."""
 
 from pygrad._config import Config, config  # noqa: F401
+from pygrad._graph import Graph
 from pygrad._tensor import Tensor
 
 from pygrad._version import __version__  # noqa: F401, I202
@@ -8,6 +9,7 @@ from pygrad._version import __version__  # noqa: F401, I202
 
 _classes = [
     Config,
+    Graph,
     Tensor,
 ]
 

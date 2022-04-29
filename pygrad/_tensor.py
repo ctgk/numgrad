@@ -58,47 +58,31 @@ class Tensor(np.ndarray):
                 f'not {dtype}')
         return np.asarray(array, dtype=dtype).view(Tensor)
 
+    @staticmethod
+    def _ndarray_views(*args):
+        return [
+            a.view(np.ndarray) if isinstance(a, Tensor) else a
+            for a in args
+        ]
+
     def __array_ufunc__(  # noqa: D105
         self, ufunc, method, *inputs, out=None, **kwargs,
     ):
-        args = []
-        in_no = []
-        for i, input_ in enumerate(inputs):
-            if isinstance(input_, Tensor):
-                in_no.append(i)
-                args.append(input_.view(np.ndarray))
-            else:
-                args.append(input_)
+        if ufunc.nout != 1:
+            raise NotImplementedError
+        if method != '__call__':
+            raise NotImplementedError
 
-        outputs = out
-        out_no = []
-        if outputs:
-            out_args = []
-            for j, output in enumerate(outputs):
-                if isinstance(output, Tensor):
-                    out_no.append(j)
-                    out_args.append(output.view(np.ndarray))
-                else:
-                    out_args.append(output)
-            kwargs['out'] = tuple(out_args)
-        else:
-            outputs = (None,) * ufunc.nout
-
-        results = super().__array_ufunc__(ufunc, method, *args, **kwargs)
-        if results is NotImplemented:
+        args = self._ndarray_views(*inputs)
+        if out:
+            kwargs['out'] = self._ndarray_views(*out)[0]
+        result = super().__array_ufunc__(ufunc, method, *args, **kwargs)
+        if result is NotImplemented:
             return NotImplemented
-
-        if method == 'at':
-            return
-
-        if ufunc.nout == 1:
-            results = (results,)
-
-        results = tuple(
-            (np.asarray(result).view(Tensor) if output is None else output)
-            for result, output in zip(results, outputs)
-        )
-        return results[0] if len(results) == 1 else results
+        result = np.asarray(result).view(Tensor)
+        if config._graph is not None:
+            config._graph._add_node(result, ufunc, *inputs, **kwargs)
+        return result
 
 
 TensorLike = tp.Union[Tensor, ArrayLike]
