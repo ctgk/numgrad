@@ -22,6 +22,31 @@ def _add_gradient(doutput, output, x, y):
     )
 
 
+@register_gradient(np.subtract)
+def _subtract_gradient(doutput, output, x, y):
+    return (
+        _unbroadcast_to(doutput, x.shape) if hasattr(x, 'shape') else None,
+        _unbroadcast_to(-doutput, y.shape) if hasattr(y, 'shape') else None,
+    )
+
+
+@register_gradient(np.multiply)
+def _multiply_gradient(doutput, output, x, y):
+    return (
+        _unbroadcast_to(doutput * y, x.shape) if hasattr(x, 'shape') else None,
+        _unbroadcast_to(doutput * x, y.shape) if hasattr(y, 'shape') else None,
+    )
+
+
+@register_gradient(np.divide)
+def _divide_gradient(do, o, x, y):
+    return (
+        _unbroadcast_to(do / y, x.shape) if hasattr(x, 'shape') else None,
+        _unbroadcast_to(
+            -do * x / (y ** 2), y.shape) if hasattr(y, 'shape') else None,
+    )
+
+
 @register_gradient(np.square)
 def _square_gradient(dy, y, x):
     return 2 * x * dy

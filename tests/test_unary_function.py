@@ -13,7 +13,15 @@ from pygrad._utils._numerical_grad import _numerical_grad
     (np.negative, gd.Variable(-3)),
     (lambda a: -a, gd.Variable(-3)),
 
+    # four basic operations
+    (lambda a: np.add(a, [[1, 2], [3, 4]]), gd.Variable([1, 2])),
     (lambda a: a + [[1, 2], [3, 4]], gd.Variable([1, 2])),
+    (lambda a: np.subtract(a, [[1, 2], [3, 4]]), gd.Variable([1, 2])),
+    (lambda a: a - [[1, 2], [3, 4]], gd.Variable([1, 2])),
+    (lambda a: np.multiply(a, [[1, 2], [3, 4]]), gd.Variable([1, 2])),
+    (lambda a: a * [[1, 2], [3, 4]], gd.Variable([1, 2])),
+    (lambda a: np.divide(a, [[1, 2], [3, 4]]), gd.Variable([1, 2])),
+    (lambda a: a / [[1, 2], [3, 4]], gd.Variable([1, 2])),
 
     # powers
     (np.square, gd.Variable([2, -1])),
