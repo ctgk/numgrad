@@ -8,7 +8,10 @@ from pygrad._utils._numerical_grad import _numerical_grad
 
 @pytest.mark.parametrize('function, x', [
     (lambda a: a + [[1, 2], [3, 4]], gd.Variable([1, 2])),
+
+    # powers
     (np.square, gd.Variable([2, -1])),
+    (np.sqrt, gd.Variable([3, 0.5])),
 
     # trigonometric functions
     (np.cos, gd.Variable(np.random.uniform(-10, 10, (3, 2)))),

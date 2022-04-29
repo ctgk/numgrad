@@ -17,6 +17,11 @@ def _square_gradient(dy, y, x):
     return 2 * x * dy
 
 
+@register_gradient(np.sqrt)
+def _sqrt_gradient(doutput, output, x):
+    return 0.5 / output * doutput
+
+
 @register_gradient(np.cos)
 def _cos_gradient(doutput, output, x):
     return -np.sin(x) * doutput
