@@ -50,6 +50,9 @@ from pygrad._utils._numerical_grad import _numerical_grad
         lambda a: sp.log_softmax(a, axis=(0, 2)),
         gd.Variable(np.random.rand(2, 3, 4)),
     ),
+
+    # gamma function
+    (sp.gamma, gd.Variable([1, 0.5, 3.3])),
 ])
 def test_gradient(function, x):
     with gd.Graph() as g:
