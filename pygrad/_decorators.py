@@ -10,13 +10,19 @@ _PATCHED_FUNCTION: tp.Dict[callable, callable] = {}
 _REGISTERED_GRADIENT_FUNCTION: tp.Dict[callable, callable] = {}
 
 
-def register_gradient(forward: callable) -> callable:
+def register_gradient(
+    forward: callable,
+    *,
+    method: tp.Optional[str] = None,
+) -> callable:
     """Register a gradient function of a forward function.
 
     Parameters
     ----------
     forward : callable
         Forward function to register gradient function for.
+    method : tp.Optional[str], optional
+        Method of `forward`, by default None
 
     Returns
     -------
@@ -36,7 +42,10 @@ def register_gradient(forward: callable) -> callable:
         _PATCHED_FUNCTION[forward] = patched
 
     def decorator(grad_func):
-        _REGISTERED_GRADIENT_FUNCTION[forward] = grad_func
+        if method is not None:
+            _REGISTERED_GRADIENT_FUNCTION[getattr(forward, method)] = grad_func
+        else:
+            _REGISTERED_GRADIENT_FUNCTION[forward] = grad_func
         return grad_func
 
     return decorator

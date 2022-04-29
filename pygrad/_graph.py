@@ -2,6 +2,7 @@ from collections import namedtuple
 import typing as tp
 
 import numpy as np
+import numpy
 import scipy.special  # noqa: F401
 
 from pygrad._config import config

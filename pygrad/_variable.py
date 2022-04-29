@@ -67,7 +67,7 @@ class Variable(np.ndarray):
     ):
         if ufunc.nout != 1:
             raise NotImplementedError
-        if method != '__call__':
+        if method not in ('__call__', 'reduce'):
             raise NotImplementedError
 
         args = _ndarray_views(*inputs)
@@ -78,7 +78,11 @@ class Variable(np.ndarray):
             return NotImplemented
         result = np.asarray(result).view(Variable)
         if config._graph is not None:
-            config._graph._add_node(result, ufunc, *inputs, **kwargs)
+            config._graph._add_node(
+                result,
+                ufunc if method == '__call__' else getattr(ufunc, method),
+                *inputs, **kwargs,
+            )
         return result
 
 

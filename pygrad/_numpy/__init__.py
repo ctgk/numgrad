@@ -95,3 +95,22 @@ def _exp_gradient(doutput, output, x):
 @register_gradient(np.log)
 def _log_gradient(doutput, output, x):
     return doutput / x
+
+
+@register_gradient(np.maximum, method='reduce')
+def _max_gradient(doutput, output, x, axis=None, keepdims=False, **kwargs):
+    if x.ndim == 0:
+        return doutput
+    if all((
+        isinstance(doutput, np.ndarray),
+        (not keepdims),
+        (axis is not None),
+    )):
+        axis_positive = []
+        for ax in axis if isinstance(axis, tuple) else (axis,):
+            axis_positive.append(x.ndim + ax if ax < 0 else ax)
+        for ax in sorted(axis_positive):
+            doutput = np.expand_dims(doutput, ax)
+    dx = 1 * np.broadcast_to(doutput, x.shape)
+    dx[np.where(x != x.max(axis=axis, keepdims=True))] = 0
+    return dx

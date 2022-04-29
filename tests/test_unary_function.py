@@ -53,6 +53,14 @@ from pygrad._utils._numerical_grad import _numerical_grad
 
     # gamma function
     (sp.gamma, gd.Variable([1, 0.5, 3.3])),
+
+    # stats
+    (np.max, gd.Variable([1, 2])),
+    (lambda a: a.max(axis=1), gd.Variable(np.random.rand(2, 3) * 10)),
+    (
+        lambda a: a.max(axis=(0, 2), keepdims=True),
+        gd.Variable(np.random.rand(2, 4, 3) * 10),
+    ),
 ])
 def test_gradient(function, x):
     with gd.Graph() as g:
