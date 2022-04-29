@@ -76,6 +76,13 @@ from pygrad._utils._numerical_grad import _numerical_grad
         lambda a: np.mean(a, axis=(0, 2), keepdims=True),
         gd.Variable(np.random.rand(4, 2, 3)),
     ),
+    (lambda a: np.sum(a), gd.Variable(-1)),
+    (lambda a: np.sum(a), gd.Variable([-1, 1])),
+    (lambda a: a.sum(axis=1), gd.Variable(np.random.rand(3, 2))),
+    (
+        lambda a: np.sum(a, axis=(0, 2), keepdims=True),
+        gd.Variable(np.random.rand(4, 2, 3)),
+    ),
 ])
 def test_gradient(function, x):
     with gd.Graph() as g:

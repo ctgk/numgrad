@@ -153,3 +153,24 @@ def _mean_gradient(doutput, output, x, axis=None, keepdims=False):
     dx = np.broadcast_to(doutput, x.shape)
     dx = dx * doutput.size / x.size
     return dx
+
+
+@register_gradient(np.add, method='reduce')
+def _sum_gradient(doutput, output, x, axis=None, keepdims=False, **kwargs):
+    if all((
+        isinstance(doutput, np.ndarray),
+        (not keepdims),
+        (axis is not None),
+    )):
+        axis_positive = []
+        if isinstance(axis, int):
+            axis = (axis,)
+        for ax in axis:
+            if ax < 0:
+                axis_positive.append(x.ndim + ax)
+            else:
+                axis_positive.append(ax)
+        for ax in sorted(axis_positive):
+            doutput = np.expand_dims(doutput, ax)
+    dx = np.broadcast_to(doutput, x.shape)
+    return dx
