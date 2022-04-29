@@ -14,8 +14,14 @@ from pygrad._utils._numerical_grad import _numerical_grad
     (np.multiply, gd.Variable([[1, 2]]), gd.Variable([[1], [2]])),
     (lambda a, b: a / b, gd.Variable([[1, 2]]), gd.Variable([[1], [2]])),
     (np.divide, gd.Variable([[1, 2]]), gd.Variable([[1], [2]])),
+    (lambda a, b: a @ b, [1, 2], [1, 2]),
+    (lambda a, b: np.matmul(a, b), [1, 2], [[1, 2], [3, 4]]),
+    (lambda a, b: a @ b, [[1, 2], [3, 4]], [1, 2]),
+    (lambda a, b: np.matmul(a, b), [[1, 2], [3, 4]], [[1, 2], [3, 4]]),
+    (lambda a, b: a @ b, np.random.rand(3, 4, 2), [[1, 2], [3, 4]]),
 ])
 def test_gradient(function, x, y):
+    x, y = gd.Variable(x), gd.Variable(y)
     with gd.Graph() as g:
         output = function(x, y)
     dx_actual, dy_actual = g.gradient(output, [x, y])

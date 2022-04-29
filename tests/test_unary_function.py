@@ -22,6 +22,11 @@ from pygrad._utils._numerical_grad import _numerical_grad
     (lambda a: a * [[1, 2], [3, 4]], [1, 2]),
     (lambda a: np.divide(a, [[1, 2], [3, 4]]), [1, 2]),
     (lambda a: a / [[1, 2], [3, 4]], [1, 2]),
+    (lambda a: a @ [1, 2], [1, 2]),
+    (lambda a: np.matmul(a, [1, 2]), [[1, 2], [3, 4]]),
+    (lambda a: a @ [[1, 2], [3, 4]], [1, 2]),
+    (lambda a: np.matmul(a, [[1, 2], [3, 4]]), [[1, 2], [3, 4]]),
+    (lambda a: a @ [[1, 2], [3, 4]], np.random.rand(3, 4, 2)),
 
     # powers
     (np.square, [2, -1]),

@@ -47,6 +47,31 @@ def _divide_gradient(do, o, x, y):
     )
 
 
+@register_gradient(np.matmul)
+def _matmul_gradient(do, o, x, y):
+    x, y = np.asarray(x), np.asarray(y)
+    if y.ndim == 1:
+        do = np.expand_dims(do, -1)
+        do = np.broadcast_to(do, x.shape)
+        dx = do * y
+        dy = _unbroadcast_to(do * x, y.shape)
+        return dx, dy
+    if x.ndim == 1:
+        do = np.expand_dims(do, -2)
+        do = np.broadcast_to(do, y.shape)
+        dx = _unbroadcast_to((do * y).sum(axis=-1), x.shape)
+        dy = do * x[:, None]
+        return dx, dy
+    if x.ndim == y.ndim == 2:
+        dx = do @ y.T
+        dy = x.T @ do
+        return dx, dy
+    else:
+        dx = _unbroadcast_to(do @ np.swapaxes(y, -1, -2), x.shape)
+        dy = _unbroadcast_to(np.swapaxes(x, -1, -2) @ do, y.shape)
+        return dx, dy
+
+
 @register_gradient(np.square)
 def _square_gradient(dy, y, x):
     return 2 * x * dy
