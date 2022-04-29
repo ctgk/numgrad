@@ -45,3 +45,13 @@ def _sinh_gradient(doutput, output, x):
 @register_gradient(np.tanh)
 def _tanh_gradient(doutput, output, x):
     return (1 - np.square(output)) * doutput
+
+
+@register_gradient(np.exp)
+def _exp_gradient(doutput, output, x):
+    return output * doutput
+
+
+@register_gradient(np.log)
+def _log_gradient(doutput, output, x):
+    return doutput / x

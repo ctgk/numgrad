@@ -20,6 +20,10 @@ from pygrad._utils._numerical_grad import _numerical_grad
     (np.sinh, gd.Variable(np.random.uniform(-10, 10, (1, 5)))),
     (np.tanh, gd.Variable(np.random.uniform(-10, 10, (4, 2)))),
 
+    # exp & log
+    (np.exp, gd.Variable([-1, -0.2, 0.5])),
+    (np.log, gd.Variable([1, 0.2, 0.5, 2])),
+
     (lambda a: sp.log_softmax(a), gd.Variable([0.5, 0, -0.5])),
     (
         lambda a: sp.log_softmax(a, axis=-1),
