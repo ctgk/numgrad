@@ -7,6 +7,7 @@ from pygrad._utils._numerical_grad import _numerical_grad
 
 
 @pytest.mark.parametrize('function, x', [
+    (lambda a: a + [[1, 2], [3, 4]], gd.Tensor([1, 2])),
     (np.square, gd.Tensor([2, -1])),
     (lambda a: sp.log_softmax(a), gd.Tensor([0.5, 0, -0.5])),
     (
