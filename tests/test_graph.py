@@ -19,7 +19,7 @@ def test_enter_exit_error():
 
 
 def test_automatic_operation_storing():
-    a = gd.Tensor(-1)
+    a = gd.Variable(-1)
     with gd.Graph() as g:
         b = np.square(a)
     assert len(g._node_list) == 1

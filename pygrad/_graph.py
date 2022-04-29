@@ -6,7 +6,7 @@ import scipy.special  # noqa: F401
 
 from pygrad._config import config
 from pygrad._decorators import _PATCHED_FUNCTION, _REGISTERED_GRADIENT_FUNCTION
-from pygrad._tensor import _ndarray_views, Tensor
+from pygrad._variable import _ndarray_views, Variable
 
 
 Node = namedtuple('Node', ('result', 'function', 'inputs', 'kwargs'))
@@ -63,16 +63,16 @@ class Graph(object):
 
     def gradient(
         self,
-        target: Tensor,
-        sources: tp.Union[tp.List[Tensor], tp.Tuple[Tensor, ...]],
+        target: Variable,
+        sources: tp.Union[tp.List[Variable], tp.Tuple[Variable, ...]],
     ) -> tp.Tuple[np.ndarray]:
         """Return gradients of target with respect to each source.
 
         Parameters
         ----------
-        target : Tensor
+        target : Variable
             Target to be differentiated.
-        sources : tp.Union[tp.List[Tensor], tp.Tuple[Tensor, ...]]
+        sources : tp.Union[tp.List[Variable], tp.Tuple[Variable, ...]]
             Source tensors to differentiated against.
         Returns
         -------
@@ -100,7 +100,7 @@ class Graph(object):
                     continue
                 if id(x) in tensor_id_to_grad:
                     tensor_id_to_grad[id(x)] += dx
-                elif isinstance(x, Tensor):
+                elif isinstance(x, Variable):
                     tensor_id_to_grad[id(x)] = np.ones_like(
                         x.view(np.ndarray)) * dx
         return tuple(tensor_id_to_grad.get(id(s), None) for s in sources)

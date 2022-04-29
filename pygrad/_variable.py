@@ -9,31 +9,31 @@ ArrayLike = tp.Union[np.ndarray, list, tuple]
 
 
 def _ndarray_views(*args):
-    return [a.view(np.ndarray) if isinstance(a, Tensor) else a for a in args]
+    return [a.view(np.ndarray) if isinstance(a, Variable) else a for a in args]
 
 
-class Tensor(np.ndarray):
-    """Multi-dimensional tensor class.
+class Variable(np.ndarray):
+    """Multi-dimensional variable class.
 
     Examples
     --------
-    >>> a = gd.Tensor([0, 1])
+    >>> a = gd.Variable([0, 1])
     >>>
     >>> # data type
     >>> a.dtype
     dtype('float64')
-    >>> gd.Tensor([1], dtype=np.float32).dtype
+    >>> gd.Variable([1], dtype=np.float32).dtype
     dtype('float32')
     >>>
     >>> # numpy ufunc
     >>> b = a + 1
     >>> type(b)
-    <class 'pygrad.Tensor'>
+    <class 'pygrad.Variable'>
     >>> b
-    Tensor([1., 2.])
+    Variable([1., 2.])
     """
 
-    def __new__(cls, array: ArrayLike, dtype: type = None) -> 'Tensor':
+    def __new__(cls, array: ArrayLike, dtype: type = None) -> 'Variable':
         """Return tensor.
 
         Parameters
@@ -45,8 +45,8 @@ class Tensor(np.ndarray):
 
         Returns
         -------
-        Tensor
-            Output tensor
+        Variable
+            Output variable
 
         Raises
         ------
@@ -60,7 +60,7 @@ class Tensor(np.ndarray):
                 'Data type of `Tensor` must be either '
                 '`float`, `np.float32`, or `np.float64`, '
                 f'not {dtype}')
-        return np.asarray(array, dtype=dtype).view(Tensor)
+        return np.asarray(array, dtype=dtype).view(Variable)
 
     def __array_ufunc__(  # noqa: D105
         self, ufunc, method, *inputs, out=None, **kwargs,
@@ -76,10 +76,10 @@ class Tensor(np.ndarray):
         result = super().__array_ufunc__(ufunc, method, *args, **kwargs)
         if result is NotImplemented:
             return NotImplemented
-        result = np.asarray(result).view(Tensor)
+        result = np.asarray(result).view(Variable)
         if config._graph is not None:
             config._graph._add_node(result, ufunc, *inputs, **kwargs)
         return result
 
 
-TensorLike = tp.Union[Tensor, ArrayLike]
+VariableLike = tp.Union[Variable, ArrayLike]

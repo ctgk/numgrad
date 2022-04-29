@@ -6,8 +6,8 @@ from pygrad._utils._numerical_grad import _numerical_grad
 
 
 @pytest.mark.parametrize('function, x, y', [
-    (lambda a, b: a + b, gd.Tensor([[1, 2]]), gd.Tensor([[1], [2]])),
-    (np.add, gd.Tensor([[1, 2]]), gd.Tensor([[1], [2]])),
+    (lambda a, b: a + b, gd.Variable([[1, 2]]), gd.Variable([[1], [2]])),
+    (np.add, gd.Variable([[1, 2]]), gd.Variable([[1], [2]])),
 ])
 def test_gradient(function, x, y):
     with gd.Graph() as g:

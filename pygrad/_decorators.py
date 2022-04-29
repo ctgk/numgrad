@@ -3,7 +3,7 @@ import typing as tp
 import numpy as np
 
 from pygrad._config import config
-from pygrad._tensor import _ndarray_views, Tensor
+from pygrad._variable import _ndarray_views, Variable
 
 
 _PATCHED_FUNCTION: tp.Dict[callable, callable] = {}
@@ -26,8 +26,8 @@ def register_gradient(forward: callable) -> callable:
     if not isinstance(forward, np.ufunc):
 
         def patched(*args, **kwargs):
-            if any(isinstance(a, Tensor) for a in args):
-                out = forward(*_ndarray_views(*args), **kwargs).view(Tensor)
+            if any(isinstance(a, Variable) for a in args):
+                out = forward(*_ndarray_views(*args), **kwargs).view(Variable)
                 if config._graph is not None:
                     config._graph._add_node(out, forward, *args, **kwargs)
                 return out
