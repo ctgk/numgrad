@@ -8,6 +8,10 @@ from pygrad._config import config
 ArrayLike = tp.Union[np.ndarray, list, tuple]
 
 
+def _ndarray_views(*args):
+    return [a.view(np.ndarray) if isinstance(a, Tensor) else a for a in args]
+
+
 class Tensor(np.ndarray):
     """Multi-dimensional tensor class.
 
@@ -58,13 +62,6 @@ class Tensor(np.ndarray):
                 f'not {dtype}')
         return np.asarray(array, dtype=dtype).view(Tensor)
 
-    @staticmethod
-    def _ndarray_views(*args):
-        return [
-            a.view(np.ndarray) if isinstance(a, Tensor) else a
-            for a in args
-        ]
-
     def __array_ufunc__(  # noqa: D105
         self, ufunc, method, *inputs, out=None, **kwargs,
     ):
@@ -73,9 +70,9 @@ class Tensor(np.ndarray):
         if method != '__call__':
             raise NotImplementedError
 
-        args = self._ndarray_views(*inputs)
+        args = _ndarray_views(*inputs)
         if out:
-            kwargs['out'] = self._ndarray_views(*out)[0]
+            kwargs['out'] = _ndarray_views(*out)[0]
         result = super().__array_ufunc__(ufunc, method, *args, **kwargs)
         if result is NotImplemented:
             return NotImplemented
