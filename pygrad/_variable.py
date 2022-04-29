@@ -65,6 +65,8 @@ class Variable(np.ndarray):
     def __array_ufunc__(  # noqa: D105
         self, ufunc, method, *inputs, out=None, **kwargs,
     ):
+        if config._verbosity > 0:
+            print(ufunc, method, inputs, out, kwargs)
         if ufunc.nout != 1:
             raise NotImplementedError
         if method not in ('__call__', 'reduce'):

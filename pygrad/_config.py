@@ -16,6 +16,7 @@ class Config(_Singleton):
         """Initialize configuration."""
         self._dtype = float
         self._graph = None
+        self._verbosity: int = 0
 
     @property
     def dtype(self) -> type:
