@@ -1,25 +1,10 @@
 import numpy as np
 
-from pygrad._decorators import _register_gradient, differentiable
-import pygrad._numpy._random  # noqa: F401
-import pygrad._numpy._reshape  # noqa: F401
+from pygrad._decorators import _register_gradient
+from pygrad._numpy import (  # noqa: F401
+    _getitem, _random, _reshape,
+)
 from pygrad._utils._unbroadcast import _unbroadcast_to
-from pygrad._variable import Variable
-
-
-def _getitem_gradient(dy, y, x, key):
-    dx = np.zeros_like(x)
-    dx[key] = dy
-    return dx
-
-
-@differentiable(_getitem_gradient)
-def _getitem(self, key):
-    return self[key]
-
-
-Variable.__getitem__ = _getitem
-Variable.__getitem__.__doc__ = np.ndarray.__getitem__.__doc__
 
 
 @_register_gradient(np.transpose)
