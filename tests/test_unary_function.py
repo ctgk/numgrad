@@ -46,6 +46,7 @@ from pygrad._utils._numerical_grad import _numerical_grad
     (np.exp, [-1, -0.2, 0.5]),
     (np.log, [1, 0.2, 0.5, 2]),
 
+    (lambda a: sp.expit(a), [1, 0, -1]),
     (lambda a: sp.log_softmax(a), [0.5, 0, -0.5]),
     (
         lambda a: sp.log_softmax(a, axis=-1),
