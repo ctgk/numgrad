@@ -59,6 +59,11 @@ from pygrad._utils._numerical_grad import _numerical_grad
         np.random.rand(4, 2, 3),
     ),
     (lambda a: sp.log_softmax(a, axis=(0, 2)), np.random.rand(2, 3, 4)),
+    (lambda a: sp.softmax(a), -1),
+    (lambda a: sp.softmax(a), [-1, 1]),
+    (lambda a: sp.softmax(a, axis=1), np.random.rand(3, 2)),
+    (lambda a: sp.softmax(a, axis=(0, 2)), np.random.rand(4, 2, 3)),
+    (lambda a: sp.softmax(a), np.random.rand(4, 2, 3)),
 
     # gamma function
     (sp.gamma, [1, 0.5, 3.3]),

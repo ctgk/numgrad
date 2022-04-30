@@ -38,6 +38,13 @@ def _log_softmax_gradient(dy, y, x, axis=None):
     return dy - np.exp(y) * dy.sum(axis=axis, keepdims=True)
 
 
+@_register_gradient(sp.softmax)
+def _softmax_gradient(dy, y, x, axis=None):
+    dx = y * dy
+    dx -= y * dx.sum(axis=axis, keepdims=True)
+    return dx
+
+
 @_register_gradient(sp.gamma)
 def _gamma_gradient(do, o, x):
     return sp.digamma(x) * o * do
