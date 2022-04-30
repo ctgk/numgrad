@@ -2,16 +2,9 @@ import numpy as np
 
 from pygrad._decorators import _register_gradient
 from pygrad._numpy import (  # noqa: F401
-    _getitem, _random, _reshape,
+    _getitem, _random, _reshape, _transpose,
 )
 from pygrad._utils._unbroadcast import _unbroadcast_to
-
-
-@_register_gradient(np.transpose)
-def _transpose_gradient(dy, y, x, axes=None):
-    if axes is None:
-        return np.transpose(dy)
-    return np.transpose(dy, np.argsort(axes))
 
 
 @_register_gradient(np.positive)

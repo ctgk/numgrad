@@ -113,12 +113,4 @@ for method in ('mean',):
     )
 
 
-Variable.transpose = lambda self, *axes: np.transpose(
-    self.view(np.ndarray) if config._graph is None else self,
-    *({0: tuple(), 1: axes}.get(len(axes), (axes,))),
-)
-Variable.transpose.__doc__ = np.ndarray.transpose.__doc__
-Variable.T = property(lambda self: self.transpose())
-
-
 VariableLike = tp.Union[Variable, ArrayLike]
