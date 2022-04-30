@@ -10,6 +10,13 @@ def _reshape_gradient(dy, y, x, *args, **kwargs):
     return dy.reshape(*x.shape)
 
 
+@_register_gradient(np.transpose)
+def _transpose_gradient(dy, y, x, axes=None):
+    if axes is None:
+        return np.transpose(dy)
+    return np.transpose(dy, np.argsort(axes))
+
+
 @_register_gradient(np.positive)
 def _positive_gradient(doutput, output, x):
     return doutput

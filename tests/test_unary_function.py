@@ -10,6 +10,11 @@ from pygrad._utils._numerical_grad import _numerical_grad
     (lambda a: a.reshape(2, 3), np.arange(6)),
     (lambda a: a.reshape(-1, 3), np.arange(6)),
     (lambda a: np.reshape(a, (3, -1)), np.arange(6)),
+    (lambda a: np.transpose(a), np.random.rand(2, 3)),
+    (lambda a: a.transpose(), np.random.rand(2, 3)),
+    (lambda a: np.transpose(a, (0, 2, 1)), np.random.rand(2, 3, 4)),
+    (lambda a: a.transpose(0, 2, 1), np.random.rand(2, 3, 4)),
+    (lambda a: a.T, np.random.rand(2, 3)),
 
     # signs
     (np.positive, -3),
