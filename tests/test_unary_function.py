@@ -116,8 +116,11 @@ from pygrad._utils._numerical_grad import _numerical_grad
 ])
 def test_gradient(function, x):
     x = gd.Variable(x)
+    assert type(function(x)) != gd.Variable
     with gd.Graph() as g:
         y = function(x)
+    assert type(y) == gd.Variable
+    assert type(function(x)) != gd.Variable
     dx_actual = g.gradient(y, [x])[0]
     dx_expected = _numerical_grad(function, x)[0]
     assert np.allclose(dx_expected, dx_actual)

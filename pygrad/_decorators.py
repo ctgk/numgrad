@@ -6,11 +6,7 @@ import typing as tp
 import numpy as np
 
 from pygrad._config import config
-from pygrad._variable import _ndarray_views, Variable
-
-
-# _PATCHED_FUNCTION: tp.Dict[callable, tp.Tuple[str, str, callable]] = {}
-# _REGISTERED_GRADIENT_FUNCTION: tp.Dict[callable, callable] = {}
+from pygrad._variable import _ndarray_args, _ndarray_kwargs, Variable
 
 
 def _register_gradient(
@@ -42,10 +38,12 @@ def _register_gradient(
 
         def patched(*args, **kwargs):
             if any(isinstance(a, Variable) for a in args):
-                out = Variable(forward(*_ndarray_views(*args), **kwargs))
+                result = forward(
+                    *_ndarray_args(*args), **_ndarray_kwargs(**kwargs))
                 if config._graph is not None:
-                    config._graph._add_node(out, forward, *args, **kwargs)
-                return out
+                    result = Variable(result)
+                    config._graph._add_node(result, forward, *args, **kwargs)
+                return result
             return forward(*args, **kwargs)
 
         config._patched_function[forward] = (
@@ -103,15 +101,8 @@ def differentiable(grad_func: callable):
 
         @functools.wraps(forward)
         def wrapped_forward(*args, **kwargs):
-            args_ndarray = tuple(
-                a.view(np.ndarray) if isinstance(a, Variable) else a
-                for a in args
-            )
-            kwargs_ndarray = {
-                k: v.view(np.ndarray) if isinstance(v, Variable) else v
-                for k, v in kwargs.items()
-            }
-            result = forward(*args_ndarray, **kwargs_ndarray)
+            result = forward(
+                *_ndarray_args(*args), **_ndarray_kwargs(**kwargs))
             if (
                 config._graph is not None
                 and any(

@@ -6,7 +6,7 @@ import numpy
 import scipy.special  # noqa: F401
 
 from pygrad._config import config
-from pygrad._variable import _ndarray_views, Variable
+from pygrad._variable import _ndarray_args, _ndarray_kwargs, Variable
 
 
 Node = namedtuple('Node', ('result', 'function', 'inputs', 'kwargs'))
@@ -80,8 +80,8 @@ class Graph(object):
             dargs = config._registered_gradient_function[node.function](
                 tensor_id_to_grad[id(node.result)],
                 node.result.view(np.ndarray),
-                *_ndarray_views(*node.inputs),
-                **node.kwargs,
+                *_ndarray_args(*node.inputs),
+                **_ndarray_kwargs(**node.kwargs),
             )
             if not isinstance(dargs, tuple):
                 dargs = (dargs,)

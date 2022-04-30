@@ -8,8 +8,16 @@ from pygrad._config import config
 ArrayLike = tp.Union[np.ndarray, list, tuple]
 
 
-def _ndarray_views(*args):
-    return [a.view(np.ndarray) if isinstance(a, Variable) else a for a in args]
+def _ndarray_args(*args):
+    return tuple(
+        a.view(np.ndarray) if isinstance(a, Variable) else a for a in args)
+
+
+def _ndarray_kwargs(**kwargs):
+    return {
+        k: (v.view(np.ndarray) if isinstance(v, Variable) else v)
+        for k, v in kwargs.items()
+    }
 
 
 class Variable(np.ndarray):
@@ -28,9 +36,9 @@ class Variable(np.ndarray):
     >>> # numpy ufunc
     >>> b = a + 1
     >>> type(b)
-    <class 'pygrad.Variable'>
+    <class 'numpy.ndarray'>
     >>> b
-    Variable([1., 2.])
+    array([1., 2.])
     """
 
     def __new__(cls, array: ArrayLike, dtype: type = None) -> 'Variable':
@@ -72,14 +80,16 @@ class Variable(np.ndarray):
         if method not in ('__call__', 'reduce'):
             raise NotImplementedError
 
-        args = _ndarray_views(*inputs)
         if out:
-            kwargs['out'] = _ndarray_views(*out)[0]
-        result = super().__array_ufunc__(ufunc, method, *args, **kwargs)
+            kwargs['out'] = _ndarray_args(*out)[0]
+        result = super().__array_ufunc__(
+            ufunc, method,
+            *_ndarray_args(*inputs), **_ndarray_kwargs(**kwargs),
+        )
         if result is NotImplemented:
             return NotImplemented
-        result = np.asarray(result).view(Variable)
         if config._graph is not None:
+            result = Variable(result)
             config._graph._add_node(
                 result,
                 ufunc if method == '__call__' else getattr(ufunc, method),
@@ -88,7 +98,11 @@ class Variable(np.ndarray):
         return result
 
 
-Variable.mean = lambda *args, **kwargs: np.mean(*args, **kwargs)
+Variable.mean = lambda self, *args, **kwargs: np.mean(
+    self.view(np.ndarray) if config._graph is None else self,
+    *args,
+    **kwargs,
+)
 
 
 VariableLike = tp.Union[Variable, ArrayLike]

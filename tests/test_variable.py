@@ -29,7 +29,7 @@ def test_non_default_dtype():
 
 def test_ufunc():
     a = gd.Variable([0, 1])
-    assert type(a + 0) == gd.Variable
+    assert type(a + 0) == np.ndarray
 
 
 @pytest.mark.xfail
