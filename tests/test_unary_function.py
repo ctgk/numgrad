@@ -80,6 +80,15 @@ from pygrad._utils._numerical_grad import _numerical_grad
     (lambda a: np.sum(a), [-1, 1]),
     (lambda a: a.sum(axis=1), np.random.rand(3, 2)),
     (lambda a: np.sum(a, (0, 2), keepdims=True), np.random.rand(4, 2, 3)),
+
+    # random
+    (lambda a: (np.random.seed(0), np.random.exponential(a))[1], [1, 10]),
+    (
+        lambda a: (
+            np.random.seed(0), np.random.exponential(a, size=(5, 2)),
+        )[1],
+        [1, 10],
+    ),
 ])
 def test_gradient(function, x):
     x = gd.Variable(x)

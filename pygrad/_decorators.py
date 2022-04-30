@@ -14,6 +14,8 @@ def register_gradient(
     forward: callable,
     *,
     method: tp.Optional[str] = None,
+    module_name: str = None,
+    function_name: str = None,
 ) -> callable:
     """Register a gradient function of a forward function.
 
@@ -23,6 +25,10 @@ def register_gradient(
         Forward function to register gradient function for.
     method : tp.Optional[str], optional
         Method of `forward`, by default None
+    module_name : str, optional
+        Name of module that have forward function to patch, by default None
+    function_name : str, optional
+        Name of forward function to patch, by default None
 
     Returns
     -------
@@ -40,11 +46,11 @@ def register_gradient(
             return forward(*args, **kwargs)
 
         _PATCHED_FUNCTION[forward] = (
-            '.'.join(
+            module_name if module_name is not None else '.'.join(
                 m for m in forward.__module__.split('.')
                 if not m.startswith('_')
             ),
-            forward.__name__,
+            forward.__name__ if function_name is None else function_name,
             patched,
         )
 

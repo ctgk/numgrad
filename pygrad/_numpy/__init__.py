@@ -1,6 +1,7 @@
 import numpy as np
 
 from pygrad._decorators import register_gradient
+import pygrad._numpy._random  # noqa: F401
 from pygrad._utils._unbroadcast import _unbroadcast_to
 
 
@@ -199,3 +200,6 @@ def _sum_gradient(doutput, output, x, axis=None, keepdims=False, **kwargs):
             doutput = np.expand_dims(doutput, ax)
     dx = np.broadcast_to(doutput, x.shape)
     return dx
+
+
+__all__ = []
