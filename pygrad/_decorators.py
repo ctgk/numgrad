@@ -1,3 +1,6 @@
+import functools
+import inspect
+import itertools
 import typing as tp
 
 import numpy as np
@@ -6,11 +9,11 @@ from pygrad._config import config
 from pygrad._variable import _ndarray_views, Variable
 
 
-_PATCHED_FUNCTION: tp.Dict[callable, tp.Tuple[str, str, callable]] = {}
-_REGISTERED_GRADIENT_FUNCTION: tp.Dict[callable, callable] = {}
+# _PATCHED_FUNCTION: tp.Dict[callable, tp.Tuple[str, str, callable]] = {}
+# _REGISTERED_GRADIENT_FUNCTION: tp.Dict[callable, callable] = {}
 
 
-def register_gradient(
+def _register_gradient(
     forward: callable,
     *,
     method: tp.Optional[str] = None,
@@ -45,7 +48,7 @@ def register_gradient(
                 return out
             return forward(*args, **kwargs)
 
-        _PATCHED_FUNCTION[forward] = (
+        config._patched_function[forward] = (
             module_name if module_name is not None else '.'.join(
                 m for m in forward.__module__.split('.')
                 if not m.startswith('_')
@@ -56,9 +59,71 @@ def register_gradient(
 
     def decorator(grad_func):
         if method is not None:
-            _REGISTERED_GRADIENT_FUNCTION[getattr(forward, method)] = grad_func
+            config._registered_gradient_function[
+                getattr(forward, method)] = grad_func
         else:
-            _REGISTERED_GRADIENT_FUNCTION[forward] = grad_func
+            config._registered_gradient_function[forward] = grad_func
         return grad_func
+
+    return decorator
+
+
+def differentiable(grad_func: callable):
+    """Make a function differentiable.
+
+    Parameters
+    ----------
+    grad_func : callable
+        Gradient function whose parameters are parameters of the function
+        followed by gradient_of_output and output.
+
+    Examples
+    --------
+    >>> def custom_gradient(doutput, output, x):
+    ...     return 3 * doutput  # note that this is wrong.
+    ...
+    >>> @differentiable(custom_gradient)
+    ... def twice(x):
+    ...     return 2 * x
+    ...
+    >>> twice(np.array([4, 2]))
+    array([8, 4])
+    >>> a = gd.Variable([4, 2])
+    >>> with gd.Graph() as g:
+    ...     b = twice(a)
+    ...
+    >>> b
+    Variable([8., 4.])
+    >>> g.gradient(b, [a])[0]  # custom gradient is used
+    array([3., 3.])
+    """
+
+    def decorator(forward):
+        config._registered_gradient_function[forward] = grad_func
+
+        @functools.wraps(forward)
+        def wrapped_forward(*args, **kwargs):
+            args_ndarray = tuple(
+                a.view(np.ndarray) if isinstance(a, Variable) else a
+                for a in args
+            )
+            kwargs_ndarray = {
+                k: v.view(np.ndarray) if isinstance(v, Variable) else v
+                for k, v in kwargs.items()
+            }
+            result = forward(*args_ndarray, **kwargs_ndarray)
+            if (
+                config._graph is not None
+                and any(
+                    isinstance(a, Variable) for a
+                    in itertools.chain(args, kwargs.values())
+                )
+            ):
+                result = Variable(result)
+                config._graph._add_node(result, forward, *args, **kwargs)
+            return result
+
+        wrapped_forward.__signature__ = inspect.signature(forward)
+        return wrapped_forward
 
     return decorator

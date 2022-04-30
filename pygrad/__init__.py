@@ -1,6 +1,7 @@
 """Simple gradient computation library for Python."""
 
 from pygrad._config import Config, config  # noqa: F401
+from pygrad._decorators import differentiable
 from pygrad._graph import Graph
 from pygrad._variable import Variable
 
@@ -16,11 +17,20 @@ _classes = [
 ]
 
 
+_functions = [
+    differentiable,
+]
+
+
 for _cls in _classes:
     _cls.__module__ = __name__
 
 
-__all__ = ['config'] + [_cls.__name__ for _cls in _classes]
+__all__ = (
+    ['config']
+    + [_cls.__name__ for _cls in _classes]
+    + [_f.__name__ for _f in _functions]
+)
 
 
 del _cls

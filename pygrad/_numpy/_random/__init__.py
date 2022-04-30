@@ -1,11 +1,11 @@
 import numpy as np
 
 
-from pygrad._decorators import register_gradient
+from pygrad._decorators import _register_gradient
 from pygrad._utils._unbroadcast import _unbroadcast_to
 
 
-@register_gradient(
+@_register_gradient(
     np.random.exponential,
     module_name='numpy.random',
     function_name='exponential',
@@ -14,7 +14,7 @@ def _exponential_gradient(do, o, scale, size=None):
     return _unbroadcast_to(o / scale * do, scale.shape)
 
 
-@register_gradient(
+@_register_gradient(
     np.random.normal,
     module_name='numpy.random',
     function_name='normal',
@@ -26,7 +26,7 @@ def _normal_gradient(do, o, loc, scale, size=None):
     return dloc, dscale
 
 
-@register_gradient(
+@_register_gradient(
     np.random.uniform,
     module_name='numpy.random',
     function_name='uniform',

@@ -1,21 +1,21 @@
 import numpy as np
 
-from pygrad._decorators import register_gradient
+from pygrad._decorators import _register_gradient
 import pygrad._numpy._random  # noqa: F401
 from pygrad._utils._unbroadcast import _unbroadcast_to
 
 
-@register_gradient(np.positive)
+@_register_gradient(np.positive)
 def _positive_gradient(doutput, output, x):
     return doutput
 
 
-@register_gradient(np.negative)
+@_register_gradient(np.negative)
 def _negative_gradient(doutput, output, x):
     return -doutput
 
 
-@register_gradient(np.add)
+@_register_gradient(np.add)
 def _add_gradient(doutput, output, x, y):
     return (
         _unbroadcast_to(doutput, x.shape) if hasattr(x, 'shape') else None,
@@ -23,7 +23,7 @@ def _add_gradient(doutput, output, x, y):
     )
 
 
-@register_gradient(np.subtract)
+@_register_gradient(np.subtract)
 def _subtract_gradient(doutput, output, x, y):
     return (
         _unbroadcast_to(doutput, x.shape) if hasattr(x, 'shape') else None,
@@ -31,7 +31,7 @@ def _subtract_gradient(doutput, output, x, y):
     )
 
 
-@register_gradient(np.multiply)
+@_register_gradient(np.multiply)
 def _multiply_gradient(doutput, output, x, y):
     return (
         _unbroadcast_to(doutput * y, x.shape) if hasattr(x, 'shape') else None,
@@ -39,7 +39,7 @@ def _multiply_gradient(doutput, output, x, y):
     )
 
 
-@register_gradient(np.divide)
+@_register_gradient(np.divide)
 def _divide_gradient(do, o, x, y):
     return (
         _unbroadcast_to(do / y, x.shape) if hasattr(x, 'shape') else None,
@@ -48,7 +48,7 @@ def _divide_gradient(do, o, x, y):
     )
 
 
-@register_gradient(np.matmul)
+@_register_gradient(np.matmul)
 def _matmul_gradient(do, o, x, y):
     x, y = np.asarray(x), np.asarray(y)
     if y.ndim == 1:
@@ -73,57 +73,57 @@ def _matmul_gradient(do, o, x, y):
         return dx, dy
 
 
-@register_gradient(np.square)
+@_register_gradient(np.square)
 def _square_gradient(dy, y, x):
     return 2 * x * dy
 
 
-@register_gradient(np.sqrt)
+@_register_gradient(np.sqrt)
 def _sqrt_gradient(doutput, output, x):
     return 0.5 / output * doutput
 
 
-@register_gradient(np.cos)
+@_register_gradient(np.cos)
 def _cos_gradient(doutput, output, x):
     return -np.sin(x) * doutput
 
 
-@register_gradient(np.sin)
+@_register_gradient(np.sin)
 def _sin_gradient(doutput, output, x):
     return np.cos(x) * doutput
 
 
-@register_gradient(np.tan)
+@_register_gradient(np.tan)
 def _tan_gradient(doutput, output, x):
     return (1 + np.square(output)) * doutput
 
 
-@register_gradient(np.cosh)
+@_register_gradient(np.cosh)
 def _cosh_gradient(doutput, output, x):
     return np.sinh(x) * doutput
 
 
-@register_gradient(np.sinh)
+@_register_gradient(np.sinh)
 def _sinh_gradient(doutput, output, x):
     return np.cosh(x) * doutput
 
 
-@register_gradient(np.tanh)
+@_register_gradient(np.tanh)
 def _tanh_gradient(doutput, output, x):
     return (1 - np.square(output)) * doutput
 
 
-@register_gradient(np.exp)
+@_register_gradient(np.exp)
 def _exp_gradient(doutput, output, x):
     return output * doutput
 
 
-@register_gradient(np.log)
+@_register_gradient(np.log)
 def _log_gradient(doutput, output, x):
     return doutput / x
 
 
-@register_gradient(np.maximum, method='reduce')
+@_register_gradient(np.maximum, method='reduce')
 def _max_gradient(doutput, output, x, axis=None, keepdims=False, **kwargs):
     if x.ndim == 0:
         return doutput
@@ -142,7 +142,7 @@ def _max_gradient(doutput, output, x, axis=None, keepdims=False, **kwargs):
     return dx
 
 
-@register_gradient(np.minimum, method='reduce')
+@_register_gradient(np.minimum, method='reduce')
 def _min_gradient(doutput, output, x, axis=None, keepdims=False, **kwargs):
     if x.ndim == 0:
         return doutput
@@ -161,7 +161,7 @@ def _min_gradient(doutput, output, x, axis=None, keepdims=False, **kwargs):
     return dx
 
 
-@register_gradient(np.mean)
+@_register_gradient(np.mean)
 def _mean_gradient(doutput, output, x, axis=None, keepdims=False):
     if all((
         isinstance(doutput, np.ndarray),
@@ -181,7 +181,7 @@ def _mean_gradient(doutput, output, x, axis=None, keepdims=False):
     return dx
 
 
-@register_gradient(np.add, method='reduce')
+@_register_gradient(np.add, method='reduce')
 def _sum_gradient(doutput, output, x, axis=None, keepdims=False, **kwargs):
     if all((
         isinstance(doutput, np.ndarray),

@@ -1,10 +1,10 @@
 import numpy as np
 import scipy.special as sp
 
-from pygrad._decorators import register_gradient
+from pygrad._decorators import _register_gradient
 
 
-@register_gradient(sp.logsumexp)
+@_register_gradient(sp.logsumexp)
 def _logsumexp_gradient(
     doutput, output, x, axis=None, keepdims=False, return_sign=False,
 ):
@@ -33,11 +33,11 @@ def _logsumexp_gradient(
     return doutput * np.exp(x - output)
 
 
-@register_gradient(sp.log_softmax)
+@_register_gradient(sp.log_softmax)
 def _log_softmax_gradient(dy, y, x, axis=None):
     return dy - np.exp(y) * dy.sum(axis=axis, keepdims=True)
 
 
-@register_gradient(sp.gamma)
+@_register_gradient(sp.gamma)
 def _gamma_gradient(do, o, x):
     return sp.digamma(x) * o * do

@@ -6,7 +6,6 @@ import numpy
 import scipy.special  # noqa: F401
 
 from pygrad._config import config
-from pygrad._decorators import _PATCHED_FUNCTION, _REGISTERED_GRADIENT_FUNCTION
 from pygrad._variable import _ndarray_views, Variable
 
 
@@ -37,14 +36,14 @@ class Graph(object):
         if config._graph is not None:
             raise ValueError('There is already a graph under construction')
         config._graph = self
-        for module, func, patched in _PATCHED_FUNCTION.values():
+        for module, func, patched in config._patched_function.values():
             setattr(eval(module), func, patched)
         return self
 
     def __exit__(self, *args, **kwargs):
         """Exit from the graph under construction."""
         config._graph = None
-        for original, (module, func, _) in _PATCHED_FUNCTION.items():
+        for original, (module, func, _) in config._patched_function.items():
             setattr(eval(module), func, original)
 
     def _add_node(self, result, function, *inputs, **kwargs):
@@ -75,10 +74,10 @@ class Graph(object):
         for node in reversed(self._node_list):
             if id(node.result) not in tensor_id_to_grad:
                 continue
-            if node.function not in _REGISTERED_GRADIENT_FUNCTION:
+            if node.function not in config._registered_gradient_function:
                 raise NotImplementedError(
                     f'Gradient of {node.function} is not registered yet.')
-            dargs = _REGISTERED_GRADIENT_FUNCTION[node.function](
+            dargs = config._registered_gradient_function[node.function](
                 tensor_id_to_grad[id(node.result)],
                 node.result.view(np.ndarray),
                 *_ndarray_views(*node.inputs),

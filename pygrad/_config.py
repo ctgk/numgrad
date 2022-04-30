@@ -1,3 +1,5 @@
+import typing as tp
+
 import numpy as np
 
 
@@ -17,6 +19,9 @@ class Config(_Singleton):
         self._dtype = float
         self._graph = None
         self._verbosity: int = 0
+        self._patched_function: tp.Dict[
+            callable, tp.Tuple[str, str, callable]] = {}
+        self._registered_gradient_function: tp.Dict[callable, callable] = {}
 
     @property
     def dtype(self) -> type:
