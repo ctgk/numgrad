@@ -7,6 +7,10 @@ from pygrad._utils._numerical_grad import _numerical_grad
 
 
 @pytest.mark.parametrize('function, x', [
+    (lambda a: a[0], np.array([3, 1, 9])),
+    (lambda a: a[::2], np.array([3, 1, 9])),
+    (lambda a: a[np.array([0])], np.random.rand(4, 2, 3)),
+
     (lambda a: a.reshape(2, 3), np.arange(6)),
     (lambda a: a.reshape(-1, 3), np.arange(6)),
     (lambda a: np.reshape(a, (3, -1)), np.arange(6)),
