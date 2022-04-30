@@ -37,25 +37,15 @@ class Graph(object):
         if config._graph is not None:
             raise ValueError('There is already a graph under construction')
         config._graph = self
-        for original, patched in _PATCHED_FUNCTION.items():
-            setattr(
-                eval('.'.join(
-                    m for m in original.__module__.split('.')
-                    if not m.startswith('_'))),
-                original.__name__, patched,
-            )
+        for module, func, patched in _PATCHED_FUNCTION.values():
+            setattr(eval(module), func, patched)
         return self
 
     def __exit__(self, *args, **kwargs):
         """Exit from the graph under construction."""
         config._graph = None
-        for original in _PATCHED_FUNCTION.keys():
-            setattr(
-                eval('.'.join(
-                    m for m in original.__module__.split('.')
-                    if not m.startswith('_'))),
-                original.__name__, original,
-            )
+        for original, (module, func, _) in _PATCHED_FUNCTION.items():
+            setattr(eval(module), func, original)
 
     def _add_node(self, result, function, *inputs, **kwargs):
         if any(result is node.result for node in self._node_list):

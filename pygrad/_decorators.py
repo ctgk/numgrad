@@ -6,7 +6,7 @@ from pygrad._config import config
 from pygrad._variable import _ndarray_views, Variable
 
 
-_PATCHED_FUNCTION: tp.Dict[callable, callable] = {}
+_PATCHED_FUNCTION: tp.Dict[callable, tp.Tuple[str, str, callable]] = {}
 _REGISTERED_GRADIENT_FUNCTION: tp.Dict[callable, callable] = {}
 
 
@@ -39,7 +39,14 @@ def register_gradient(
                 return out
             return forward(*args, **kwargs)
 
-        _PATCHED_FUNCTION[forward] = patched
+        _PATCHED_FUNCTION[forward] = (
+            '.'.join(
+                m for m in forward.__module__.split('.')
+                if not m.startswith('_')
+            ),
+            forward.__name__,
+            patched,
+        )
 
     def decorator(grad_func):
         if method is not None:
