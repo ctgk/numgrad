@@ -123,5 +123,14 @@ def test_gradient(function, x):
     assert np.allclose(dx_expected, dx_actual)
 
 
+@pytest.mark.xfail
+def test_gradient_error():
+    a = gd.Variable([0, 0.5])
+    with gd.Graph() as g:
+        b = np.argsort(a)
+    with pytest.raises(Exception):
+        g.gradient(b, [a])[0]
+
+
 if __name__ == '__main__':
     pytest.main([__file__])
