@@ -39,7 +39,7 @@ def register_gradient(
 
         def patched(*args, **kwargs):
             if any(isinstance(a, Variable) for a in args):
-                out = forward(*_ndarray_views(*args), **kwargs).view(Variable)
+                out = Variable(forward(*_ndarray_views(*args), **kwargs))
                 if config._graph is not None:
                     config._graph._add_node(out, forward, *args, **kwargs)
                 return out

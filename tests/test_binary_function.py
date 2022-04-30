@@ -19,6 +19,7 @@ from pygrad._utils._numerical_grad import _numerical_grad
     (lambda a, b: a @ b, [[1, 2], [3, 4]], [1, 2]),
     (lambda a, b: np.matmul(a, b), [[1, 2], [3, 4]], [[1, 2], [3, 4]]),
     (lambda a, b: a @ b, np.random.rand(3, 4, 2), [[1, 2], [3, 4]]),
+    (lambda a, b: (np.random.seed(0), np.random.normal(a, b))[1], 0, 1),
 ])
 def test_gradient(function, x, y):
     x, y = gd.Variable(x), gd.Variable(y)
