@@ -113,11 +113,6 @@ for method in ('mean',):
     )
 
 
-Variable.reshape = lambda self, *args, **kwargs: np.reshape(
-    self.view(np.ndarray) if config._graph is None else self,
-    *(args if len(args) == 1 else (args,)), **kwargs,
-)
-Variable.reshape.__doc__ = np.ndarray.reshape.__doc__
 Variable.transpose = lambda self, *axes: np.transpose(
     self.view(np.ndarray) if config._graph is None else self,
     *({0: tuple(), 1: axes}.get(len(axes), (axes,))),

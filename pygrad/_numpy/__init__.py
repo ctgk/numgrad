@@ -2,6 +2,7 @@ import numpy as np
 
 from pygrad._decorators import _register_gradient, differentiable
 import pygrad._numpy._random  # noqa: F401
+import pygrad._numpy._reshape  # noqa: F401
 from pygrad._utils._unbroadcast import _unbroadcast_to
 from pygrad._variable import Variable
 
@@ -19,11 +20,6 @@ def _getitem(self, key):
 
 Variable.__getitem__ = _getitem
 Variable.__getitem__.__doc__ = np.ndarray.__getitem__.__doc__
-
-
-@_register_gradient(np.reshape)
-def _reshape_gradient(dy, y, x, *args, **kwargs):
-    return dy.reshape(*x.shape)
 
 
 @_register_gradient(np.transpose)
