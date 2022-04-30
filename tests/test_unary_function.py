@@ -99,6 +99,14 @@ from pygrad._utils._numerical_grad import _numerical_grad
         lambda a: (np.random.seed(0), np.random.normal(0, a, size=(4, 2)))[1],
         [1, 5],
     ),
+    (lambda a: (np.random.seed(0), np.random.uniform(a, 10))[1], [-1, 1]),
+    (
+        lambda a: (
+            np.random.seed(0),
+            np.random.uniform(-10, a, size=(3, 2)),
+        )[1],
+        [-1, 1],
+    ),
 ])
 def test_gradient(function, x):
     x = gd.Variable(x)

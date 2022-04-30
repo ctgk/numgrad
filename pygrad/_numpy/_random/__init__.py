@@ -24,3 +24,17 @@ def _normal_gradient(do, o, loc, scale, size=None):
     dloc = _unbroadcast_to(do, loc.shape)
     dscale = _unbroadcast_to((o - loc) / scale * do, scale.shape)
     return dloc, dscale
+
+
+@register_gradient(
+    np.random.uniform,
+    module_name='numpy.random',
+    function_name='uniform',
+)
+def _uniform_gradient(do, o, low, high, size=None):
+    low, high = np.asarray(low), np.asarray(high)
+    u = (o - low) / (high - low)
+    du = do * u
+    dlow = _unbroadcast_to(do - du, low.shape)
+    dhigh = _unbroadcast_to(du, high.shape)
+    return dlow, dhigh
