@@ -7,6 +7,10 @@ from pygrad._utils._numerical_grad import _numerical_grad
 
 
 @pytest.mark.parametrize('function, x', [
+    (lambda a: a.reshape(2, 3), np.arange(6)),
+    (lambda a: a.reshape(-1, 3), np.arange(6)),
+    (lambda a: np.reshape(a, (3, -1)), np.arange(6)),
+
     # signs
     (np.positive, -3),
     (lambda a: +a, -3),
@@ -120,6 +124,7 @@ def test_gradient(function, x):
     assert type(function(x)) != gd.Variable
     with gd.Graph() as g:
         y = function(x)
+    print(g._node_list)
     assert type(y) == gd.Variable
     assert type(function(x)) != gd.Variable
     dx_actual = g.gradient(y, [x])[0]

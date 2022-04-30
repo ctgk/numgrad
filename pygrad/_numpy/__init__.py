@@ -5,6 +5,11 @@ import pygrad._numpy._random  # noqa: F401
 from pygrad._utils._unbroadcast import _unbroadcast_to
 
 
+@_register_gradient(np.reshape)
+def _reshape_gradient(dy, y, x, *args, **kwargs):
+    return dy.reshape(*x.shape)
+
+
 @_register_gradient(np.positive)
 def _positive_gradient(doutput, output, x):
     return doutput

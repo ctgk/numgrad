@@ -98,11 +98,26 @@ class Variable(np.ndarray):
         return result
 
 
-Variable.mean = lambda self, *args, **kwargs: np.mean(
+for method in ('mean',):
+    setattr(
+        Variable, method,
+        lambda self, *args, **kwargs: eval(f'np.{method}')(
+            self.view(np.ndarray) if config._graph is None else self,
+            *args, **kwargs,
+        ),
+    )
+    setattr(
+        getattr(Variable, method),
+        '__doc__',
+        eval(f'np.ndarray.{method}').__doc__,
+    )
+
+
+Variable.reshape = lambda self, *args, **kwargs: np.reshape(
     self.view(np.ndarray) if config._graph is None else self,
-    *args,
-    **kwargs,
+    *(args if len(args) == 1 else (args,)), **kwargs,
 )
+Variable.reshape.__doc__ = np.ndarray.reshape.__doc__
 
 
 VariableLike = tp.Union[Variable, ArrayLike]
