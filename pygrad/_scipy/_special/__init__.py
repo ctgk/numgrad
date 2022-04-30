@@ -4,6 +4,11 @@ import scipy.special as sp
 from pygrad._decorators import _register_gradient
 
 
+@_register_gradient(sp.log_expit)
+def _log_expit_gradient(dy, y, x):
+    return (1 - np.exp(y)) * dy
+
+
 @_register_gradient(sp.expit)
 def _expit_gradient(dy, y, x):
     return y * (1 - y) * dy
