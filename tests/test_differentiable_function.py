@@ -222,6 +222,13 @@ def test_computation_graph_gradient(parameters):
     for actual, expected in zip(dargs_actual, dargs_expected):
         assert np.allclose(expected, actual)
 
+    with nf.Graph() as g:
+        y = np.mean(f(*args))
+    dargs_actual = g.gradient(y, args)
+    dargs_expected = _numerical_grad(lambda *a: np.mean(f(*a)), *args)
+    for actual, expected in zip(dargs_actual, dargs_expected):
+        assert np.allclose(expected, actual)
+
 
 @pytest.mark.xfail
 def test_gradient_error():
