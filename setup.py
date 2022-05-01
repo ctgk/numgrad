@@ -43,7 +43,7 @@ setup(
         exclude=('tests', 'tests.*'),
         include=('numflow', 'numflow.*'),
     ),
-    python_requires='>=3.6',
+    python_requires='>=3.8',
     install_requires=install_requires,
 
     zip_safe=False,
