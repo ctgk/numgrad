@@ -10,7 +10,12 @@ from numflow._utils._unbroadcast import _unbroadcast_to
     module_name='numpy.random',
     function_name='exponential',
 )
-def _exponential_gradient(do, o, scale, size=None):
+def _exponential_gradient(
+    do,
+    o,
+    scale,
+    size=None,  # noqa: U100
+):
     return _unbroadcast_to(o / scale * do, scale.shape)
 
 
@@ -19,7 +24,13 @@ def _exponential_gradient(do, o, scale, size=None):
     module_name='numpy.random',
     function_name='normal',
 )
-def _normal_gradient(do, o, loc, scale, size=None):
+def _normal_gradient(
+    do,
+    o,
+    loc,
+    scale,
+    size=None,  # noqa: U100
+):
     loc, scale = np.asarray(loc), np.asarray(scale)
     dloc = _unbroadcast_to(do, loc.shape)
     dscale = _unbroadcast_to((o - loc) / scale * do, scale.shape)
@@ -31,7 +42,13 @@ def _normal_gradient(do, o, loc, scale, size=None):
     module_name='numpy.random',
     function_name='uniform',
 )
-def _uniform_gradient(do, o, low, high, size=None):
+def _uniform_gradient(
+    do,
+    o,
+    low,
+    high,
+    size=None,  # noqa: U100
+):
     low, high = np.asarray(low), np.asarray(high)
     u = (o - low) / (high - low)
     du = do * u

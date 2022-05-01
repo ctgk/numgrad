@@ -4,7 +4,7 @@ from numflow._decorators import differentiable
 from numflow._variable import Variable
 
 
-def _transpose_gradient(dy, y, x, axes=None):
+def _transpose_gradient(dy, _y, _x, axes=None):
     if axes is None:
         return np.transpose(dy)
     return np.transpose(dy, np.argsort(axes))

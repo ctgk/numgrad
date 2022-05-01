@@ -5,12 +5,12 @@ from numflow._decorators import _register_gradient
 
 
 @_register_gradient(sp.log_expit)
-def _log_expit_gradient(dy, y, x):
+def _log_expit_gradient(dy, y, _x):
     return (1 - np.exp(y)) * dy
 
 
 @_register_gradient(sp.expit)
-def _expit_gradient(dy, y, x):
+def _expit_gradient(dy, y, _x):
     return y * (1 - y) * dy
 
 
@@ -44,12 +44,12 @@ def _logsumexp_gradient(
 
 
 @_register_gradient(sp.log_softmax)
-def _log_softmax_gradient(dy, y, x, axis=None):
+def _log_softmax_gradient(dy, y, _x, axis=None):
     return dy - np.exp(y) * dy.sum(axis=axis, keepdims=True)
 
 
 @_register_gradient(sp.softmax)
-def _softmax_gradient(dy, y, x, axis=None):
+def _softmax_gradient(dy, y, _x, axis=None):
     dx = y * dy
     dx -= y * dx.sum(axis=axis, keepdims=True)
     return dx

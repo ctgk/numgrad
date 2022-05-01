@@ -14,17 +14,17 @@ from numflow._utils._unbroadcast import _unbroadcast_to
 
 
 @_register_gradient(np.positive)
-def _positive_gradient(doutput, output, x):
+def _positive_gradient(doutput, _do, _x):
     return doutput
 
 
 @_register_gradient(np.negative)
-def _negative_gradient(doutput, output, x):
+def _negative_gradient(doutput, _do, _x):
     return -doutput
 
 
 @_register_gradient(np.add)
-def _add_gradient(doutput, output, x, y):
+def _add_gradient(doutput, _, x, y):
     return (
         _unbroadcast_to(doutput, x.shape) if hasattr(x, 'shape') else None,
         _unbroadcast_to(doutput, y.shape) if hasattr(y, 'shape') else None,
@@ -32,7 +32,7 @@ def _add_gradient(doutput, output, x, y):
 
 
 @_register_gradient(np.subtract)
-def _subtract_gradient(doutput, output, x, y):
+def _subtract_gradient(doutput, _, x, y):
     return (
         _unbroadcast_to(doutput, x.shape) if hasattr(x, 'shape') else None,
         _unbroadcast_to(-doutput, y.shape) if hasattr(y, 'shape') else None,
@@ -40,7 +40,7 @@ def _subtract_gradient(doutput, output, x, y):
 
 
 @_register_gradient(np.multiply)
-def _multiply_gradient(doutput, output, x, y):
+def _multiply_gradient(doutput, _, x, y):
     return (
         _unbroadcast_to(doutput * y, x.shape) if hasattr(x, 'shape') else None,
         _unbroadcast_to(doutput * x, y.shape) if hasattr(y, 'shape') else None,
@@ -48,7 +48,7 @@ def _multiply_gradient(doutput, output, x, y):
 
 
 @_register_gradient(np.divide)
-def _divide_gradient(do, o, x, y):
+def _divide_gradient(do, _, x, y):
     return (
         _unbroadcast_to(do / y, x.shape) if hasattr(x, 'shape') else None,
         _unbroadcast_to(
@@ -57,7 +57,7 @@ def _divide_gradient(do, o, x, y):
 
 
 @_register_gradient(np.matmul)
-def _matmul_gradient(do, o, x, y):
+def _matmul_gradient(do, _, x, y):
     x, y = np.asarray(x), np.asarray(y)
     if y.ndim == 1:
         do = np.expand_dims(do, -1)
@@ -82,17 +82,17 @@ def _matmul_gradient(do, o, x, y):
 
 
 @_register_gradient(np.square)
-def _square_gradient(dy, y, x):
+def _square_gradient(dy, _, x):
     return 2 * x * dy
 
 
 @_register_gradient(np.sqrt)
-def _sqrt_gradient(doutput, output, x):
+def _sqrt_gradient(doutput, output, _):
     return 0.5 / output * doutput
 
 
 @_register_gradient(np.maximum, method='reduce')
-def _max_gradient(doutput, output, x, axis=None, keepdims=False, **kwargs):
+def _max_gradient(doutput, _, x, axis=None, keepdims=False, **kwargs):
     if x.ndim == 0:
         return doutput
     if all((
@@ -111,7 +111,7 @@ def _max_gradient(doutput, output, x, axis=None, keepdims=False, **kwargs):
 
 
 @_register_gradient(np.minimum, method='reduce')
-def _min_gradient(doutput, output, x, axis=None, keepdims=False, **kwargs):
+def _min_gradient(doutput, _, x, axis=None, keepdims=False, **kwargs):
     if x.ndim == 0:
         return doutput
     if all((
@@ -130,7 +130,7 @@ def _min_gradient(doutput, output, x, axis=None, keepdims=False, **kwargs):
 
 
 @_register_gradient(np.mean)
-def _mean_gradient(doutput, output, x, axis=None, keepdims=False):
+def _mean_gradient(doutput, _, x, axis=None, keepdims=False):
     if all((
         isinstance(doutput, np.ndarray),
         (not keepdims),
@@ -150,7 +150,7 @@ def _mean_gradient(doutput, output, x, axis=None, keepdims=False):
 
 
 @_register_gradient(np.add, method='reduce')
-def _sum_gradient(doutput, output, x, axis=None, keepdims=False, **kwargs):
+def _sum_gradient(doutput, _, x, axis=None, keepdims=False, **kwargs):
     if all((
         isinstance(doutput, np.ndarray),
         (not keepdims),

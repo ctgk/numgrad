@@ -41,7 +41,11 @@ class Variable(np.ndarray):
     array([1., 2.])
     """
 
-    def __new__(cls, array: ArrayLike, dtype: type = None) -> 'Variable':
+    def __new__(
+        cls,  # noqa: U100
+        array: ArrayLike,
+        dtype: type = None,
+    ) -> 'Variable':
         """Return tensor.
 
         Parameters

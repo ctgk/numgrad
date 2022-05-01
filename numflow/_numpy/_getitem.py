@@ -4,7 +4,7 @@ from numflow._decorators import differentiable
 from numflow._variable import Variable
 
 
-def _getitem_gradient(dy, y, x, key):
+def _getitem_gradient(dy, _y, x, key):
     dx = np.zeros_like(x)
     dx[key] = dy
     return dx

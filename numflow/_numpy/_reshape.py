@@ -4,7 +4,7 @@ from numflow._decorators import differentiable
 from numflow._variable import Variable
 
 
-def _reshape_gradient(dy, y, x, newshape, order=None):
+def _reshape_gradient(dy, _y, x, _newshape, order=None):
     return dy.reshape(*x.shape, order=order)
 
 

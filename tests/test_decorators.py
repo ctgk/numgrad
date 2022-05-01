@@ -6,7 +6,7 @@ import numflow as nf
 
 def test_differentiable():
 
-    def custom_gradient(do, o, x):
+    def custom_gradient(do, _o, _x):
         return 3 * do
 
     @nf.differentiable(custom_gradient)
