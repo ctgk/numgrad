@@ -62,6 +62,9 @@ np.random.seed(0)
     (np.cosh, np.random.uniform(-10, 10, (3, 4))),
     (np.sinh, np.random.uniform(-10, 10, (1, 5))),
     (np.tanh, np.random.uniform(-10, 10, (4, 2))),
+    (np.arcsinh, np.random.uniform(-10, 10, (4, 2, 3))),
+    (np.arccosh, np.random.uniform(1, 10, (5, 2))),
+    (np.arctanh, np.random.uniform(-1, 1, (2,))),
 
     # exp & log
     (np.exp, [-1, -0.2, 0.5]),
