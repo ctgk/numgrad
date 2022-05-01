@@ -5,8 +5,8 @@ https://numpy.org/doc/stable/reference/routines.math.html#trigonometric-function
 
 import numpy as np
 
-from pygrad._decorators import _register_gradient
-from pygrad._utils._unbroadcast import _unbroadcast_to
+from numflow._decorators import _register_gradient
+from numflow._utils._unbroadcast import _unbroadcast_to
 
 
 @_register_gradient(np.sin)

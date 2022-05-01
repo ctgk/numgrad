@@ -20,12 +20,12 @@ import pkg_resources
 
 # -- Project information -----------------------------------------------------
 
-project = 'pygrad'
-copyright = '2020, ctgk'
+project = 'numflow'
+copyright = '2022, ctgk'
 author = 'ctgk'
 
 # The full version, including alpha/beta/rc tags
-release = pkg_resources.get_distribution('pygrad').version
+release = pkg_resources.get_distribution('numflow').version
 
 
 # -- General configuration ---------------------------------------------------

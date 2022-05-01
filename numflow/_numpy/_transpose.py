@@ -1,7 +1,7 @@
 import numpy as np
 
-from pygrad._decorators import differentiable
-from pygrad._variable import Variable
+from numflow._decorators import differentiable
+from numflow._variable import Variable
 
 
 def _transpose_gradient(dy, y, x, axes=None):

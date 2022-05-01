@@ -1,7 +1,7 @@
 import numpy as np
 
-from pygrad._decorators import differentiable
-from pygrad._variable import Variable
+from numflow._decorators import differentiable
+from numflow._variable import Variable
 
 
 def _reshape_gradient(dy, y, x, newshape, order=None):

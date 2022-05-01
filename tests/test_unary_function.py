@@ -2,8 +2,8 @@ import numpy as np
 import pytest
 import scipy.special as sp
 
-import pygrad as gd
-from pygrad._utils._numerical_grad import _numerical_grad
+import numflow as nf
+from numflow._utils._numerical_grad import _numerical_grad
 
 
 np.random.seed(0)
@@ -137,13 +137,13 @@ np.random.seed(0)
     ),
 ])
 def test_gradient(function, x):
-    x = gd.Variable(x)
-    assert type(function(x)) != gd.Variable
-    with gd.Graph() as g:
+    x = nf.Variable(x)
+    assert type(function(x)) != nf.Variable
+    with nf.Graph() as g:
         y = function(x)
     print(g._node_list)
-    assert type(y) == gd.Variable
-    assert type(function(x)) != gd.Variable
+    assert type(y) == nf.Variable
+    assert type(function(x)) != nf.Variable
     dx_actual = g.gradient(y, [x])[0]
     dx_expected = _numerical_grad(function, x)[0]
     assert np.allclose(dx_expected, dx_actual)
@@ -151,8 +151,8 @@ def test_gradient(function, x):
 
 @pytest.mark.xfail
 def test_gradient_error():
-    a = gd.Variable([0, 0.5])
-    with gd.Graph() as g:
+    a = nf.Variable([0, 0.5])
+    with nf.Graph() as g:
         b = np.argsort(a)
     with pytest.raises(Exception):
         g.gradient(b, [a])[0]

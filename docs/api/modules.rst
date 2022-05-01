@@ -1,7 +1,7 @@
-pygrad
-======
+numflow
+=======
 
 .. toctree::
    :maxdepth: 4
 
-   pygrad
+   numflow

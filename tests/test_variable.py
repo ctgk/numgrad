@@ -1,40 +1,40 @@
 import numpy as np
 import pytest
 
-import pygrad as gd
+import numflow as nf
 
 
 def test_init_error():
     with pytest.raises(ValueError):
-        gd.Variable(1, dtype=int)
+        nf.Variable(1, dtype=int)
 
 
 def test_init():
-    gd.Variable([1, 2])
+    nf.Variable([1, 2])
 
 
 def test_init_pass_dtype():
-    assert gd.Variable(1, np.float32).dtype == np.float32
+    assert nf.Variable(1, np.float32).dtype == np.float32
 
 
 def test_default_dtype():
-    assert gd.Variable(1).dtype == float
+    assert nf.Variable(1).dtype == float
 
 
 def test_non_default_dtype():
-    gd.config.dtype = np.float64
-    assert gd.Variable(1).dtype == np.float64
-    gd.config.dtype = float
+    nf.config.dtype = np.float64
+    assert nf.Variable(1).dtype == np.float64
+    nf.config.dtype = float
 
 
 def test_ufunc():
-    a = gd.Variable([0, 1])
+    a = nf.Variable([0, 1])
     assert type(a + 0) == np.ndarray
 
 
 @pytest.mark.xfail
 def test_view():
-    a = np.array([1, 2]).view(gd.Variable)
+    a = np.array([1, 2]).view(nf.Variable)
     assert a.dtype == float
 
 

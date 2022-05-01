@@ -1,15 +1,12 @@
-# PyGrad
+# NumFlow
 
-Simple gradient computation library for Python
+Simple gradient computation library for Python.
 
 # Getting Started
 
 ```bash
-pip install git+https://github.com/ctgk/pygrad.git
+pip install git+https://github.com/ctgk/numflow.git
 ```
-
-1. Latest releases
-1. API references
 
 # Build and Test
 
@@ -18,7 +15,7 @@ pip install git+https://github.com/ctgk/pygrad.git
 Be sure to run the following command before developing
 
 ```bash
-$ git clone https://github.com/ctgk/pygrad.git
-$ cd pygrad
+$ git clone https://github.com/ctgk/numflow.git
+$ cd numflow
 $ pre-commit install
 ```

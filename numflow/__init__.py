@@ -1,13 +1,13 @@
 """Simple gradient computation library for Python."""
 
-from pygrad._config import Config, config  # noqa: F401
-from pygrad._decorators import differentiable
-from pygrad._graph import Graph
-from pygrad._variable import Variable
+from numflow._config import Config, config  # noqa: F401
+from numflow._decorators import differentiable
+from numflow._graph import Graph
+from numflow._variable import Variable
 
-from pygrad import _numpy, _scipy  # noqa: F401, I100, I202
+from numflow import _numpy, _scipy  # noqa: F401, I100, I202
 
-from pygrad._version import __version__  # noqa: F401, I202
+from numflow._version import __version__  # noqa: F401, I202
 
 
 _classes = [

@@ -1,24 +1,24 @@
 import numpy as np
 import pytest
 
-import pygrad as gd
+import numflow as nf
 
 
 def test_default_dtype():
-    assert gd.config.dtype == float
+    assert nf.config.dtype == float
 
 
 def test_set_dtype_error():
     with pytest.raises(ValueError):
-        gd.config.dtype = int
+        nf.config.dtype = int
 
 
 def test_set_dtype():
-    assert gd.config.dtype == float
-    gd.config.dtype = np.float32
-    assert gd.config.dtype == np.float32
-    gd.config.dtype = float
-    assert gd.config.dtype == float
+    assert nf.config.dtype == float
+    nf.config.dtype = np.float32
+    assert nf.config.dtype == np.float32
+    nf.config.dtype = float
+    assert nf.config.dtype == float
 
 
 if __name__ == '__main__':

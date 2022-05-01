@@ -1,26 +1,26 @@
 import numpy as np
 import pytest
 
-import pygrad as gd
+import numflow as nf
 
 
 def test_enter_exit():
-    assert gd.config._graph is None
-    with gd.Graph() as g:
-        assert gd.config._graph is g
-    assert gd.config._graph is None
+    assert nf.config._graph is None
+    with nf.Graph() as g:
+        assert nf.config._graph is g
+    assert nf.config._graph is None
 
 
 def test_enter_exit_error():
-    with gd.Graph():
+    with nf.Graph():
         with pytest.raises(ValueError):
-            with gd.Graph():
+            with nf.Graph():
                 pass
 
 
 def test_automatic_operation_storing():
-    a = gd.Variable(-1)
-    with gd.Graph() as g:
+    a = nf.Variable(-1)
+    with nf.Graph() as g:
         b = np.square(a)
     assert len(g._node_list) == 1
     assert g._node_list[0].result is b

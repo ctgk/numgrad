@@ -5,8 +5,8 @@ import numpy as np
 import numpy
 import scipy.special  # noqa: F401
 
-from pygrad._config import config
-from pygrad._variable import _ndarray_args, _ndarray_kwargs, Variable
+from numflow._config import config
+from numflow._variable import _ndarray_args, _ndarray_kwargs, Variable
 
 
 Node = namedtuple('Node', ('result', 'function', 'inputs', 'kwargs'))

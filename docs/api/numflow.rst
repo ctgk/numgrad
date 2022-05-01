@@ -1,5 +1,5 @@
-pygrad package
-==============
+numflow package
+===============
 
 Subpackages
 -----------
@@ -7,11 +7,10 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-
 Module contents
 ---------------
 
-.. automodule:: pygrad
+.. automodule:: numflow
    :members:
    :undoc-members:
    :show-inheritance:

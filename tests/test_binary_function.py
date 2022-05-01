@@ -1,22 +1,22 @@
 import numpy as np
 import pytest
 
-import pygrad as gd
-from pygrad._utils._numerical_grad import _numerical_grad
+import numflow as nf
+from numflow._utils._numerical_grad import _numerical_grad
 
 
 np.random.seed(0)
 
 
 @pytest.mark.parametrize('function, x, y', [
-    (lambda a, b: a + b, gd.Variable([[1, 2]]), gd.Variable([[1], [2]])),
-    (np.add, gd.Variable([[1, 2]]), gd.Variable([[1], [2]])),
-    (lambda a, b: a - b, gd.Variable([[1, 2]]), gd.Variable([[1], [2]])),
-    (np.subtract, gd.Variable([[1, 2]]), gd.Variable([[1], [2]])),
-    (lambda a, b: a * b, gd.Variable([[1, 2]]), gd.Variable([[1], [2]])),
-    (np.multiply, gd.Variable([[1, 2]]), gd.Variable([[1], [2]])),
-    (lambda a, b: a / b, gd.Variable([[1, 2]]), gd.Variable([[1], [2]])),
-    (np.divide, gd.Variable([[1, 2]]), gd.Variable([[1], [2]])),
+    (lambda a, b: a + b, nf.Variable([[1, 2]]), nf.Variable([[1], [2]])),
+    (np.add, nf.Variable([[1, 2]]), nf.Variable([[1], [2]])),
+    (lambda a, b: a - b, nf.Variable([[1, 2]]), nf.Variable([[1], [2]])),
+    (np.subtract, nf.Variable([[1, 2]]), nf.Variable([[1], [2]])),
+    (lambda a, b: a * b, nf.Variable([[1, 2]]), nf.Variable([[1], [2]])),
+    (np.multiply, nf.Variable([[1, 2]]), nf.Variable([[1], [2]])),
+    (lambda a, b: a / b, nf.Variable([[1, 2]]), nf.Variable([[1], [2]])),
+    (np.divide, nf.Variable([[1, 2]]), nf.Variable([[1], [2]])),
     (lambda a, b: a @ b, [1, 2], [1, 2]),
     (lambda a, b: np.matmul(a, b), [1, 2], [[1, 2], [3, 4]]),
     (lambda a, b: a @ b, [[1, 2], [3, 4]], [1, 2]),
@@ -27,8 +27,8 @@ np.random.seed(0)
     (lambda a, b: (np.random.seed(0), np.random.uniform(a, b))[1], 0, 1),
 ])
 def test_gradient(function, x, y):
-    x, y = gd.Variable(x), gd.Variable(y)
-    with gd.Graph() as g:
+    x, y = nf.Variable(x), nf.Variable(y)
+    with nf.Graph() as g:
         output = function(x, y)
     dx_actual, dy_actual = g.gradient(output, [x, y])
     dx_expected, dy_expected = _numerical_grad(function, x, y)

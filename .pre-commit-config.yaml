@@ -32,5 +32,5 @@ repos:
     -   id: documentation
         name: Generate document
         language: system
-        entry: bash -c 'sphinx-apidoc ./pygrad -o ./docs/api --exclude_pattern conftest.py --force; sphinx-build ./docs ./build/html -b html -W'
+        entry: bash -c 'sphinx-apidoc ./numflow -o ./docs/api --exclude_pattern conftest.py --force; sphinx-build ./docs ./build/html -b html -W'
         pass_filenames: false

@@ -1,10 +1,10 @@
 import numpy as np
 
-from pygrad._decorators import _register_gradient
-from pygrad._numpy import (  # noqa: F401
+from numflow._decorators import _register_gradient
+from numflow._numpy import (  # noqa: F401
     _getitem, _random, _reshape, _transpose, _trigonometric,
 )
-from pygrad._utils._unbroadcast import _unbroadcast_to
+from numflow._utils._unbroadcast import _unbroadcast_to
 
 
 @_register_gradient(np.positive)

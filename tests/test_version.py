@@ -1,11 +1,11 @@
 import pytest
 
-import pygrad as gd
+import numflow as nf
 
 
 def test_version():
-    assert isinstance(gd.__version__, str)
-    assert gd.__version__.count('.') == 2
+    assert isinstance(nf.__version__, str)
+    assert nf.__version__.count('.') == 2
 
 
 if __name__ == '__main__':

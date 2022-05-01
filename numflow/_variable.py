@@ -2,7 +2,7 @@ import typing as tp
 
 import numpy as np
 
-from pygrad._config import config
+from numflow._config import config
 
 
 ArrayLike = tp.Union[np.ndarray, list, tuple]
@@ -25,12 +25,12 @@ class Variable(np.ndarray):
 
     Examples
     --------
-    >>> a = gd.Variable([0, 1])
+    >>> a = nf.Variable([0, 1])
     >>>
     >>> # data type
     >>> a.dtype
     dtype('float64')
-    >>> gd.Variable([1], dtype=np.float32).dtype
+    >>> nf.Variable([1], dtype=np.float32).dtype
     dtype('float32')
     >>>
     >>> # numpy ufunc
