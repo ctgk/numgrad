@@ -6,6 +6,9 @@ import pygrad as gd
 from pygrad._utils._numerical_grad import _numerical_grad
 
 
+np.random.seed(0)
+
+
 @pytest.mark.parametrize('function, x', [
     (lambda a: a[0], np.array([3, 1, 9])),
     (lambda a: a[::2], np.array([3, 1, 9])),
@@ -49,6 +52,11 @@ from pygrad._utils._numerical_grad import _numerical_grad
     (np.cos, np.random.uniform(-10, 10, (3, 2))),
     (np.sin, np.random.uniform(-10, 10, (2, 5))),
     (np.tan, np.random.uniform(-10, 10, (4, 1))),
+    (np.arcsin, np.random.uniform(-1, 1, (3, 4))),
+    (np.arccos, np.random.uniform(-1, 1, (3, 4))),
+    (np.arctan, np.random.uniform(-10, 10, (5, 3))),
+    (lambda a: np.hypot(a, 4), 3),
+    (lambda a: np.hypot([2, 1], a), [[1], [-2]]),
 
     # hyperbolic functions
     (np.cosh, np.random.uniform(-10, 10, (3, 4))),

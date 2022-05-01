@@ -2,7 +2,7 @@ import numpy as np
 
 from pygrad._decorators import _register_gradient
 from pygrad._numpy import (  # noqa: F401
-    _getitem, _random, _reshape, _transpose,
+    _getitem, _random, _reshape, _transpose, _trigonometric,
 )
 from pygrad._utils._unbroadcast import _unbroadcast_to
 
@@ -83,21 +83,6 @@ def _square_gradient(dy, y, x):
 @_register_gradient(np.sqrt)
 def _sqrt_gradient(doutput, output, x):
     return 0.5 / output * doutput
-
-
-@_register_gradient(np.cos)
-def _cos_gradient(doutput, output, x):
-    return -np.sin(x) * doutput
-
-
-@_register_gradient(np.sin)
-def _sin_gradient(doutput, output, x):
-    return np.cos(x) * doutput
-
-
-@_register_gradient(np.tan)
-def _tan_gradient(doutput, output, x):
-    return (1 + np.square(output)) * doutput
 
 
 @_register_gradient(np.cosh)
