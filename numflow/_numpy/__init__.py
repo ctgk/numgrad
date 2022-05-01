@@ -2,7 +2,13 @@ import numpy as np
 
 from numflow._decorators import _register_gradient
 from numflow._numpy import (  # noqa: F401
-    _getitem, _hyperbolic, _random, _reshape, _transpose, _trigonometric,
+    _exp_log,
+    _getitem,
+    _hyperbolic,
+    _random,
+    _reshape,
+    _transpose,
+    _trigonometric,
 )
 from numflow._utils._unbroadcast import _unbroadcast_to
 
@@ -83,16 +89,6 @@ def _square_gradient(dy, y, x):
 @_register_gradient(np.sqrt)
 def _sqrt_gradient(doutput, output, x):
     return 0.5 / output * doutput
-
-
-@_register_gradient(np.exp)
-def _exp_gradient(doutput, output, x):
-    return output * doutput
-
-
-@_register_gradient(np.log)
-def _log_gradient(doutput, output, x):
-    return doutput / x
 
 
 @_register_gradient(np.maximum, method='reduce')

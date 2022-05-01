@@ -67,8 +67,17 @@ np.random.seed(0)
     (np.arctanh, np.random.uniform(-1, 1, (2,))),
 
     # exp & log
-    (np.exp, [-1, -0.2, 0.5]),
+    (np.exp, [-1, -0.2, 0.5, 2]),
+    (np.expm1, [-1, -0.2, 0.5, 2]),
+    (np.exp2, [-1, -0.2, 0.5, 2]),
     (np.log, [1, 0.2, 0.5, 2]),
+    (np.log10, [1, 0.2, 0.5, 2]),
+    (np.log2, [1, 0.2, 0.5, 2]),
+    (np.log1p, [1, 0.2, 0.5, 2, -0.9]),
+    (lambda a: np.logaddexp(a, [1, 2]), np.random.rand(4, 2)),
+    (lambda a: np.logaddexp([1, 2], a), np.random.rand(4, 2)),
+    (lambda a: np.logaddexp2(a, [1, 2]), np.random.rand(4, 2)),
+    (lambda a: np.logaddexp2([1, 2], a), np.random.rand(4, 2)),
 
     (lambda a: sp.expit(a), [1, 0, -1]),
     (lambda a: sp.log_expit(a), [1, 0, -1]),

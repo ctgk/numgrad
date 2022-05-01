@@ -22,6 +22,11 @@ np.random.seed(0)
     (lambda a, b: a @ b, [[1, 2], [3, 4]], [1, 2]),
     (lambda a, b: np.matmul(a, b), [[1, 2], [3, 4]], [[1, 2], [3, 4]]),
     (lambda a, b: a @ b, np.random.rand(3, 4, 2), [[1, 2], [3, 4]]),
+    (
+        np.logaddexp,
+        np.random.normal(size=(3, 4)),
+        np.random.normal(size=(5, 1, 4)),
+    ),
     (np.hypot, np.random.normal(size=(3,)), np.random.normal(size=(4, 1))),
     (lambda a, b: (np.random.seed(0), np.random.normal(a, b))[1], 0, 1),
     (lambda a, b: (np.random.seed(0), np.random.uniform(a, b))[1], 0, 1),
