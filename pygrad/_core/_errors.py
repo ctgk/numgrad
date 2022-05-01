@@ -1,2 +1,0 @@
-class DifferentiationError(Exception):
-    pass
