@@ -124,6 +124,9 @@ miscellaneous = [
     (np.sqrt, [3, 0.5]),
     (np.cbrt, [3, 0.5]),
     (np.square, [2, -1]),
+    (np.abs, [2, -1]),
+    (np.absolute, [2, -1]),
+    (np.fabs, [2, -1]),
 ]
 random = [
     (lambda a: (np.random.seed(0), np.random.exponential(a))[1], [1, 10]),

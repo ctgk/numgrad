@@ -16,3 +16,13 @@ def _cbrt_gradient(dy, y, _x):
 @_register_gradient(np.square)
 def _square_gradient(dy, _, x):
     return 2 * x * dy
+
+
+@_register_gradient(np.absolute)
+def _absolute_gradient(dy, _y, x):
+    return dy * np.sign(x)
+
+
+@_register_gradient(np.fabs)
+def _fabs_gradient(dy, _y, x):
+    return dy * np.sign(x)
