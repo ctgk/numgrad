@@ -2,6 +2,7 @@ import numpy as np
 
 from numflow._decorators import _register_gradient
 from numflow._numpy import (  # noqa: F401
+    _arithmetic,
     _exp_log,
     _getitem,
     _hyperbolic,
@@ -11,49 +12,6 @@ from numflow._numpy import (  # noqa: F401
     _trigonometric,
 )
 from numflow._utils._unbroadcast import _unbroadcast_to
-
-
-@_register_gradient(np.positive)
-def _positive_gradient(doutput, _do, _x):
-    return doutput
-
-
-@_register_gradient(np.negative)
-def _negative_gradient(doutput, _do, _x):
-    return -doutput
-
-
-@_register_gradient(np.add)
-def _add_gradient(doutput, _, x, y):
-    return (
-        _unbroadcast_to(doutput, x.shape) if hasattr(x, 'shape') else None,
-        _unbroadcast_to(doutput, y.shape) if hasattr(y, 'shape') else None,
-    )
-
-
-@_register_gradient(np.subtract)
-def _subtract_gradient(doutput, _, x, y):
-    return (
-        _unbroadcast_to(doutput, x.shape) if hasattr(x, 'shape') else None,
-        _unbroadcast_to(-doutput, y.shape) if hasattr(y, 'shape') else None,
-    )
-
-
-@_register_gradient(np.multiply)
-def _multiply_gradient(doutput, _, x, y):
-    return (
-        _unbroadcast_to(doutput * y, x.shape) if hasattr(x, 'shape') else None,
-        _unbroadcast_to(doutput * x, y.shape) if hasattr(y, 'shape') else None,
-    )
-
-
-@_register_gradient(np.divide)
-def _divide_gradient(do, _, x, y):
-    return (
-        _unbroadcast_to(do / y, x.shape) if hasattr(x, 'shape') else None,
-        _unbroadcast_to(
-            -do * x / (y ** 2), y.shape) if hasattr(y, 'shape') else None,
-    )
 
 
 @_register_gradient(np.matmul)

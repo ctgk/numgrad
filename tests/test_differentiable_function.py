@@ -87,6 +87,7 @@ arithmetics = [
     (lambda a: +a, -3),
     (np.negative, -3),
     (lambda a: -a, -3),
+    (np.reciprocal, [1, -2]),
     (lambda a: np.add(a, [[1, 2], [3, 4]]), [1, 2]),
     (lambda a: a + [[1, 2], [3, 4]], [1, 2]),
     (lambda a, b: a + b, ([[1, 2]], [[1], [2]])),
@@ -103,6 +104,11 @@ arithmetics = [
     (lambda a: a / [[1, 2], [3, 4]], [1, 2]),
     (lambda a, b: a / b, ([[1, 2]], [[1], [2]])),
     (np.divide, ([[1, 2]], [[1], [2]])),
+    (np.true_divide, ([[1, 2]], [[1], [2]])),
+    (lambda a: np.power(a, [[1], [-2]]), [[1, 2]]),
+    (np.power, ([[1, 2]], [[1], [-2]])),
+    (lambda a: np.float_power(a, [[1], [-2]]), [[1, 2]]),
+    (np.float_power, ([[1, 2]], [[1], [-2]])),
 ]
 extrema_finding = [
     (np.max, 9),
