@@ -8,6 +8,28 @@ Simple gradient computation library for Python.
 pip install git+https://github.com/ctgk/numflow.git
 ```
 
+Inspired by [tensorflow](https://www.tensorflow.org/), `numflow` run [automatic differentiation](https://en.wikipedia.org/wiki/Automatic_differentiation) in tensorflow v2 style using original `numpy` and `scipy` functions.
+
+```python
+>>> import numflow as nf
+>>> import numpy as np  # Original numpy
+>>>
+>>> # Pure numpy function
+>>> def tanh(x):
+...     y = np.exp(-2 * x)
+...     return (1 - y) / (1 + y)
+...
+>>> x = nf.Variable(1)
+>>> with nf.Graph() as g:
+...     # numflow patches numpy functions automatically here
+...     y = tanh(x)
+...
+>>> g.gradient(y, [x])
+(0.419974341614026,)
+>>> (tanh(1.0001) - tanh(0.9999)) / 0.0002
+0.41997434264973155
+```
+
 # Build and Test
 
 # Contribute
