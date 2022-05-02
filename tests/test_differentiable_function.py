@@ -122,6 +122,7 @@ extrema_finding = [
 ]
 miscellaneous = [
     (np.sqrt, [3, 0.5]),
+    (np.cbrt, [3, 0.5]),
     (np.square, [2, -1]),
 ]
 random = [

@@ -6,6 +6,7 @@ from numflow._numpy import (  # noqa: F401
     _exp_log,
     _getitem,
     _hyperbolic,
+    _miscellaneous,
     _random,
     _reshape,
     _transpose,
@@ -37,16 +38,6 @@ def _matmul_gradient(do, _, x, y):
         dx = _unbroadcast_to(do @ np.swapaxes(y, -1, -2), x.shape)
         dy = _unbroadcast_to(np.swapaxes(x, -1, -2) @ do, y.shape)
         return dx, dy
-
-
-@_register_gradient(np.square)
-def _square_gradient(dy, _, x):
-    return 2 * x * dy
-
-
-@_register_gradient(np.sqrt)
-def _sqrt_gradient(doutput, output, _):
-    return 0.5 / output * doutput
 
 
 @_register_gradient(np.maximum, method='reduce')
