@@ -111,14 +111,40 @@ arithmetics = [
     (np.float_power, ([[1, 2]], [[1], [-2]])),
 ]
 extrema_finding = [
+    (np.maximum, (3, -1)),
+    (np.maximum, (0.5, np.random.rand(3, 2))),
+    (np.maximum, (np.random.rand(4, 3), 0.5)),
+    (np.maximum, (np.random.rand(2, 3, 4), np.random.rand(1, 4))),
+    (np.fmax, (np.nan, 3)),
+    (np.fmax, (3, np.nan)),
+    (np.fmax, ([1, np.nan, -1], [[-0.5], [0.5]])),
+    # (np.fmax, ([1, np.nan, -1], [[-0.5], [np.nan]])),
+    (np.amax, 9),
+    (np.amax, [1, 2]),
     (np.max, 9),
     (np.max, [1, 2]),
     (lambda a: a.max(axis=1), np.random.rand(2, 3) * 10),
     (lambda a: a.max(axis=(0, 2), keepdims=True), np.random.rand(2, 4, 3)),
+    # (lambda a: np.nanmax(a), np.nan),
+    (lambda a: np.nanmax(a), [np.nan, 1]),
+    (lambda a: np.nanmax(a, axis=0, keepdims=True), [np.nan, 1]),
+    (np.minimum, (3, -1)),
+    (np.minimum, (0.5, np.random.rand(3, 2))),
+    (np.minimum, (np.random.rand(4, 3), 0.5)),
+    (np.minimum, (np.random.rand(2, 3, 4), np.random.rand(1, 4))),
+    (np.fmin, (np.nan, 3)),
+    (np.fmin, (3, np.nan)),
+    (np.fmin, ([1, np.nan, -1], [[-0.5], [0.5]])),
+    # (np.fmin, ([1, np.nan, -1], [[-0.5], [np.nan]])),
+    (np.amin, 9),
+    (np.amin, [1, 2]),
     (np.min, 9),
     (np.min, [1, 2]),
     (lambda a: a.min(axis=1), np.random.rand(2, 3) * 10),
     (lambda a: a.min(axis=(0, 2), keepdims=True), np.random.rand(2, 4, 3)),
+    # (lambda a: np.nanmax(a), np.nan),
+    (lambda a: np.nanmax(a), [np.nan, 1]),
+    (lambda a: np.nanmax(a, axis=0, keepdims=True), [np.nan, 1]),
 ]
 miscellaneous = [
     (np.sqrt, [3, 0.5]),
@@ -162,6 +188,11 @@ statistics = [
     (lambda a: np.mean(a), [-1, 1]),
     (lambda a: a.mean(axis=1), np.random.rand(3, 2)),
     (lambda a: np.mean(a, (0, 2), keepdims=True), np.random.rand(4, 2, 3)),
+    (lambda a: np.nanmean(a), 1),
+    (lambda a: np.nanmean(a), np.nan),
+    (lambda a: np.nanmean(a), [1, np.nan, -3]),
+    (lambda a: np.nanmean(a), [[1, np.nan, -3], [np.nan, np.nan, 5]]),
+    (lambda a: np.nanmean(a, 1), [[1, np.nan, -3], [np.nan, np.nan, 5]]),
 ]
 scipy_specials = [
     (sp.gamma, [1, 0.5, 3.3]),
@@ -223,6 +254,7 @@ def test_computation_graph_gradient(parameters):
 
     assert type(f(*args)) != nf.Variable
     with nf.Graph() as g:
+        assert len(g._node_list) == 0
         y = f(*args)
     print(g._node_list)
     assert type(y) == nf.Variable
@@ -233,9 +265,9 @@ def test_computation_graph_gradient(parameters):
         assert np.allclose(expected, actual)
 
     with nf.Graph() as g:
-        y = np.mean(f(*args))
+        y = np.nanmean(f(*args))
     dargs_actual = g.gradient(y, args)
-    dargs_expected = _numerical_grad(lambda *a: np.mean(f(*a)), *args)
+    dargs_expected = _numerical_grad(lambda *a: np.nanmean(f(*a)), *args)
     for actual, expected in zip(dargs_actual, dargs_expected):
         assert np.allclose(expected, actual)
 

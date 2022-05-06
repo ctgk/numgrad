@@ -4,11 +4,13 @@ from numflow._decorators import _register_gradient
 from numflow._numpy import (  # noqa: F401
     _arithmetic,
     _exp_log,
+    _extrema_finding,
     _getitem,
     _hyperbolic,
     _miscellaneous,
     _random,
     _reshape,
+    _statistics,
     _transpose,
     _trigonometric,
 )
@@ -40,42 +42,14 @@ def _matmul_gradient(do, _, x, y):
         return dx, dy
 
 
-@_register_gradient(np.maximum, method='reduce')
-def _max_gradient(doutput, _, x, axis=None, keepdims=False, **kwargs):
-    if x.ndim == 0:
-        return doutput
-    if all((
-        isinstance(doutput, np.ndarray),
-        (not keepdims),
-        (axis is not None),
-    )):
-        axis_positive = []
-        for ax in axis if isinstance(axis, tuple) else (axis,):
-            axis_positive.append(x.ndim + ax if ax < 0 else ax)
-        for ax in sorted(axis_positive):
-            doutput = np.expand_dims(doutput, ax)
-    dx = 1 * np.broadcast_to(doutput, x.shape)
-    dx[np.where(x != x.max(axis=axis, keepdims=True))] = 0
-    return dx
+@_register_gradient(np.square)
+def _square_gradient(dy, _, x):
+    return 2 * x * dy
 
 
-@_register_gradient(np.minimum, method='reduce')
-def _min_gradient(doutput, _, x, axis=None, keepdims=False, **kwargs):
-    if x.ndim == 0:
-        return doutput
-    if all((
-        isinstance(doutput, np.ndarray),
-        (not keepdims),
-        (axis is not None),
-    )):
-        axis_positive = []
-        for ax in axis if isinstance(axis, tuple) else (axis,):
-            axis_positive.append(x.ndim + ax if ax < 0 else ax)
-        for ax in sorted(axis_positive):
-            doutput = np.expand_dims(doutput, ax)
-    dx = 1 * np.broadcast_to(doutput, x.shape)
-    dx[np.where(x != x.min(axis=axis, keepdims=True))] = 0
-    return dx
+@_register_gradient(np.sqrt)
+def _sqrt_gradient(doutput, output, _):
+    return 0.5 / output * doutput
 
 
 @_register_gradient(np.mean)
