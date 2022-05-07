@@ -35,9 +35,11 @@ setup(
     version=_get_version('numgrad/_version.py'),
     author='ctgk',
     author_email='r1135nj54w@gmail.com',
+    url='https://github.com/ctgk/numgrad',
     description='Simple gradient computation library in Python',
     long_description=_read('README.md'),
     long_description_content_type='text/markdown',
+    license='MIT',
 
     packages=find_packages(
         exclude=('tests', 'tests.*'),
