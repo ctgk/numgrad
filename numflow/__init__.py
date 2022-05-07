@@ -2,6 +2,7 @@
 
 from numflow._config import Config, config  # noqa: F401
 from numflow._decorators import differentiable
+from numflow._differentiable import Differentiable, grad, value_and_grad
 from numflow._graph import Graph
 from numflow._variable import Variable
 
@@ -12,6 +13,7 @@ from numflow._version import __version__  # noqa: F401, I202
 
 _classes = [
     Config,
+    Differentiable,
     Graph,
     Variable,
 ]
@@ -19,6 +21,8 @@ _classes = [
 
 _functions = [
     differentiable,
+    grad,
+    value_and_grad,
 ]
 
 
