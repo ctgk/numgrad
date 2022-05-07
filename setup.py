@@ -5,8 +5,7 @@ https://packaging.python.org/guides/distributing-packages-using-setuptools/
 https://github.com/pypa/sampleproject/blob/main/setup.py
 """
 
-import codecs
-import os
+import pathlib
 
 from setuptools import find_packages, setup
 
@@ -18,9 +17,8 @@ install_requires = [
 
 
 def _read(rel_path):
-    here = os.path.abspath(os.path.dirname(__file__))
-    with codecs.open(os.path.join(here, rel_path), 'r') as fp:
-        return fp.read()
+    here = pathlib.Path(__file__).parent
+    return (here / rel_path).read_text()
 
 
 def _get_version(rel_path):
@@ -38,6 +36,8 @@ setup(
     author='ctgk',
     author_email='r1135nj54w@gmail.com',
     description='Simple gradient computation library in Python',
+    long_description=_read('README.md'),
+    long_description_content_type='text/markdown',
 
     packages=find_packages(
         exclude=('tests', 'tests.*'),
