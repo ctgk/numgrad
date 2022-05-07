@@ -5,7 +5,7 @@ Simple gradient computation library for Python.
 # Getting Started
 
 ```bash
-pip install git+https://github.com/ctgk/numgrad.git
+pip install numgrad
 ```
 
 Inspired by [tensorflow](https://www.tensorflow.org/), `numgrad` supports [automatic differentiation](https://en.wikipedia.org/wiki/Automatic_differentiation) in tensorflow v2 style using original `numpy` and `scipy` functions.
