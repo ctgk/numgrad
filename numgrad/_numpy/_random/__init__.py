@@ -1,8 +1,8 @@
 import numpy as np
 
 
-from numflow._decorators import _register_gradient
-from numflow._utils._unbroadcast import _unbroadcast_to
+from numgrad._decorators import _register_gradient
+from numgrad._utils._unbroadcast import _unbroadcast_to
 
 
 @_register_gradient(

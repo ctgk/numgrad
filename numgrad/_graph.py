@@ -5,8 +5,8 @@ import numpy as np
 import numpy
 import scipy.special  # noqa: F401
 
-from numflow._config import config
-from numflow._variable import _ndarray_args, _ndarray_kwargs, Variable
+from numgrad._config import config
+from numgrad._variable import _ndarray_args, _ndarray_kwargs, Variable
 
 
 Node = namedtuple('Node', ('result', 'function', 'inputs', 'kwargs'))
@@ -71,7 +71,7 @@ class Graph(object):
         """
         if not isinstance(target, Variable):
             raise TypeError(
-                '`target` must be an instance of `nf.Variable`, '
+                '`target` must be an instance of `ng.Variable`, '
                 f'not {type(target)}')
         tensor_id_to_grad: tp.Dict[int, np.ndarray] = {}
         tensor_id_to_grad[id(target)] = np.ones_like(target._data)

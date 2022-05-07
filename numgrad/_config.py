@@ -12,7 +12,7 @@ class _Singleton:
 
 
 class Config(_Singleton):
-    """Configuration of numflow module."""
+    """Configuration of numgrad module."""
 
     def __init__(self):
         """Initialize configuration."""

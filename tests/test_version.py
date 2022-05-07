@@ -1,11 +1,11 @@
 import pytest
 
-import numflow as nf
+import numgrad as ng
 
 
 def test_version():
-    assert isinstance(nf.__version__, str)
-    assert nf.__version__.count('.') == 2
+    assert isinstance(ng.__version__, str)
+    assert ng.__version__.count('.') == 2
 
 
 if __name__ == '__main__':

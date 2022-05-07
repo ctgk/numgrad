@@ -1,17 +1,17 @@
-# NumFlow
+# NumGrad
 
 Simple gradient computation library for Python.
 
 # Getting Started
 
 ```bash
-pip install git+https://github.com/ctgk/numflow.git
+pip install git+https://github.com/ctgk/numgrad.git
 ```
 
-Inspired by [tensorflow](https://www.tensorflow.org/), `numflow` run [automatic differentiation](https://en.wikipedia.org/wiki/Automatic_differentiation) in tensorflow v2 style using original `numpy` and `scipy` functions.
+Inspired by [tensorflow](https://www.tensorflow.org/), `numgrad` supports [automatic differentiation](https://en.wikipedia.org/wiki/Automatic_differentiation) in tensorflow v2 style using original `numpy` and `scipy` functions.
 
 ```python
->>> import numflow as nf
+>>> import numgrad as ng
 >>> import numpy as np  # Original numpy
 >>>
 >>> # Pure numpy function
@@ -19,9 +19,9 @@ Inspired by [tensorflow](https://www.tensorflow.org/), `numflow` run [automatic 
 ...     y = np.exp(-2 * x)
 ...     return (1 - y) / (1 + y)
 ...
->>> x = nf.Variable(1)
->>> with nf.Graph() as g:
-...     # numflow patches numpy functions automatically here
+>>> x = ng.Variable(1)
+>>> with ng.Graph() as g:
+...     # numgrad patches numpy functions automatically here
 ...     y = tanh(x)
 ...
 >>> g.gradient(y, [x])
@@ -37,7 +37,7 @@ Inspired by [tensorflow](https://www.tensorflow.org/), `numflow` run [automatic 
 Be sure to run the following command before developing
 
 ```bash
-$ git clone https://github.com/ctgk/numflow.git
-$ cd numflow
+$ git clone https://github.com/ctgk/numgrad.git
+$ cd numgrad
 $ pre-commit install
 ```

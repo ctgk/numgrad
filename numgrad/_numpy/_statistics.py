@@ -1,6 +1,6 @@
 import numpy as np
 
-from numflow._decorators import _register_gradient
+from numgrad._decorators import _register_gradient
 
 
 @_register_gradient(np.nanmean)
