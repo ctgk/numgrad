@@ -20,12 +20,12 @@ import pkg_resources
 
 # -- Project information -----------------------------------------------------
 
-project = 'numflow'
+project = 'numgrad'
 copyright = '2022, ctgk'
 author = 'ctgk'
 
 # The full version, including alpha/beta/rc tags
-release = pkg_resources.get_distribution('numflow').version
+release = pkg_resources.get_distribution('numgrad').version
 
 
 # -- General configuration ---------------------------------------------------

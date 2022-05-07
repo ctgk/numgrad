@@ -3,7 +3,7 @@
 import numpy as np
 import pytest
 
-import numflow as nf
+import numgrad as ng
 
 
 @pytest.fixture(autouse=True)
@@ -12,5 +12,5 @@ def _add_np(doctest_namespace):
 
 
 @pytest.fixture(autouse=True)
-def _add_nf(doctest_namespace):
-    doctest_namespace['nf'] = nf
+def _add_ng(doctest_namespace):
+    doctest_namespace['ng'] = ng

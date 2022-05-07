@@ -2,8 +2,8 @@ import inspect
 import itertools
 import typing as tp
 
-from numflow._graph import Graph
-from numflow._variable import Variable
+from numgrad._graph import Graph
+from numgrad._variable import Variable
 
 
 class Differentiable:

@@ -1,7 +1,7 @@
 import numpy as np
 
-from numflow._decorators import differentiable
-from numflow._variable import Variable
+from numgrad._decorators import differentiable
+from numgrad._variable import Variable
 
 
 def _getitem_gradient(dy, _y, x, key):

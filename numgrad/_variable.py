@@ -3,7 +3,7 @@ import functools
 import numpy as np
 import numpy.typing as npt
 
-from numflow._config import config
+from numgrad._config import config
 
 
 def _ndarray_args(*args):
@@ -23,14 +23,14 @@ class Variable(object):
 
     Examples
     --------
-    >>> a = nf.Variable([0, 1])
+    >>> a = ng.Variable([0, 1])
     >>>
     >>> a
     Variable([0., 1.])
     >>> # data type
     >>> a.dtype
     dtype('float64')
-    >>> nf.Variable([1], dtype=np.float32).dtype
+    >>> ng.Variable([1], dtype=np.float32).dtype
     dtype('float32')
     >>>
     >>> # numpy ufunc

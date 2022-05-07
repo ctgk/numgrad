@@ -2,8 +2,8 @@ import numpy as np
 import pytest
 import scipy.special as sp
 
-import numflow as nf
-from numflow._utils._numerical_grad import _numerical_grad
+import numgrad as ng
+from numgrad._utils._numerical_grad import _numerical_grad
 
 
 np.random.seed(0)
@@ -253,18 +253,18 @@ def test_computation_graph_gradient(parameters):
     f = parameters[0]
     args = parameters[1] if isinstance(
         parameters[1], tuple) else (parameters[1],)
-    args = tuple(nf.Variable(a) for a in args)
+    args = tuple(ng.Variable(a) for a in args)
 
     return_type_of_function = type(f(*args))
-    assert return_type_of_function != nf.Variable
-    with nf.Graph() as g:
+    assert return_type_of_function != ng.Variable
+    with ng.Graph() as g:
         assert len(g._node_list) == 0
         y = f(*args)
     assert len(g._node_list) == 1
     print(g._node_list[0].function)
-    assert type(y) == nf.Variable
+    assert type(y) == ng.Variable
     if return_type_of_function == float:
-        assert type(y._data) == nf.config.dtype
+        assert type(y._data) == ng.config.dtype
     else:
         assert type(y._data) == return_type_of_function
 
@@ -275,7 +275,7 @@ def test_computation_graph_gradient(parameters):
         assert type(arg._data) == type(actual)
         assert np.allclose(expected, actual)
 
-    with nf.Graph() as g:
+    with ng.Graph() as g:
         y = np.nanmean(f(*args))
     dargs_actual = g.gradient(y, args)
     dargs_expected = _numerical_grad(lambda *a: np.nanmean(f(*a)), *args)
@@ -284,8 +284,8 @@ def test_computation_graph_gradient(parameters):
 
 
 def test_computational_graph_gradient_error():
-    a = nf.Variable([0, 0.5])
-    with nf.Graph() as g:
+    a = ng.Variable([0, 0.5])
+    with ng.Graph() as g:
         b = np.argsort(a)
     with pytest.raises(Exception):
         g.gradient(b, [a])[0]
@@ -328,7 +328,7 @@ def test_computational_graph_gradient_error():
     ),
 ])
 def test_grad(function, variables, args, kwargs, expect):
-    actual = nf.grad(function, variables)(*args, **kwargs)
+    actual = ng.grad(function, variables)(*args, **kwargs)
     if expect is None:
         assert actual is None
     elif isinstance(expect, dict):
@@ -373,7 +373,7 @@ def test_grad(function, variables, args, kwargs, expect):
 ])
 def test_grad_error(function, variables, args, kwargs, expect):
     with pytest.raises(expect):
-        nf.grad(function, variables)(*args, **kwargs)
+        ng.grad(function, variables)(*args, **kwargs)
 
 
 if __name__ == '__main__':

@@ -1,7 +1,7 @@
 import numpy as np
 import scipy.special as sp
 
-from numflow._decorators import _register_gradient
+from numgrad._decorators import _register_gradient
 
 
 @_register_gradient(sp.log_expit)

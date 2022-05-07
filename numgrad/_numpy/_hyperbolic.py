@@ -6,7 +6,7 @@ https://numpy.org/doc/stable/reference/routines.math.html#hyperbolic-functions
 
 import numpy as np
 
-from numflow._decorators import _register_gradient
+from numgrad._decorators import _register_gradient
 
 
 @_register_gradient(np.sinh)
