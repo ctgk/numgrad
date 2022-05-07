@@ -18,13 +18,13 @@ def test_init_pass_dtype():
 
 
 def test_default_dtype():
-    assert nf.Variable(1).dtype == float
+    assert nf.Variable(1).dtype == np.float64
 
 
 def test_non_default_dtype():
+    nf.config.dtype = np.float32
+    assert nf.Variable(1).dtype == np.float32
     nf.config.dtype = np.float64
-    assert nf.Variable(1).dtype == np.float64
-    nf.config.dtype = float
 
 
 def test_ufunc():
@@ -32,10 +32,24 @@ def test_ufunc():
     assert type(a + 0) == np.ndarray
 
 
-@pytest.mark.xfail
-def test_view():
-    a = np.array([1, 2]).view(nf.Variable)
-    assert a.dtype == float
+@pytest.mark.parametrize('self, method, args', [
+    (nf.Variable([1, -1]), '__iadd__', 1),
+    (nf.Variable([1, -1]), '__isub__', 1),
+    (nf.Variable([1, -1]), '__imul__', 2),
+    (nf.Variable([1, -1]), '__itruediv__', 2),
+])
+def test_inplace(self, method, args):
+    if not isinstance(args, tuple):
+        args = (args,)
+    expect_id = id(self)
+    expect_id_of_data = id(self._data)
+    getattr(self, method)(*args)
+    assert expect_id == id(self)
+    assert expect_id_of_data == id(self._data)
+
+    with pytest.raises(ValueError):
+        with nf.Graph():
+            getattr(self, method)(*args)
 
 
 if __name__ == '__main__':

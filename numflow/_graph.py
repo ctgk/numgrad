@@ -69,8 +69,12 @@ class Graph(object):
         tp.Tuple[np.ndarray]
             Gradients of target with respect to each source.
         """
+        if not isinstance(target, Variable):
+            raise TypeError(
+                '`target` must be an instance of `nf.Variable`, '
+                f'not {type(target)}')
         tensor_id_to_grad: tp.Dict[int, np.ndarray] = {}
-        tensor_id_to_grad[id(target)] = np.ones_like(target.view(np.ndarray))
+        tensor_id_to_grad[id(target)] = np.ones_like(target._data)
         for node in reversed(self._node_list):
             if id(node.result) not in tensor_id_to_grad:
                 continue
@@ -79,7 +83,7 @@ class Graph(object):
                     f'Gradient of {node.function} is not registered yet.')
             dargs = config._registered_gradient_function[node.function](
                 tensor_id_to_grad[id(node.result)],
-                node.result.view(np.ndarray),
+                node.result._data,
                 *_ndarray_args(*node.inputs),
                 **_ndarray_kwargs(**node.kwargs),
             )
@@ -91,6 +95,5 @@ class Graph(object):
                 if id(x) in tensor_id_to_grad:
                     tensor_id_to_grad[id(x)] += dx
                 elif isinstance(x, Variable):
-                    tensor_id_to_grad[id(x)] = np.ones_like(
-                        x.view(np.ndarray)) * dx
+                    tensor_id_to_grad[id(x)] = np.ones_like(x._data) * dx
         return tuple(tensor_id_to_grad.get(id(s), None) for s in sources)

@@ -5,6 +5,7 @@ from numflow._decorators import _register_gradient
 
 @_register_gradient(np.nanmean)
 def _nanmean_gradient(dy, _y, x, axis=None, *, keepdims=False):
+    """Gradient of nanmean which uses __array_function__."""
     if all((
         isinstance(dy, np.ndarray),
         (not keepdims),

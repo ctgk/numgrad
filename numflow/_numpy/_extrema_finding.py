@@ -37,8 +37,9 @@ def _fmax_gradient(dz, z, x, y):
     )
 
 
-@_register_gradient(np.maximum, method='reduce')
+@_register_gradient(np.amax)
 def _max_gradient(doutput, _, x, axis=None, keepdims=False, **kwargs):
+    """Gradient of np.max which supports __array_function__."""
     if x.ndim == 0:
         return doutput
     if all((
@@ -58,6 +59,7 @@ def _max_gradient(doutput, _, x, axis=None, keepdims=False, **kwargs):
 
 @_register_gradient(np.nanmax)
 def _nanmax_gradient(dy, y, x, axis=None, keepdims=False):
+    """Gradient of np.nanmax which supports __array_function__."""
     if x.ndim == 0:
         return np.nan if np.isnan(x) else dy
     if all((
@@ -104,8 +106,9 @@ def _fmin_gradient(dz, z, x, y):
     )
 
 
-@_register_gradient(np.minimum, method='reduce')
+@_register_gradient(np.amin)
 def _min_gradient(doutput, _, x, axis=None, keepdims=False, **kwargs):
+    """Gradient of np.min which supports __array_function__."""
     if x.ndim == 0:
         return doutput
     if all((
@@ -125,6 +128,7 @@ def _min_gradient(doutput, _, x, axis=None, keepdims=False, **kwargs):
 
 @_register_gradient(np.nanmin)
 def _nanmin_gradient(dy, y, x, axis=None, keepdims=False):
+    """Gradient of np.nanmin which supports __array_function__."""
     if x.ndim == 0:
         return np.nan if np.isnan(x) else dy
     if all((

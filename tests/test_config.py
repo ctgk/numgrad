@@ -5,7 +5,7 @@ import numflow as nf
 
 
 def test_default_dtype():
-    assert nf.config.dtype == float
+    assert nf.config.dtype == np.float64
 
 
 def test_set_dtype_error():
@@ -14,11 +14,11 @@ def test_set_dtype_error():
 
 
 def test_set_dtype():
-    assert nf.config.dtype == float
+    assert nf.config.dtype == np.float64
     nf.config.dtype = np.float32
     assert nf.config.dtype == np.float32
-    nf.config.dtype = float
-    assert nf.config.dtype == float
+    nf.config.dtype = np.float64
+    assert nf.config.dtype == np.float64
 
 
 if __name__ == '__main__':

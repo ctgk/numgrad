@@ -1,18 +1,9 @@
 import numpy as np
 
-from numflow._decorators import differentiable
-from numflow._variable import Variable
+from numflow._decorators import _register_gradient
 
 
+@_register_gradient(np.reshape)
 def _reshape_gradient(dy, _y, x, _newshape, order=None):
+    """Gradient of np.reshape which suports __array_function__."""
     return dy.reshape(*x.shape, order=order)
-
-
-@differentiable(_reshape_gradient)
-def _reshape(self: np.ndarray, newshape, order=None):
-    return self.reshape(*newshape, order=order)
-
-
-Variable.reshape = lambda self, *args, **kwargs: _reshape(
-    self, *(args if len(args) == 1 else (args,)), **kwargs)
-Variable.reshape.__doc__ = np.ndarray.reshape.__doc__

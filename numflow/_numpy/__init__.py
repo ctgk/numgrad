@@ -19,6 +19,7 @@ from numflow._utils._unbroadcast import _unbroadcast_to
 
 @_register_gradient(np.matmul)
 def _matmul_gradient(do, _, x, y):
+    """Gradient of np.matmul ufunc."""
     x, y = np.asarray(x), np.asarray(y)
     if y.ndim == 1:
         do = np.expand_dims(do, -1)
@@ -54,6 +55,7 @@ def _sqrt_gradient(doutput, output, _):
 
 @_register_gradient(np.mean)
 def _mean_gradient(doutput, _, x, axis=None, keepdims=False):
+    """Gradient of np.mean which supports __array_function__."""
     if all((
         isinstance(doutput, np.ndarray),
         (not keepdims),
@@ -72,8 +74,9 @@ def _mean_gradient(doutput, _, x, axis=None, keepdims=False):
     return dx
 
 
-@_register_gradient(np.add, method='reduce')
+@_register_gradient(np.sum)
 def _sum_gradient(doutput, _, x, axis=None, keepdims=False, **kwargs):
+    """Gradient of np.sum which supports __array_function__."""
     if all((
         isinstance(doutput, np.ndarray),
         (not keepdims),

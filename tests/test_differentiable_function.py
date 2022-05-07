@@ -98,6 +98,7 @@ arithmetics = [
     (np.subtract, ([[1, 2]], [[1], [2]])),
     (lambda a: np.multiply(a, [[1, 2], [3, 4]]), [1, 2]),
     (lambda a: a * [[1, 2], [3, 4]], [1, 2]),
+    (lambda a: np.float64(1) * a, [1, 2]),
     (lambda a, b: a * b, ([[1, 2]], [[1], [2]])),
     (np.multiply, ([[1, 2]], [[1], [2]])),
     (lambda a: np.divide(a, [[1, 2], [3, 4]]), [1, 2]),
@@ -145,6 +146,8 @@ extrema_finding = [
     # (lambda a: np.nanmax(a), np.nan),
     (lambda a: np.nanmax(a), [np.nan, 1]),
     (lambda a: np.nanmax(a, axis=0, keepdims=True), [np.nan, 1]),
+    (lambda a: np.nanmin(a), [np.nan, 1]),
+    (lambda a: np.nanmin(a, axis=0, keepdims=True), [np.nan, 1]),
 ]
 miscellaneous = [
     (np.sqrt, [3, 0.5]),
@@ -203,6 +206,7 @@ scipy_specials = [
         lambda a: sp.log_softmax(a, axis=-1),
         [[0.5, 0, -0.5], [0, 1, 2]],
     ),
+    (lambda a: sp.log_softmax(a, axis=(0, 2)), np.random.rand(2, 3, 4)),
     (lambda a: sp.logsumexp(a), -1),
     (lambda a: sp.logsumexp(a), [-1, 1]),
     (lambda a: sp.logsumexp(a, axis=1), np.random.rand(3, 2)),
@@ -210,7 +214,6 @@ scipy_specials = [
         lambda a: sp.logsumexp(a, axis=(0, 2), keepdims=True),
         np.random.rand(4, 2, 3),
     ),
-    (lambda a: sp.log_softmax(a, axis=(0, 2)), np.random.rand(2, 3, 4)),
     (lambda a: sp.softmax(a), -1),
     (lambda a: sp.softmax(a), [-1, 1]),
     (lambda a: sp.softmax(a, axis=1), np.random.rand(3, 2)),
@@ -256,7 +259,7 @@ def test_computation_graph_gradient(parameters):
     with nf.Graph() as g:
         assert len(g._node_list) == 0
         y = f(*args)
-    print(g._node_list)
+    assert len(g._node_list) == 1
     assert type(y) == nf.Variable
     assert type(f(*args)) != nf.Variable
     dargs_actual = g.gradient(y, args)
@@ -272,7 +275,6 @@ def test_computation_graph_gradient(parameters):
         assert np.allclose(expected, actual)
 
 
-@pytest.mark.xfail
 def test_gradient_error():
     a = nf.Variable([0, 0.5])
     with nf.Graph() as g:
