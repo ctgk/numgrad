@@ -255,16 +255,24 @@ def test_computation_graph_gradient(parameters):
         parameters[1], tuple) else (parameters[1],)
     args = tuple(nf.Variable(a) for a in args)
 
-    assert type(f(*args)) != nf.Variable
+    return_type_of_function = type(f(*args))
+    assert return_type_of_function != nf.Variable
     with nf.Graph() as g:
         assert len(g._node_list) == 0
         y = f(*args)
     assert len(g._node_list) == 1
+    print(g._node_list[0].function)
     assert type(y) == nf.Variable
-    assert type(f(*args)) != nf.Variable
+    if return_type_of_function == float:
+        assert type(y._data) == nf.config.dtype
+    else:
+        assert type(y._data) == return_type_of_function
+
+    assert type(f(*args)) == return_type_of_function
     dargs_actual = g.gradient(y, args)
     dargs_expected = _numerical_grad(f, *args)
-    for actual, expected in zip(dargs_actual, dargs_expected):
+    for arg, actual, expected in zip(args, dargs_actual, dargs_expected):
+        assert type(arg._data) == type(actual)
         assert np.allclose(expected, actual)
 
     with nf.Graph() as g:
