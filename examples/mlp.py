@@ -7,7 +7,7 @@ from sklearn.metrics import confusion_matrix
 from sklearn.model_selection import train_test_split
 from tqdm import tqdm
 
-import numflow as nf
+import numgrad as ng
 
 
 def mlp(x, w1, b1, w2, b2):
@@ -26,17 +26,17 @@ if __name__ == '__main__':
     x_train, x_test, y_train, y_test = train_test_split(
         x, y, test_size=10000, stratify=y)
 
-    w1 = nf.Variable(np.random.normal(scale=0.01, size=(28 * 28 * 1, 100)))
-    b1 = nf.Variable(np.random.normal(scale=0.01, size=100))
-    w2 = nf.Variable(np.random.normal(scale=0.1, size=(100, 10)))
-    b2 = nf.Variable(np.random.normal(scale=0.1, size=10))
+    w1 = ng.Variable(np.random.normal(scale=0.01, size=(28 * 28 * 1, 100)))
+    b1 = ng.Variable(np.random.normal(scale=0.01, size=100))
+    w2 = ng.Variable(np.random.normal(scale=0.1, size=(100, 10)))
+    b2 = ng.Variable(np.random.normal(scale=0.1, size=10))
 
     for e in tqdm(range(1, 1 + args.epoch)):
         for i in range(0, len(x_train), args.batch):
             x = x_train[i: i + args.batch]
             y = y_train[i: i + args.batch]
 
-            with nf.Graph() as g:
+            with ng.Graph() as g:
                 logits = mlp(x, w1, b1, w2, b2)
                 log_probas = sp.log_softmax(logits, axis=-1)
                 nll = np.mean(-log_probas[range(len(log_probas)), y])

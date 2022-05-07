@@ -5,8 +5,8 @@ import typing as tp
 
 import numpy as np
 
-from numflow._config import config
-from numflow._variable import _ndarray_args, _ndarray_kwargs, Variable
+from numgrad._config import config
+from numgrad._variable import _ndarray_args, _ndarray_kwargs, Variable
 
 
 def _register_gradient(
@@ -86,8 +86,8 @@ def differentiable(grad_func: callable):
     ...
     >>> twice(np.array([4, 2]))
     array([8, 4])
-    >>> a = nf.Variable([4, 2])
-    >>> with nf.Graph() as g:
+    >>> a = ng.Variable([4, 2])
+    >>> with ng.Graph() as g:
     ...     b = twice(a)
     ...
     >>> b

@@ -1,30 +1,44 @@
 import numpy as np
 import pytest
 
-import numflow as nf
+import numgrad as ng
 
 
 def test_enter_exit():
-    assert nf.config._graph is None
-    with nf.Graph() as g:
-        assert nf.config._graph is g
-    assert nf.config._graph is None
+    assert ng.config._graph is None
+    with ng.Graph() as g:
+        assert ng.config._graph is g
+    assert ng.config._graph is None
 
 
 def test_enter_exit_error():
-    with nf.Graph():
+    with ng.Graph():
         with pytest.raises(ValueError):
-            with nf.Graph():
+            with ng.Graph():
                 pass
 
 
 def test_automatic_operation_storing():
-    a = nf.Variable(-1)
-    with nf.Graph() as g:
+    a = ng.Variable(-1)
+    with ng.Graph() as g:
         b = np.square(a)
     assert len(g._node_list) == 1
     assert g._node_list[0].result is b
     assert g._node_list[0].inputs[0] is a
+
+
+@pytest.mark.parametrize('function, args, expect', [
+    (lambda a, b: a + b, (1, 1), int),
+    (lambda a, b: a + b, (ng.Variable(1), 1), ng.Variable),
+    (lambda a, b: a + b, (1, ng.Variable(1)), ng.Variable),
+    (lambda a, b: a + b, (np.float64(1), ng.Variable(1)), ng.Variable),
+])
+def test_result_type(function, args, expect):
+    if not isinstance(args, tuple):
+        args = (args,)
+    with ng.Graph():
+        result = function(*args)
+    assert type(result) == expect
 
 
 if __name__ == '__main__':

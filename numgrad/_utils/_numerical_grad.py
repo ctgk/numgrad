@@ -25,6 +25,7 @@ def _numerical_grad(
             ]
             out_p = op(*args_p, **kwargs)
             out_m = op(*args_m, **kwargs)
-            darg.ravel()[i] = (
-                np.sum(out_p) - np.sum(out_m)) / (2 * epsilon)
+            darg.ravel()[i] = (np.sum(out_p) - np.sum(out_m)) / (2 * epsilon)
+            if np.isnan(darg.ravel()[i]):
+                darg.ravel()[i] = 0
     return dargs

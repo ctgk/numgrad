@@ -12,11 +12,11 @@ class _Singleton:
 
 
 class Config(_Singleton):
-    """Configuration of numflow module."""
+    """Configuration of numgrad module."""
 
     def __init__(self):
         """Initialize configuration."""
-        self._dtype = float
+        self._dtype = np.float64
         self._graph = None
         self._verbosity: int = 0
         self._patched_function: tp.Dict[
@@ -30,7 +30,7 @@ class Config(_Singleton):
         Returns
         -------
         type
-            One of these: `float`, `np.float32`, `np.float64`
+            One of these: `np.float32`, `np.float64`
         """
         return self._dtype
 
@@ -43,11 +43,10 @@ class Config(_Singleton):
         value : type {float, np.float32, np.float64}
             New default data type.
         """
-        if value not in (float, np.float32, np.float64):
+        if value not in (np.float32, np.float64):
             raise ValueError(
                 'Default data type must be either '
-                '`float`, `np.float32`, or `np.float64`, '
-                f'not {value}')
+                f'`np.float32` or `np.float64`, not {value}')
         self._dtype = value
 
 

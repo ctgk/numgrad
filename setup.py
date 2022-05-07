@@ -33,15 +33,15 @@ def _get_version(rel_path):
 
 
 setup(
-    name='numflow',
-    version=_get_version('numflow/_version.py'),
+    name='numgrad',
+    version=_get_version('numgrad/_version.py'),
     author='ctgk',
     author_email='r1135nj54w@gmail.com',
     description='Simple gradient computation library in Python',
 
     packages=find_packages(
         exclude=('tests', 'tests.*'),
-        include=('numflow', 'numflow.*'),
+        include=('numgrad', 'numgrad.*'),
     ),
     python_requires='>=3.8',
     install_requires=install_requires,

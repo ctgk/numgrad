@@ -1,4 +1,4 @@
-numflow package
+numgrad package
 ===============
 
 Subpackages
@@ -10,7 +10,7 @@ Subpackages
 Module contents
 ---------------
 
-.. automodule:: numflow
+.. automodule:: numgrad
    :members:
    :undoc-members:
    :show-inheritance:

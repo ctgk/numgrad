@@ -1,7 +1,7 @@
-numflow
+numgrad
 =======
 
 .. toctree::
    :maxdepth: 4
 
-   numflow
+   numgrad

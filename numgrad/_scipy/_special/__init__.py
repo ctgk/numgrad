@@ -1,16 +1,18 @@
 import numpy as np
 import scipy.special as sp
 
-from numflow._decorators import _register_gradient
+from numgrad._decorators import _register_gradient
 
 
 @_register_gradient(sp.log_expit)
-def _log_expit_gradient(dy, y, x):
+def _log_expit_gradient(dy, y, _x):
+    """Gradient of ufunc log_expit."""
     return (1 - np.exp(y)) * dy
 
 
 @_register_gradient(sp.expit)
-def _expit_gradient(dy, y, x):
+def _expit_gradient(dy, y, _x):
+    """Gradient of scipy.special.expit ufunc."""
     return y * (1 - y) * dy
 
 
@@ -18,6 +20,10 @@ def _expit_gradient(dy, y, x):
 def _logsumexp_gradient(
     doutput, output, x, axis=None, keepdims=False, return_sign=False,
 ):
+    """Gradient of logsumexp.
+
+    logsumexp is not ufunc nor has dispatch suppport.
+    """
     if return_sign:
         raise NotImplementedError(
             'Cannot compute gradient of `scipy.special.logsumexp` '
@@ -44,12 +50,12 @@ def _logsumexp_gradient(
 
 
 @_register_gradient(sp.log_softmax)
-def _log_softmax_gradient(dy, y, x, axis=None):
+def _log_softmax_gradient(dy, y, _x, axis=None):
     return dy - np.exp(y) * dy.sum(axis=axis, keepdims=True)
 
 
 @_register_gradient(sp.softmax)
-def _softmax_gradient(dy, y, x, axis=None):
+def _softmax_gradient(dy, y, _x, axis=None):
     dx = y * dy
     dx -= y * dx.sum(axis=axis, keepdims=True)
     return dx
@@ -57,4 +63,5 @@ def _softmax_gradient(dy, y, x, axis=None):
 
 @_register_gradient(sp.gamma)
 def _gamma_gradient(do, o, x):
+    """Gradient of scipy.special.gamma ufunc."""
     return sp.digamma(x) * o * do
