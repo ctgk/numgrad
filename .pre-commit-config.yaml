@@ -34,3 +34,8 @@ repos:
         language: system
         entry: bash -c 'sphinx-apidoc ./numgrad -o ./docs/api --exclude_pattern conftest.py --force; sphinx-build ./docs ./build/html -b html -W'
         pass_filenames: false
+    -   id: twine
+        name: Check distributions
+        language: system
+        entry: bash -c 'if [ -d dist ]; then rm dist/*; fi; python setup.py sdist; twine check --strict dist/*'
+        pass_filenames: false
