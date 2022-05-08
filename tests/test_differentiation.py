@@ -289,89 +289,43 @@ def test_computational_graph_gradient_error():
         g.gradient(b, [a])[0]
 
 
-@pytest.mark.parametrize('function, variables, args, kwargs, expect', [
-    (lambda a=3, b=-4: np.sqrt(a * a + b * b), 'a', (3,), {}, 0.6),
-    (lambda a, b=-4: np.sqrt(a * a + b * b), 'a', (), dict(a=3), dict(a=0.6)),
-    (lambda a, b=-4: np.sqrt(a * a + b * b), ('a', 'b'), (-3,), {}, -0.6),
-    (
-        lambda a, b=-4: np.sqrt(a * a + b * b), ('a', 'b'),
-        (-3, 4), {}, (-0.6, 0.8),
-    ),
-    (
-        lambda a, b=-4: np.sqrt(a * a + b * b), ('a', 'b'),
-        (-3,), dict(b=4), (-0.6, dict(b=0.8)),
-    ),
-    (
-        lambda *args: np.sqrt(sum(a * a for a in args)), 'args',
-        (3, 4), {}, (0.6, 0.8),
-    ),
-    (
-        lambda a, *args: np.sqrt(a * a + sum(a * a for a in args)), 'args',
-        (3, 4), {}, 0.8,
-    ),
+@pytest.mark.parametrize('function, args, kwargs, expect', [
+    (np.square, (-2,), {}, -4.),
+    (lambda a=3, b=-4: np.sqrt(a * a + b * b), (3,), {}, 0.6),
+    (lambda a, b=-4: np.sqrt(a * a + b * b), (-3,), {}, -0.6),
+    (lambda a, b=-4: np.sqrt(a * a + b * b), (-3, 4), {}, (-0.6, 0.8)),
+    (lambda a, b=-4: np.sqrt(a * a + b * b), (-3,), dict(b=4), -0.6),
+    (lambda *args: np.sqrt(sum(a * a for a in args)), (3, 4), {}, (0.6, 0.8)),
     (
         lambda a, *args: np.sqrt(a * a + sum(a * a for a in args)),
-        ('a', 'args'), (3, 4), {}, (0.6, 0.8),
-    ),
-    (
-        lambda *args, **kwargs: (
-            sum(a * a for a in args) + sum(a * a for a in kwargs.values())),
-        'kwargs', (1, np.sqrt(8)), dict(a=4), dict(a=8),
+        (3, 4), {}, (0.6, 0.8),
     ),
     (
         lambda *args, **kwargs: np.sqrt(
             sum(a * a for a in args) + sum(a * a for a in kwargs.values())),
-        ('args', 'kwargs'), (1, np.sqrt(8)), dict(a=4),
-        ((0.2, np.sqrt(8) / 5), dict(a=0.8)),
+        (1, np.sqrt(8)), dict(a=4),
+        ((0.2, np.sqrt(8) / 5)),
     ),
 ])
-def test_grad(function, variables, args, kwargs, expect):
-    actual = ng.grad(function, variables)(*args, **kwargs)
+def test_grad(function, args, kwargs, expect):
+    actual = ng.grad(function)(*args, **kwargs)
     if expect is None:
         assert actual is None
-    elif isinstance(expect, dict):
-        assert tuple(actual) == tuple(expect)
-        for k in expect.keys():
-            assert np.allclose(actual[k], expect[k])
     elif isinstance(expect, tuple):
-        if (
-            len(expect) == 2
-            and isinstance(expect[0], tuple)
-            and isinstance(expect[1], dict)
-        ):
-            assert len(actual) == 2
-            assert isinstance(actual[0], tuple)
-            assert len(actual[0]) == len(expect[0])
-            for a, e in zip(actual[0], expect[0]):
-                assert np.allclose(a, e)
-
-            assert isinstance(actual[1], dict)
-            assert tuple(actual[1]) == tuple(expect[1])
-            for k in expect[1].keys():
-                assert np.allclose(actual[1][k], expect[1][k])
-        elif (len(expect) == 2 and isinstance(expect[1], dict)):
-            assert len(actual) == 2
-            assert np.allclose(actual[0], expect[0])
-            assert isinstance(actual[1], dict)
-            assert tuple(actual[1]) == tuple(expect[1])
-            for k in expect[1].keys():
-                assert np.allclose(actual[1][k], expect[1][k])
-        else:
-            assert len(actual) == len(expect)
-            for a, e in zip(actual, expect):
-                assert np.allclose(a, e)
+        assert len(actual) == len(expect)
+        for a, e in zip(actual, expect):
+            assert np.allclose(a, e)
     else:
         assert np.allclose(actual, expect)
 
 
-@pytest.mark.parametrize('function, variables, args, kwargs, expect', [
-    (lambda a=3, b=-4: np.sqrt(a * a + b * b), None, (), {}, Exception),
-    (lambda a=3, b=-4: np.sqrt(a * a + b * b), 'a', (), {}, Exception),
-    (lambda a=3, b=-4: np.sqrt(a * a + b * b), 'b', (2,), {}, Exception),
+@pytest.mark.parametrize('function, args, kwargs, expect', [
+    (lambda a=3, b=-4: np.sqrt(a * a + b * b), (), {}, ValueError),
+    (lambda a, b=-4: np.sqrt(a * a + b * b), (), dict(a=3), ValueError),
 ])
-def test_grad_error(function, variables, args, kwargs, expect):
+def test_grad_error(function, args, kwargs, expect):
     with pytest.raises(expect):
-        ng.grad(function, variables)(*args, **kwargs)
+        ng.grad(function)(*args, **kwargs)
 
 
 if __name__ == '__main__':
