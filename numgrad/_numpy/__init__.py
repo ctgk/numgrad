@@ -28,10 +28,10 @@ _register_vjp(np.triu, lambda dy, _y, _x, k=0: np.triu(dy, k))
 
 
 # https://numpy.org/doc/stable/reference/routines.array-manipulation.html#changing-array-shape
-_register_vjp(
-    np.reshape,
-    lambda dy, _y, x, _newshape, order=None: dy.reshape(*x.shape, order=order),
-)
+_register_vjp(np.reshape, lambda dy, _y, x, _newshape, order=None: dy.reshape(
+    *x.shape, order=order))
+_register_vjp(np.ravel, lambda dy, _y, x, order=None: dy.reshape(
+    *x.shape, order=order))
 _register_vjp(
     np.transpose,
     lambda dy, _y, _x, axes=None: (

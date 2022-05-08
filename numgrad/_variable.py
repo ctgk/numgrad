@@ -160,6 +160,10 @@ for method, func in (
             a, *(args if len(args) == 1 else (args,)), **kwargs),
     ),
     (
+        'ravel',
+        lambda a, *args, **kwargs: getattr(np, 'ravel')(a, *args, **kwargs),
+    ),
+    (
         'transpose',
         lambda a, *args, **kwargs: getattr(np, 'transpose')(
             a, *({0: tuple(), 1: args}.get(len(args), (args,))), **kwargs),
