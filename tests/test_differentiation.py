@@ -84,6 +84,9 @@ array_manipulation = [
     (lambda a: np.roll(a, 1, axis=0), np.arange(10).reshape(2, 5)),
     (lambda a: np.roll(a, -1, axis=1), np.arange(10).reshape(2, 5)),
     (lambda a: np.roll(a, (2, 1), axis=(1, 0)), np.arange(10).reshape(2, 5)),
+    (lambda a: np.rot90(a), [[1, 2, 3], [3, 4, 5]]),
+    (lambda a: np.rot90(a, 2), [[1, 2, 3], [3, -1, 2]]),
+    (lambda a: np.rot90(a, 1, (1, 2)), np.arange(12).reshape(2, 3, 2)),
 ]
 linear_algebra = [
     (lambda a: a @ [1, 2], [1, 2]),
