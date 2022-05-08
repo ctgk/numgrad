@@ -151,6 +151,7 @@ miscellaneous = [
     (np.sqrt, [3, 0.5]),
     (np.cbrt, [3, 0.5]),
     (np.square, [2, -1]),
+    (lambda a: abs(a), [2, -1]),
     (np.abs, [2, -1]),
     (np.absolute, [2, -1]),
     (np.fabs, [2, -1]),
