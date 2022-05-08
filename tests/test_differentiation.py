@@ -59,6 +59,11 @@ array_manipulation = [
     (lambda a: np.broadcast_to(a, 4), np.array([5])),
     (lambda a: np.broadcast_to(a, (4, 2)), np.array([5])),
     (lambda a: np.broadcast_to(a, (4, 2)), np.array([[5], [4], [3], [2]])),
+    (lambda a: np.expand_dims(a, 0), 1),
+    (lambda a: np.expand_dims(a, 0), np.array([1, 2])),
+    (lambda a: np.expand_dims(a, 1), np.array([1, 2])),
+    (lambda a: np.expand_dims(a, (0, 1)), np.array([1, 2])),
+    (lambda a: np.expand_dims(a, (2, 0)), np.array([1, 2])),
 ]
 linear_algebra = [
     (lambda a: a @ [1, 2], [1, 2]),

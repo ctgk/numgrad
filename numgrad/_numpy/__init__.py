@@ -49,6 +49,7 @@ _register_vjp(
 # https://numpy.org/doc/stable/reference/routines.array-manipulation.html#changing-number-of-dimensions
 _register_vjp(np.broadcast_to, lambda dy, _y, x, shape: (  # noqa: U100
     _unbroadcast_to(dy, x.shape)))
+_register_vjp(np.expand_dims, lambda dy, _y, _x, axis: np.squeeze(dy, axis))
 
 
 # https://numpy.org/doc/stable/reference/routines.linalg.html
