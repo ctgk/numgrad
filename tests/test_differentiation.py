@@ -1,3 +1,5 @@
+import warnings
+
 import numpy as np
 import pytest
 import scipy.special as sp
@@ -255,32 +257,34 @@ def test_computation_graph_gradient(parameters):
         parameters[1], tuple) else (parameters[1],)
     args = tuple(ng.Variable(a) for a in args)
 
-    return_type_of_function = type(f(*args))
-    assert return_type_of_function != ng.Variable
-    with ng.Graph() as g:
-        assert len(g._node_list) == 0
-        y = f(*args)
-    assert len(g._node_list) == 1
-    print(g._node_list[0].function)
-    assert type(y) == ng.Variable
-    if return_type_of_function == float:
-        assert type(y._data) == ng.config.dtype
-    else:
-        assert type(y._data) == return_type_of_function
+    with warnings.catch_warnings():
+        warnings.simplefilter('ignore')
+        return_type_of_function = type(f(*args))
+        assert return_type_of_function != ng.Variable
+        with ng.Graph() as g:
+            assert len(g._node_list) == 0
+            y = f(*args)
+        assert len(g._node_list) == 1
+        print(g._node_list[0].function)
+        assert type(y) == ng.Variable
+        if return_type_of_function == float:
+            assert type(y._data) == ng.config.dtype
+        else:
+            assert type(y._data) == return_type_of_function
 
-    assert type(f(*args)) == return_type_of_function
-    dargs_actual = g.gradient(y, args)
-    dargs_expected = _numerical_grad(f, *args)
-    for arg, actual, expected in zip(args, dargs_actual, dargs_expected):
-        assert type(arg._data) == type(actual)
-        assert np.allclose(expected, actual)
+        assert type(f(*args)) == return_type_of_function
+        dargs_actual = g.gradient(y, args)
+        dargs_expected = _numerical_grad(f, *args)
+        for arg, actual, expected in zip(args, dargs_actual, dargs_expected):
+            assert type(arg._data) == type(actual)
+            assert np.allclose(expected, actual)
 
-    with ng.Graph() as g:
-        y = np.nanmean(f(*args))
-    dargs_actual = g.gradient(y, args)
-    dargs_expected = _numerical_grad(lambda *a: np.nanmean(f(*a)), *args)
-    for actual, expected in zip(dargs_actual, dargs_expected):
-        assert np.allclose(expected, actual)
+        with ng.Graph() as g:
+            y = np.nanmean(f(*args))
+        dargs_actual = g.gradient(y, args)
+        dargs_expected = _numerical_grad(lambda *a: np.nanmean(f(*a)), *args)
+        for actual, expected in zip(dargs_actual, dargs_expected):
+            assert np.allclose(expected, actual)
 
 
 def test_computational_graph_gradient_error():
