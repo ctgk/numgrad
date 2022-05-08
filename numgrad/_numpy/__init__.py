@@ -50,6 +50,9 @@ _register_vjp(
 _register_vjp(np.broadcast_to, lambda dy, _y, x, shape: (  # noqa: U100
     _unbroadcast_to(dy, x.shape)))
 _register_vjp(np.expand_dims, lambda dy, _y, _x, axis: np.squeeze(dy, axis))
+_register_vjp(np.squeeze, lambda dy, _y, x, axis=None: (
+    np.expand_dims(dy, [ax for ax, len_ in enumerate(x.shape) if len_ == 1])
+    if axis is None else np.expand_dims(dy, axis)))
 
 
 # https://numpy.org/doc/stable/reference/routines.linalg.html
