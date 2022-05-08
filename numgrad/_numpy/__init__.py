@@ -57,6 +57,7 @@ _register_vjp(np.squeeze, lambda dy, _y, x, axis=None: (
 
 # https://numpy.org/doc/stable/reference/routines.array-manipulation.html#rearranging-elements
 _register_vjp(np.flip, lambda dy, _y, _x, axis=None: np.flip(dy, axis))
+_register_vjp(np.fliplr, lambda dy, _y, _x: np.fliplr(dy))
 
 
 # https://numpy.org/doc/stable/reference/routines.linalg.html
