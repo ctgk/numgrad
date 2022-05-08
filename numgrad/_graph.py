@@ -6,7 +6,7 @@ import numpy
 import scipy.special  # noqa: F401
 
 from numgrad._config import config
-from numgrad._variable import _ndarray_args, _ndarray_kwargs, Variable
+from numgrad._variable import Variable
 
 
 Node = namedtuple('Node', ('result', 'function', 'inputs', 'kwargs'))
@@ -78,22 +78,23 @@ class Graph(object):
         for node in reversed(self._node_list):
             if id(node.result) not in tensor_id_to_grad:
                 continue
-            if node.function not in config._registered_gradient_function:
+            if node.function not in config._registered_vjp_funcs:
                 raise NotImplementedError(
-                    f'Gradient of {node.function} is not registered yet.')
-            dargs = config._registered_gradient_function[node.function](
-                tensor_id_to_grad[id(node.result)],
-                node.result._data,
-                *_ndarray_args(*node.inputs),
-                **_ndarray_kwargs(**node.kwargs),
-            )
-            if not isinstance(dargs, tuple):
-                dargs = (dargs,)
-            for x, dx in zip(node.inputs, dargs):
+                    f'VJP of {node.function} is not registered yet.')
+            for x, vjp in zip(
+                node.inputs,
+                config._registered_vjp_funcs[node.function],
+            ):
+                if not isinstance(x, Variable):
+                    continue
+                dx = vjp(
+                    tensor_id_to_grad[id(node.result)],
+                    node.result, *node.inputs, **node.kwargs,
+                )
                 if dx is None:
                     continue
                 if id(x) in tensor_id_to_grad:
-                    tensor_id_to_grad[id(x)] += dx
-                elif isinstance(x, Variable):
-                    tensor_id_to_grad[id(x)] = np.ones_like(x._data) * dx
+                    tensor_id_to_grad[id(x)] = tensor_id_to_grad[id(x)] + dx
+                else:
+                    tensor_id_to_grad[id(x)] = +dx
         return tuple(tensor_id_to_grad.get(id(s), None) for s in sources)
