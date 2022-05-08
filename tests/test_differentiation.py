@@ -16,6 +16,15 @@ indexings = [
     (lambda a: a[::2], np.array([3, 1, 9])),
     (lambda a: a[np.array([0])], np.random.rand(4, 2, 3)),
 ]
+array_creation = [
+    (lambda a: np.diag(a), np.array([1, 2])),
+    (lambda a: np.diag(a, k=1), np.array([1, 2])),
+    (lambda a: np.diag(a, k=-2), np.array([1, 2])),
+    (lambda a: np.diag(a), np.random.rand(3, 3)),
+    (lambda a: np.diag(a), np.random.rand(2, 3)),
+    (lambda a: np.diag(a, k=1), np.random.rand(3, 3)),
+    (lambda a: np.diag(a, k=-1), np.random.rand(2, 3)),
+]
 array_manipulation = [
     (lambda a: a.reshape(2, 3), np.arange(6)),
     (lambda a: a.reshape(-1, 3), np.arange(6)),
