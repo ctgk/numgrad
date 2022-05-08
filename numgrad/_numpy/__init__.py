@@ -110,6 +110,13 @@ _register_vjp(np.arctanh, lambda dy, _y, x: dy / (1 - np.square(x)))
 
 # https://numpy.org/doc/stable/reference/routines.math.html#sums-products-differences
 _register_vjp(
+    np.prod,
+    lambda dy, y, x, axis=None, keepdims=False: (
+        _expand_to(dy, x.ndim, axis, keepdims)
+        * (y if keepdims else np.prod(x, axis, keepdims=True)) / x
+    ),
+)
+_register_vjp(
     np.sum,
     lambda dy, _y, x, axis=None, keepdims=False, **kwargs: _expand_to(
         dy, x.shape, axis, keepdims),

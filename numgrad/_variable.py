@@ -192,6 +192,11 @@ for method, func in (
             self, *args, **kwargs),
     ),
     (
+        'prod',
+        lambda self, *args, **kwargs: getattr(np, 'prod')(
+            self, *args, **kwargs),
+    ),
+    (
         'sum',
         lambda self, *args, **kwargs: getattr(np, 'sum')(
             self, *args, **kwargs),

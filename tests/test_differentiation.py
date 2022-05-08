@@ -120,6 +120,10 @@ hyperbolics = [
     (np.arctanh, np.random.uniform(-0.9, 0.9, (2,))),
 ]
 sum_products_differences = [
+    (lambda a: np.prod(a), 1),
+    (lambda a: a.prod(), [1, -1]),
+    (lambda a: np.prod(a, 1), np.random.rand(2, 3, 2)),
+    (lambda a: a.prod((0, 2), keepdims=True), np.random.rand(2, 3, 2)),
     (lambda a: np.sum(a), -1),
     (lambda a: np.sum(a), [-1, 1]),
     (lambda a: a.sum(axis=1), np.random.rand(3, 2)),
