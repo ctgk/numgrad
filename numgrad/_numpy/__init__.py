@@ -59,6 +59,8 @@ _register_vjp(np.squeeze, lambda dy, _y, x, axis=None: (
 _register_vjp(np.flip, lambda dy, _y, _x, axis=None: np.flip(dy, axis))
 _register_vjp(np.fliplr, lambda dy, _y, _x: np.fliplr(dy))
 _register_vjp(np.flipud, lambda dy, _y, _x: np.flipud(dy))
+_register_vjp(np.roll, lambda dy, _y, _x, shift, axis=None: np.roll(
+    dy, -shift if isinstance(shift, int) else [-s for s in shift], axis))
 
 
 # https://numpy.org/doc/stable/reference/routines.linalg.html

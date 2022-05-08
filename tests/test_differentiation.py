@@ -77,6 +77,13 @@ array_manipulation = [
     (lambda a: np.fliplr(a), np.random.rand(2, 3, 5)),
     (lambda a: np.flipud(a), np.diag([1, 2, 3])),
     (lambda a: np.flipud(a), np.random.rand(2, 3, 5)),
+    (lambda a: np.roll(a, 2), np.arange(10)),
+    (lambda a: np.roll(a, -3), np.arange(10)),
+    (lambda a: np.roll(a, 1), np.arange(10).reshape(2, 5)),
+    (lambda a: np.roll(a, -1), np.arange(10).reshape(2, 5)),
+    (lambda a: np.roll(a, 1, axis=0), np.arange(10).reshape(2, 5)),
+    (lambda a: np.roll(a, -1, axis=1), np.arange(10).reshape(2, 5)),
+    (lambda a: np.roll(a, (2, 1), axis=(1, 0)), np.arange(10).reshape(2, 5)),
 ]
 linear_algebra = [
     (lambda a: a @ [1, 2], [1, 2]),
