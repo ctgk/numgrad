@@ -24,6 +24,9 @@ array_creation = [
     (lambda a: np.diag(a), np.random.rand(2, 3)),
     (lambda a: np.diag(a, k=1), np.random.rand(3, 3)),
     (lambda a: np.diag(a, k=-1), np.random.rand(2, 3)),
+    (lambda a: np.diagflat(a), np.array([[1, 2], [3, 4]])),
+    (lambda a: np.diagflat(a), np.array([[1, 2, 3], [3, 4, 5]])),
+    (lambda a: np.diagflat(a, k=2), np.array([[1, 2, 3]])),
 ]
 array_manipulation = [
     (lambda a: a.reshape(2, 3), np.arange(6)),

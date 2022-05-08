@@ -21,6 +21,8 @@ Variable.__getitem__.__doc__ = np.ndarray.__getitem__.__doc__
 # https://numpy.org/doc/stable/reference/routines.array-creation.html#building-matrices
 _register_vjp(np.diag, lambda dy, _y, x, k=0: _unbroadcast_to(
     np.diag(dy, k=k), x.shape))
+_register_vjp(np.diagflat, lambda dy, _y, x, k=0: np.diag(dy, k=k).reshape(
+    *x.shape))
 
 
 # https://numpy.org/doc/stable/reference/routines.array-manipulation.html#changing-array-shape
