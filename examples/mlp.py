@@ -26,9 +26,9 @@ if __name__ == '__main__':
     x_train, x_test, y_train, y_test = train_test_split(
         x, y, test_size=10000, stratify=y)
 
-    w1 = ng.Variable(np.random.normal(scale=0.01, size=(28 * 28 * 1, 100)))
-    b1 = ng.Variable(np.random.normal(scale=0.01, size=100))
-    w2 = ng.Variable(np.random.normal(scale=0.1, size=(100, 10)))
+    w1 = ng.Variable(np.random.normal(scale=0.01, size=(28 * 28 * 1, 200)))
+    b1 = ng.Variable(np.random.normal(scale=0.01, size=200))
+    w2 = ng.Variable(np.random.normal(scale=0.1, size=(200, 10)))
     b2 = ng.Variable(np.random.normal(scale=0.1, size=10))
 
     for e in tqdm(range(1, 1 + args.epoch)):
@@ -48,6 +48,8 @@ if __name__ == '__main__':
         x_train, y_train = x_train[indices], y_train[indices]
 
     predictions = np.argmax(mlp(x_test, w1, b1, w2, b2), axis=-1)
-    print(f'Accuracy = {np.mean(y_test == predictions) * 100:g}%')
+    accuracy = np.mean(y_test == predictions)
+    assert accuracy > 0.9
+    print(f'Accuracy = {accuracy * 100:g}%')
     print('Ground Truth (row) x Prediction (col)')
     print(confusion_matrix(y_test, predictions))

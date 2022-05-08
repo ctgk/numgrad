@@ -1,3 +1,5 @@
+import warnings
+
 import numpy as np
 import pytest
 import scipy.special as sp
@@ -14,15 +16,77 @@ indexings = [
     (lambda a: a[::2], np.array([3, 1, 9])),
     (lambda a: a[np.array([0])], np.random.rand(4, 2, 3)),
 ]
+array_creation = [
+    (lambda a: np.diag(a), np.array([1, 2])),
+    (lambda a: np.diag(a, k=1), np.array([1, 2])),
+    (lambda a: np.diag(a, k=-2), np.array([1, 2])),
+    (lambda a: np.diag(a), np.random.rand(3, 3)),
+    (lambda a: np.diag(a), np.random.rand(2, 3)),
+    (lambda a: np.diag(a, k=1), np.random.rand(3, 3)),
+    (lambda a: np.diag(a, k=-1), np.random.rand(2, 3)),
+    (lambda a: np.diagflat(a), np.array([[1, 2], [3, 4]])),
+    (lambda a: np.diagflat(a), np.array([[1, 2, 3], [3, 4, 5]])),
+    (lambda a: np.diagflat(a, k=2), np.array([[1, 2, 3]])),
+    (lambda a: np.tril(a), np.random.rand(3, 3)),
+    (lambda a: np.tril(a, k=1), np.random.rand(3, 3)),
+    (lambda a: np.tril(a, k=-2), np.random.rand(3, 3)),
+    (lambda a: np.tril(a), np.random.rand(3, 5)),
+    (lambda a: np.tril(a), np.random.rand(5, 3)),
+    (lambda a: np.triu(a), np.random.rand(3, 3)),
+    (lambda a: np.triu(a, k=1), np.random.rand(3, 3)),
+    (lambda a: np.triu(a, k=-2), np.random.rand(3, 3)),
+    (lambda a: np.triu(a), np.random.rand(3, 5)),
+    (lambda a: np.triu(a), np.random.rand(5, 3)),
+]
 array_manipulation = [
     (lambda a: a.reshape(2, 3), np.arange(6)),
     (lambda a: a.reshape(-1, 3), np.arange(6)),
     (lambda a: np.reshape(a, (3, -1)), np.arange(6)),
+    (lambda a: a.ravel(), np.random.rand(2, 3)),
+    (lambda a: np.ravel(a), np.random.rand(2, 3)),
+    (lambda a: np.moveaxis(a, 0, 2), np.random.rand(4, 2, 3)),
+    (lambda a: np.moveaxis(a, 0, -1), np.random.rand(4, 2, 3)),
+    (lambda a: np.moveaxis(a, 1, 1), np.random.rand(4, 2, 3)),
+    (lambda a: np.moveaxis(a, -2, -1), np.random.rand(4, 2, 3)),
+    (lambda a: np.swapaxes(a, 0, 1), np.array([[1, 2, 3]])),
+    (lambda a: a.swapaxes(0, 2), np.arange(8).reshape(2, 2, 2)),
     (lambda a: np.transpose(a), np.random.rand(2, 3)),
     (lambda a: a.transpose(), np.random.rand(2, 3)),
     (lambda a: np.transpose(a, (0, 2, 1)), np.random.rand(2, 3, 4)),
     (lambda a: a.transpose(0, 2, 1), np.random.rand(2, 3, 4)),
     (lambda a: a.T, np.random.rand(2, 3)),
+    (lambda a: np.broadcast_to(a, 4), 5),
+    (lambda a: np.broadcast_to(a, 4), np.array([5])),
+    (lambda a: np.broadcast_to(a, (4, 2)), np.array([5])),
+    (lambda a: np.broadcast_to(a, (4, 2)), np.array([[5], [4], [3], [2]])),
+    (lambda a: np.expand_dims(a, 0), 1),
+    (lambda a: np.expand_dims(a, 0), np.array([1, 2])),
+    (lambda a: np.expand_dims(a, 1), np.array([1, 2])),
+    (lambda a: np.expand_dims(a, (0, 1)), np.array([1, 2])),
+    (lambda a: np.expand_dims(a, (2, 0)), np.array([1, 2])),
+    (lambda a: np.squeeze(a), 1),
+    (lambda a: np.squeeze(a), np.random.rand(1, 3, 1)),
+    (lambda a: a.squeeze(0), np.random.rand(1, 3, 1)),
+    (lambda a: np.squeeze(a, 2), np.random.rand(1, 3, 1)),
+    (lambda a: a.squeeze(), np.random.rand(1, 1)),
+    (lambda a: np.flip(a), np.random.rand(2, 2, 2)),
+    (lambda a: np.flip(a, 0), np.random.rand(2, 2, 2)),
+    (lambda a: np.flip(a, 1), np.random.rand(2, 2, 2)),
+    (lambda a: np.flip(a, (0, 2)), np.random.rand(2, 2, 2)),
+    (lambda a: np.fliplr(a), np.diag([1, 2, 3])),
+    (lambda a: np.fliplr(a), np.random.rand(2, 3, 5)),
+    (lambda a: np.flipud(a), np.diag([1, 2, 3])),
+    (lambda a: np.flipud(a), np.random.rand(2, 3, 5)),
+    (lambda a: np.roll(a, 2), np.arange(10)),
+    (lambda a: np.roll(a, -3), np.arange(10)),
+    (lambda a: np.roll(a, 1), np.arange(10).reshape(2, 5)),
+    (lambda a: np.roll(a, -1), np.arange(10).reshape(2, 5)),
+    (lambda a: np.roll(a, 1, axis=0), np.arange(10).reshape(2, 5)),
+    (lambda a: np.roll(a, -1, axis=1), np.arange(10).reshape(2, 5)),
+    (lambda a: np.roll(a, (2, 1), axis=(1, 0)), np.arange(10).reshape(2, 5)),
+    (lambda a: np.rot90(a), [[1, 2, 3], [3, 4, 5]]),
+    (lambda a: np.rot90(a, 2), [[1, 2, 3], [3, -1, 2]]),
+    (lambda a: np.rot90(a, 1, (1, 2)), np.arange(12).reshape(2, 3, 2)),
 ]
 linear_algebra = [
     (lambda a: a @ [1, 2], [1, 2]),
@@ -53,7 +117,7 @@ hyperbolics = [
     (np.tanh, np.random.uniform(-10, 10, (4, 2))),
     (np.arcsinh, np.random.uniform(-10, 10, (4, 2, 3))),
     (np.arccosh, np.random.uniform(1, 10, (5, 2))),
-    (np.arctanh, np.random.uniform(-1, 1, (2,))),
+    (np.arctanh, np.random.uniform(-0.9, 0.9, (2,))),
 ]
 sum_products_differences = [
     (lambda a: np.sum(a), -1),
@@ -107,6 +171,7 @@ arithmetics = [
     (np.divide, ([[1, 2]], [[1], [2]])),
     (np.true_divide, ([[1, 2]], [[1], [2]])),
     (lambda a: np.power(a, [[1], [-2]]), [[1, 2]]),
+    (lambda a: a ** [[1], [-2]], [[1, 2]]),
     (np.power, ([[1, 2]], [[1], [-2]])),
     (lambda a: np.float_power(a, [[1], [-2]]), [[1, 2]]),
     (np.float_power, ([[1, 2]], [[1], [-2]])),
@@ -119,14 +184,14 @@ extrema_finding = [
     (np.fmax, (np.nan, 3)),
     (np.fmax, (3, np.nan)),
     (np.fmax, ([1, np.nan, -1], [[-0.5], [0.5]])),
-    # (np.fmax, ([1, np.nan, -1], [[-0.5], [np.nan]])),
+    (np.fmax, ([1, np.nan, -1], [[-0.5], [np.nan]])),
     (np.amax, 9),
     (np.amax, [1, 2]),
     (np.max, 9),
     (np.max, [1, 2]),
     (lambda a: a.max(axis=1), np.random.rand(2, 3) * 10),
     (lambda a: a.max(axis=(0, 2), keepdims=True), np.random.rand(2, 4, 3)),
-    # (lambda a: np.nanmax(a), np.nan),
+    (lambda a: np.nanmax(a), np.nan),
     (lambda a: np.nanmax(a), [np.nan, 1]),
     (lambda a: np.nanmax(a, axis=0, keepdims=True), [np.nan, 1]),
     (np.minimum, (3, -1)),
@@ -136,16 +201,14 @@ extrema_finding = [
     (np.fmin, (np.nan, 3)),
     (np.fmin, (3, np.nan)),
     (np.fmin, ([1, np.nan, -1], [[-0.5], [0.5]])),
-    # (np.fmin, ([1, np.nan, -1], [[-0.5], [np.nan]])),
+    (np.fmin, ([1, np.nan, -1], [[-0.5], [np.nan]])),
     (np.amin, 9),
     (np.amin, [1, 2]),
     (np.min, 9),
     (np.min, [1, 2]),
     (lambda a: a.min(axis=1), np.random.rand(2, 3) * 10),
     (lambda a: a.min(axis=(0, 2), keepdims=True), np.random.rand(2, 4, 3)),
-    # (lambda a: np.nanmax(a), np.nan),
-    (lambda a: np.nanmax(a), [np.nan, 1]),
-    (lambda a: np.nanmax(a, axis=0, keepdims=True), [np.nan, 1]),
+    (lambda a: np.nanmin(a), np.nan),
     (lambda a: np.nanmin(a), [np.nan, 1]),
     (lambda a: np.nanmin(a, axis=0, keepdims=True), [np.nan, 1]),
 ]
@@ -153,6 +216,7 @@ miscellaneous = [
     (np.sqrt, [3, 0.5]),
     (np.cbrt, [3, 0.5]),
     (np.square, [2, -1]),
+    (lambda a: abs(a), [2, -1]),
     (np.abs, [2, -1]),
     (np.absolute, [2, -1]),
     (np.fabs, [2, -1]),
@@ -255,32 +319,34 @@ def test_computation_graph_gradient(parameters):
         parameters[1], tuple) else (parameters[1],)
     args = tuple(ng.Variable(a) for a in args)
 
-    return_type_of_function = type(f(*args))
-    assert return_type_of_function != ng.Variable
-    with ng.Graph() as g:
-        assert len(g._node_list) == 0
-        y = f(*args)
-    assert len(g._node_list) == 1
-    print(g._node_list[0].function)
-    assert type(y) == ng.Variable
-    if return_type_of_function == float:
-        assert type(y._data) == ng.config.dtype
-    else:
-        assert type(y._data) == return_type_of_function
+    with warnings.catch_warnings():
+        warnings.simplefilter('ignore')
+        return_type_of_function = type(f(*args))
+        assert return_type_of_function != ng.Variable
+        with ng.Graph() as g:
+            assert len(g._node_list) == 0
+            y = f(*args)
+        assert len(g._node_list) == 1
+        print(g._node_list[0].function)
+        assert type(y) == ng.Variable
+        if return_type_of_function == float:
+            assert type(y._data) == ng.config.dtype
+        else:
+            assert type(y._data) == return_type_of_function
 
-    assert type(f(*args)) == return_type_of_function
-    dargs_actual = g.gradient(y, args)
-    dargs_expected = _numerical_grad(f, *args)
-    for arg, actual, expected in zip(args, dargs_actual, dargs_expected):
-        assert type(arg._data) == type(actual)
-        assert np.allclose(expected, actual)
+        assert type(f(*args)) == return_type_of_function
+        dargs_actual = g.gradient(y, args)
+        dargs_expected = _numerical_grad(f, *args)
+        for arg, actual, expected in zip(args, dargs_actual, dargs_expected):
+            assert type(arg._data) == type(actual)
+            assert np.allclose(expected, actual)
 
-    with ng.Graph() as g:
-        y = np.nanmean(f(*args))
-    dargs_actual = g.gradient(y, args)
-    dargs_expected = _numerical_grad(lambda *a: np.nanmean(f(*a)), *args)
-    for actual, expected in zip(dargs_actual, dargs_expected):
-        assert np.allclose(expected, actual)
+        with ng.Graph() as g:
+            y = np.nanmean(f(*args))
+        dargs_actual = g.gradient(y, args)
+        dargs_expected = _numerical_grad(lambda *a: np.nanmean(f(*a)), *args)
+        for actual, expected in zip(dargs_actual, dargs_expected):
+            assert np.allclose(expected, actual)
 
 
 def test_computational_graph_gradient_error():
@@ -291,89 +357,43 @@ def test_computational_graph_gradient_error():
         g.gradient(b, [a])[0]
 
 
-@pytest.mark.parametrize('function, variables, args, kwargs, expect', [
-    (lambda a=3, b=-4: np.sqrt(a * a + b * b), 'a', (3,), {}, 0.6),
-    (lambda a, b=-4: np.sqrt(a * a + b * b), 'a', (), dict(a=3), dict(a=0.6)),
-    (lambda a, b=-4: np.sqrt(a * a + b * b), ('a', 'b'), (-3,), {}, -0.6),
-    (
-        lambda a, b=-4: np.sqrt(a * a + b * b), ('a', 'b'),
-        (-3, 4), {}, (-0.6, 0.8),
-    ),
-    (
-        lambda a, b=-4: np.sqrt(a * a + b * b), ('a', 'b'),
-        (-3,), dict(b=4), (-0.6, dict(b=0.8)),
-    ),
-    (
-        lambda *args: np.sqrt(sum(a * a for a in args)), 'args',
-        (3, 4), {}, (0.6, 0.8),
-    ),
-    (
-        lambda a, *args: np.sqrt(a * a + sum(a * a for a in args)), 'args',
-        (3, 4), {}, 0.8,
-    ),
+@pytest.mark.parametrize('function, args, kwargs, expect', [
+    (np.square, (-2,), {}, -4.),
+    (lambda a=3, b=-4: np.sqrt(a * a + b * b), (3,), {}, 0.6),
+    (lambda a, b=-4: np.sqrt(a * a + b * b), (-3,), {}, -0.6),
+    (lambda a, b=-4: np.sqrt(a * a + b * b), (-3, 4), {}, (-0.6, 0.8)),
+    (lambda a, b=-4: np.sqrt(a * a + b * b), (-3,), dict(b=4), -0.6),
+    (lambda *args: np.sqrt(sum(a * a for a in args)), (3, 4), {}, (0.6, 0.8)),
     (
         lambda a, *args: np.sqrt(a * a + sum(a * a for a in args)),
-        ('a', 'args'), (3, 4), {}, (0.6, 0.8),
-    ),
-    (
-        lambda *args, **kwargs: (
-            sum(a * a for a in args) + sum(a * a for a in kwargs.values())),
-        'kwargs', (1, np.sqrt(8)), dict(a=4), dict(a=8),
+        (3, 4), {}, (0.6, 0.8),
     ),
     (
         lambda *args, **kwargs: np.sqrt(
             sum(a * a for a in args) + sum(a * a for a in kwargs.values())),
-        ('args', 'kwargs'), (1, np.sqrt(8)), dict(a=4),
-        ((0.2, np.sqrt(8) / 5), dict(a=0.8)),
+        (1, np.sqrt(8)), dict(a=4),
+        ((0.2, np.sqrt(8) / 5)),
     ),
 ])
-def test_grad(function, variables, args, kwargs, expect):
-    actual = ng.grad(function, variables)(*args, **kwargs)
+def test_grad(function, args, kwargs, expect):
+    actual = ng.grad(function)(*args, **kwargs)
     if expect is None:
         assert actual is None
-    elif isinstance(expect, dict):
-        assert tuple(actual) == tuple(expect)
-        for k in expect.keys():
-            assert np.allclose(actual[k], expect[k])
     elif isinstance(expect, tuple):
-        if (
-            len(expect) == 2
-            and isinstance(expect[0], tuple)
-            and isinstance(expect[1], dict)
-        ):
-            assert len(actual) == 2
-            assert isinstance(actual[0], tuple)
-            assert len(actual[0]) == len(expect[0])
-            for a, e in zip(actual[0], expect[0]):
-                assert np.allclose(a, e)
-
-            assert isinstance(actual[1], dict)
-            assert tuple(actual[1]) == tuple(expect[1])
-            for k in expect[1].keys():
-                assert np.allclose(actual[1][k], expect[1][k])
-        elif (len(expect) == 2 and isinstance(expect[1], dict)):
-            assert len(actual) == 2
-            assert np.allclose(actual[0], expect[0])
-            assert isinstance(actual[1], dict)
-            assert tuple(actual[1]) == tuple(expect[1])
-            for k in expect[1].keys():
-                assert np.allclose(actual[1][k], expect[1][k])
-        else:
-            assert len(actual) == len(expect)
-            for a, e in zip(actual, expect):
-                assert np.allclose(a, e)
+        assert len(actual) == len(expect)
+        for a, e in zip(actual, expect):
+            assert np.allclose(a, e)
     else:
         assert np.allclose(actual, expect)
 
 
-@pytest.mark.parametrize('function, variables, args, kwargs, expect', [
-    (lambda a=3, b=-4: np.sqrt(a * a + b * b), None, (), {}, Exception),
-    (lambda a=3, b=-4: np.sqrt(a * a + b * b), 'a', (), {}, Exception),
-    (lambda a=3, b=-4: np.sqrt(a * a + b * b), 'b', (2,), {}, Exception),
+@pytest.mark.parametrize('function, args, kwargs, expect', [
+    (lambda a=3, b=-4: np.sqrt(a * a + b * b), (), {}, ValueError),
+    (lambda a, b=-4: np.sqrt(a * a + b * b), (), dict(a=3), ValueError),
 ])
-def test_grad_error(function, variables, args, kwargs, expect):
+def test_grad_error(function, args, kwargs, expect):
     with pytest.raises(expect):
-        ng.grad(function, variables)(*args, **kwargs)
+        ng.grad(function)(*args, **kwargs)
 
 
 if __name__ == '__main__':

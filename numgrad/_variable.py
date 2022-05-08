@@ -103,13 +103,6 @@ class Variable(object):
         return result
 
 
-for property_, func in (
-    ('dtype', property(lambda self: getattr(self._data, 'dtype'))),
-    ('T', property(lambda self: getattr(np, 'transpose')(self))),
-):
-    setattr(Variable, property_, func)
-
-
 def _inplace(self, inplace_op, other):
     if config._graph is None:
         getattr(self._data, inplace_op)(other)
@@ -124,7 +117,9 @@ for method, func in (
         '__array__',
         lambda self, dtype=None: np.asarray(self._data, dtype=dtype),
     ),
+    ('__contains__', lambda self, other: other in self._data),
     ('__float__', lambda self: float(self._data)),
+    ('__int__', lambda self: int(self._data)),
     ('__len__', lambda self: len(self._data)),
     (
         '__repr__',
@@ -135,10 +130,19 @@ for method, func in (
     ('__isub__', functools.partialmethod(_inplace, '__isub__')),
     ('__imul__', functools.partialmethod(_inplace, '__imul__')),
     ('__itruediv__', functools.partialmethod(_inplace, '__itruediv__')),
+    ('__imatmul__', functools.partialmethod(_inplace, '__imatmul__')),
+    ('dtype', property(lambda self: getattr(self._data, 'dtype'))),
+    ('item', lambda self: self._data.item()),
+    ('ndim', property(lambda self: self._data.ndim)),
+    ('shape', property(lambda self: getattr(self._data, 'shape'))),
+    ('size', property(lambda self: getattr(self._data, 'size'))),
+    ('T', property(lambda self: getattr(np, 'transpose')(self))),
+    ('tolist', lambda self: self._data.tolist()),
 
     # differentiable operations
     ('__pos__', lambda self: getattr(np, 'positive')(self)),
     ('__neg__', lambda self: getattr(np, 'negative')(self)),
+    ('__abs__', lambda self: getattr(np, 'absolute')(self)),
     ('__add__', lambda a, b: getattr(np, 'add')(a, b)),
     ('__radd__', lambda a, b: getattr(np, 'add')(a, b)),
     ('__sub__', lambda a, b: getattr(np, 'subtract')(a, b)),
@@ -147,12 +151,25 @@ for method, func in (
     ('__rmul__', lambda a, b: getattr(np, 'multiply')(a, b)),
     ('__truediv__', lambda a, b: getattr(np, 'divide')(a, b)),
     ('__rtruediv__', lambda a, b: getattr(np, 'divide')(b, a)),
+    ('__pow__', lambda a, b: getattr(np, 'power')(a, b)),
     ('__matmul__', lambda a, b: getattr(np, 'matmul')(a, b)),
     ('__rmatmul__', lambda a, b: getattr(np, 'matmul')(b, a)),
     (
         'reshape',
         lambda a, *args, **kwargs: getattr(np, 'reshape')(
             a, *(args if len(args) == 1 else (args,)), **kwargs),
+    ),
+    (
+        'ravel',
+        lambda a, *args, **kwargs: getattr(np, 'ravel')(a, *args, **kwargs),
+    ),
+    (
+        'swapaxes',
+        lambda a, *args, **kwargs: getattr(np, 'swapaxes')(a, *args, **kwargs),
+    ),
+    (
+        'squeeze',
+        lambda a, *args, **kwargs: getattr(np, 'squeeze')(a, *args, **kwargs),
     ),
     (
         'transpose',
@@ -183,5 +200,8 @@ for method, func in (
     setattr(Variable, method, func)
     setattr(
         getattr(Variable, method), '__doc__',
-        eval(f'np.ndarray.{method}').__doc__,
+        '\n'.join(
+            (line + ' # doctest: +SKIP' if '>>>' in line else line) for line in
+            eval(f'np.ndarray.{method}').__doc__.split('\n')
+        ),
     )

@@ -32,6 +32,41 @@ def test_ufunc():
     assert type(a + 0) == np.ndarray
 
 
+@pytest.mark.parametrize('function, expect', [
+    (lambda: np.asarray(ng.Variable([0, 1])), np.array([0., 1.])),
+    (lambda: 0. in ng.Variable(0.), TypeError),
+    (lambda: 0. in ng.Variable([0.]), True),
+    (lambda: 1. in ng.Variable([[0., 1.], [2., 3.]]), True),
+    (lambda: -1. not in ng.Variable([[0., 1.], [2., 3.]]), True),
+    (lambda: float(ng.Variable(-1)), -1.),
+    (lambda: float(ng.Variable([0, -1])), TypeError),
+    (lambda: int(ng.Variable(-1)), -1),
+    (lambda: int(ng.Variable([0, -1])), TypeError),
+    (lambda: len(ng.Variable(-1)), TypeError),
+    (lambda: len(ng.Variable([0, -1])), 2),
+    (lambda: ng.Variable(0.).item(), 0.),
+    (lambda: ng.Variable([0.]).item(), 0.),
+    (lambda: ng.Variable([0., 1.]).item(), ValueError),
+    (lambda: ng.Variable(1).ndim, 0),
+    (lambda: ng.Variable([0, 1]).ndim, 1),
+    (lambda: ng.Variable(0).shape, tuple()),
+    (lambda: ng.Variable([0, 1]).shape, (2,)),
+    (lambda: ng.Variable(0).size, 1),
+    (lambda: ng.Variable([0, 1]).size, 2),
+    (lambda: ng.Variable(0.).tolist(), 0.),
+    (lambda: ng.Variable([0., 1.]).tolist(), [0., 1.]),
+    (lambda: ng.Variable([[0., 1.], [2., 3.]]).tolist(), [[0., 1.], [2., 3.]]),
+])
+def test_method_and_property(function, expect):
+    if isinstance(expect, type) and issubclass(expect, Exception):
+        with pytest.raises(expect):
+            function()
+    elif isinstance(expect, np.ndarray):
+        assert np.allclose(expect, function())
+    else:
+        assert function() == expect
+
+
 @pytest.mark.parametrize('self, method, args', [
     (ng.Variable([1, -1]), '__iadd__', 1),
     (ng.Variable([1, -1]), '__isub__', 1),
