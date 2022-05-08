@@ -48,6 +48,8 @@ array_manipulation = [
     (lambda a: np.moveaxis(a, 0, -1), np.random.rand(4, 2, 3)),
     (lambda a: np.moveaxis(a, 1, 1), np.random.rand(4, 2, 3)),
     (lambda a: np.moveaxis(a, -2, -1), np.random.rand(4, 2, 3)),
+    (lambda a: np.swapaxes(a, 0, 1), np.array([[1, 2, 3]])),
+    (lambda a: a.swapaxes(0, 2), np.arange(8).reshape(2, 2, 2)),
     (lambda a: np.transpose(a), np.random.rand(2, 3)),
     (lambda a: a.transpose(), np.random.rand(2, 3)),
     (lambda a: np.transpose(a, (0, 2, 1)), np.random.rand(2, 3, 4)),

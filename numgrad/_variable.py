@@ -164,6 +164,10 @@ for method, func in (
         lambda a, *args, **kwargs: getattr(np, 'ravel')(a, *args, **kwargs),
     ),
     (
+        'swapaxes',
+        lambda a, *args, **kwargs: getattr(np, 'swapaxes')(a, *args, **kwargs),
+    ),
+    (
         'transpose',
         lambda a, *args, **kwargs: getattr(np, 'transpose')(
             a, *({0: tuple(), 1: args}.get(len(args), (args,))), **kwargs),

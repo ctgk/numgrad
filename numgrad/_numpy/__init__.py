@@ -36,6 +36,8 @@ _register_vjp(np.ravel, lambda dy, _y, x, order=None: dy.reshape(
 # https://numpy.org/doc/stable/reference/routines.array-manipulation.html#transpose-like-operations
 _register_vjp(np.moveaxis, lambda dy, _y, _x, source, destination: np.moveaxis(
     dy, source=destination, destination=source))
+_register_vjp(np.swapaxes, lambda dy, _y, _x, axis1, axis2: np.swapaxes(
+    dy, axis1, axis2))
 _register_vjp(
     np.transpose,
     lambda dy, _y, _x, axes=None: (
