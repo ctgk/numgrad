@@ -75,6 +75,8 @@ array_manipulation = [
     (lambda a: np.flip(a, (0, 2)), np.random.rand(2, 2, 2)),
     (lambda a: np.fliplr(a), np.diag([1, 2, 3])),
     (lambda a: np.fliplr(a), np.random.rand(2, 3, 5)),
+    (lambda a: np.flipud(a), np.diag([1, 2, 3])),
+    (lambda a: np.flipud(a), np.random.rand(2, 3, 5)),
 ]
 linear_algebra = [
     (lambda a: a @ [1, 2], [1, 2]),
@@ -105,7 +107,7 @@ hyperbolics = [
     (np.tanh, np.random.uniform(-10, 10, (4, 2))),
     (np.arcsinh, np.random.uniform(-10, 10, (4, 2, 3))),
     (np.arccosh, np.random.uniform(1, 10, (5, 2))),
-    (np.arctanh, np.random.uniform(-1, 1, (2,))),
+    (np.arctanh, np.random.uniform(-0.9, 0.9, (2,))),
 ]
 sum_products_differences = [
     (lambda a: np.sum(a), -1),
