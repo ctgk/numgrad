@@ -107,6 +107,7 @@ arithmetics = [
     (np.divide, ([[1, 2]], [[1], [2]])),
     (np.true_divide, ([[1, 2]], [[1], [2]])),
     (lambda a: np.power(a, [[1], [-2]]), [[1, 2]]),
+    (lambda a: a ** [[1], [-2]], [[1, 2]]),
     (np.power, ([[1, 2]], [[1], [-2]])),
     (lambda a: np.float_power(a, [[1], [-2]]), [[1, 2]]),
     (np.float_power, ([[1, 2]], [[1], [-2]])),

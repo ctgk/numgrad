@@ -151,6 +151,7 @@ for method, func in (
     ('__rmul__', lambda a, b: getattr(np, 'multiply')(a, b)),
     ('__truediv__', lambda a, b: getattr(np, 'divide')(a, b)),
     ('__rtruediv__', lambda a, b: getattr(np, 'divide')(b, a)),
+    ('__pow__', lambda a, b: getattr(np, 'power')(a, b)),
     ('__matmul__', lambda a, b: getattr(np, 'matmul')(a, b)),
     ('__rmatmul__', lambda a, b: getattr(np, 'matmul')(b, a)),
     (
