@@ -24,6 +24,7 @@ _register_vjp(np.diag, lambda dy, _y, x, k=0: _unbroadcast_to(
 _register_vjp(np.diagflat, lambda dy, _y, x, k=0: np.diag(dy, k=k).reshape(
     *x.shape))
 _register_vjp(np.tril, lambda dy, _y, _x, k=0: np.tril(dy, k))
+_register_vjp(np.triu, lambda dy, _y, _x, k=0: np.triu(dy, k))
 
 
 # https://numpy.org/doc/stable/reference/routines.array-manipulation.html#changing-array-shape

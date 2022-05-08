@@ -32,6 +32,11 @@ array_creation = [
     (lambda a: np.tril(a, k=-2), np.random.rand(3, 3)),
     (lambda a: np.tril(a), np.random.rand(3, 5)),
     (lambda a: np.tril(a), np.random.rand(5, 3)),
+    (lambda a: np.triu(a), np.random.rand(3, 3)),
+    (lambda a: np.triu(a, k=1), np.random.rand(3, 3)),
+    (lambda a: np.triu(a, k=-2), np.random.rand(3, 3)),
+    (lambda a: np.triu(a), np.random.rand(3, 5)),
+    (lambda a: np.triu(a), np.random.rand(5, 3)),
 ]
 array_manipulation = [
     (lambda a: a.reshape(2, 3), np.arange(6)),
