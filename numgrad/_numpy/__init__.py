@@ -55,6 +55,10 @@ _register_vjp(np.squeeze, lambda dy, _y, x, axis=None: (
     if axis is None else np.expand_dims(dy, axis)))
 
 
+# https://numpy.org/doc/stable/reference/routines.array-manipulation.html#rearranging-elements
+_register_vjp(np.flip, lambda dy, _y, _x, axis=None: np.flip(dy, axis))
+
+
 # https://numpy.org/doc/stable/reference/routines.linalg.html
 def _matmul_vjp_x1(dy, _y, x1, x2):
     x1, x2 = np.asarray(x1), np.asarray(x2)
