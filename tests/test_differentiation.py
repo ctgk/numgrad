@@ -128,6 +128,15 @@ sum_products_differences = [
     (lambda a: np.sum(a), [-1, 1]),
     (lambda a: a.sum(axis=1), np.random.rand(3, 2)),
     (lambda a: np.sum(a, (0, 2), keepdims=True), np.random.rand(4, 2, 3)),
+    (lambda a: np.nanprod(a), 1),
+    (lambda a: np.nanprod(a), np.nan),
+    (lambda a: np.nanprod(a), [np.nan, -1]),
+    (lambda a: np.nanprod(a, 1), [[1, 2, np.nan], [np.nan, np.nan, np.nan]]),
+    (
+        lambda a: np.nanprod(a, 0, keepdims=True),
+        [[1, 2, np.nan], [np.nan, np.nan, np.nan]],
+    ),
+    (lambda a: np.nanprod(a, (0, 2), keepdims=True), np.random.rand(2, 3, 2)),
 ]
 exponents_logarithms = [
     (np.exp, [-1, -0.2, 0.5, 2]),

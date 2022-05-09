@@ -121,6 +121,13 @@ _register_vjp(
     lambda dy, _y, x, axis=None, keepdims=False, **kwargs: _expand_to(
         dy, x.shape, axis, keepdims),
 )
+_register_vjp(
+    np.nanprod,
+    lambda dy, y, x, axis=None, keepdims=False, **kwargs: np.nan_to_num(
+        _expand_to(dy, x.ndim, axis, keepdims)
+        * (y if keepdims else np.nanprod(x, axis, keepdims=True)) / x,
+    ),
+)
 
 # https://numpy.org/doc/stable/reference/routines.math.html#exponents-and-logarithms
 _register_vjp(np.exp, lambda dy, y, _x: dy * y)
