@@ -127,46 +127,42 @@ _register_vjp(
 )
 _register_vjp(
     np.nanprod,
-    lambda dy, y, x, axis=None, keepdims=False, **kwargs: np.nan_to_num(
+    lambda dy, y, x, axis=None, keepdims=False, **kwargs: (
         _expand_to(dy, x.ndim, axis, keepdims)
-        * (y if keepdims else np.nanprod(x, axis, keepdims=True)) / x,
+        * (y if keepdims else np.nanprod(x, axis, keepdims=True)) / x
     ),
 )
 _register_vjp(
     np.nansum,
-    lambda dy, _y, x, axis=None, keepdims=False, **kwargs: np.where(
-        np.isnan(x), 0, _expand_to(dy, x.shape, axis, keepdims)),
+    lambda dy, _y, x, axis=None, keepdims=False, **kwargs: _expand_to(
+        dy, x.shape, axis, keepdims),
 )
 _register_vjp(
     np.cumprod,
-    lambda dy, y, x, axis=None, **kwargs: np.nan_to_num(  # noqa: U100
-        np.take(dy, 0) if x.ndim == 0 else np.flip(
-            np.cumsum(np.flip((dy * y).reshape(*x.shape), axis), axis).reshape(
-                *x.shape), axis) / x,
+    lambda dy, y, x, axis=None, **kwargs: (
+        dy if x.ndim == 0 else np.flip(np.cumsum(np.flip((dy * y).reshape(
+            *x.shape), axis), axis).reshape(*x.shape), axis) / x
     ),
 )
 _register_vjp(
     np.cumsum,
     lambda dy, _y, x, axis=None, **kwargs: (
-        np.take(dy, 0) if x.ndim == 0 else np.flip(
-            np.cumsum(np.flip(dy.reshape(*x.shape), axis), axis).reshape(
-                *x.shape), axis)
+        dy if x.ndim == 0 else np.flip(np.cumsum(np.flip(
+            dy.reshape(*x.shape), axis), axis).reshape(*x.shape), axis)
     ),
 )
 _register_vjp(
     np.nancumprod,
-    lambda dy, y, x, axis=None, **kwargs: np.nan_to_num(
-        (np.nan if np.isnan(x) is np.True_ else np.take(dy, 0))
-        if x.ndim == 0 else np.flip(np.cumsum(np.flip((dy * y).reshape(
-            *x.shape), axis), axis).reshape(*x.shape), axis) / x,
+    lambda dy, y, x, axis=None, **kwargs: (
+        dy if x.ndim == 0 else np.flip(np.cumsum(np.flip((dy * y).reshape(
+            *x.shape), axis), axis).reshape(*x.shape), axis) / x
     ),
 )
 _register_vjp(
     np.nancumsum,
-    lambda dy, _y, x, axis=None, **kwargs: np.nan_to_num(
-        (np.nan if np.isnan(x) is np.True_ else np.take(dy, 0))
-        if x.ndim == 0 else np.where(np.isnan(x), 0, np.flip(np.cumsum(np.flip(
-            dy.reshape(*x.shape), axis), axis).reshape(*x.shape), axis)),
+    lambda dy, _y, x, axis=None, **kwargs: (
+        dy if x.ndim == 0 else np.flip(np.cumsum(np.flip(
+            dy.reshape(*x.shape), axis), axis).reshape(*x.shape), axis)
     ),
 )
 

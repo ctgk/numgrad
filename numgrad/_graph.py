@@ -107,5 +107,5 @@ class Graph(object):
         if np.any(np.isnan(x)):
             dx = np.where(np.isnan(x), config.dtype(0), dx)
         if _isscalar(x):
-            dx = +dx
+            dx = np.take(dx, 0)
         return dx
