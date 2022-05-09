@@ -133,6 +133,13 @@ _register_vjp(
     lambda dy, _y, x, axis=None, keepdims=False, **kwargs: np.where(
         np.isnan(x), 0, _expand_to(dy, x.shape, axis, keepdims)),
 )
+_register_vjp(
+    np.cumprod,
+    lambda dy, y, x, axis=None, **kwargs: (  # noqa: U100
+        dx := np.flip(np.cumsum(np.flip(dy * y, axis), axis), axis) / x,
+        np.take(dx, 0) if x.ndim == 0 else dx,
+    )[1],
+)
 
 # https://numpy.org/doc/stable/reference/routines.math.html#exponents-and-logarithms
 _register_vjp(np.exp, lambda dy, y, _x: dy * y)
