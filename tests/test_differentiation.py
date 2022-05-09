@@ -150,6 +150,10 @@ sum_products_differences = [
     (lambda a: a.cumprod(), [1, -1]),
     (lambda a: np.cumprod(a, 1), np.random.rand(2, 3, 2)),
     (lambda a: a.cumprod(0), np.random.rand(2, 3, 2)),
+    (lambda a: np.cumsum(a), 1),
+    (lambda a: a.cumsum(), [1, -1]),
+    (lambda a: np.cumsum(a, 1), np.random.rand(2, 3, 2)),
+    (lambda a: a.cumsum(0), np.random.rand(2, 3, 2)),
 ]
 exponents_logarithms = [
     (np.exp, [-1, -0.2, 0.5, 2]),

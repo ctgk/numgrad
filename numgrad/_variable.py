@@ -206,6 +206,11 @@ for method, func in (
         lambda self, *args, **kwargs: getattr(np, 'cumprod')(
             self, *args, **kwargs),
     ),
+    (
+        'cumsum',
+        lambda self, *args, **kwargs: getattr(np, 'cumsum')(
+            self, *args, **kwargs),
+    ),
 ):
     setattr(Variable, method, func)
     setattr(

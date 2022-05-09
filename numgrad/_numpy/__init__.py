@@ -140,6 +140,13 @@ _register_vjp(
         np.take(dx, 0) if x.ndim == 0 else dx,
     )[1],
 )
+_register_vjp(
+    np.cumsum,
+    lambda dy, _y, x, axis=None, **kwargs: (
+        dx := np.flip(np.cumsum(np.flip(dy, axis), axis), axis),
+        np.take(dx, 0) if x.ndim == 0 else dx,
+    )[1],
+)
 
 # https://numpy.org/doc/stable/reference/routines.math.html#exponents-and-logarithms
 _register_vjp(np.exp, lambda dy, y, _x: dy * y)
