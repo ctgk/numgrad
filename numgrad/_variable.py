@@ -103,9 +103,9 @@ class Variable(object):
         return result
 
 
-def _inplace(self, inplace_op, other):
+def _inplace(self, inplace_op, *other):
     if config._graph is None:
-        getattr(self._data, inplace_op)(other)
+        getattr(self._data, inplace_op)(*other)
         return self
     else:
         raise ValueError(
@@ -126,6 +126,7 @@ for method, func in (
         lambda self: repr(self._data.view(
             type('Variable', (np.ndarray,), {}))),
     ),
+    ('__setitem__', functools.partialmethod(_inplace, '__setitem__')),
     ('__iadd__', functools.partialmethod(_inplace, '__iadd__')),
     ('__isub__', functools.partialmethod(_inplace, '__isub__')),
     ('__imul__', functools.partialmethod(_inplace, '__imul__')),
