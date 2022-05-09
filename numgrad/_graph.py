@@ -94,7 +94,7 @@ class Graph(object):
                 )
                 if dx is None:
                     raise ValueError(
-                        f'Cannot compute gradient of {node.function}')
+                        f'Differentiation error in {node.function}')
                 dx = self._postprocess_dx(dx, x)
                 if id(x) in tensor_id_to_grad:
                     tensor_id_to_grad[id(x)] = tensor_id_to_grad[id(x)] + dx

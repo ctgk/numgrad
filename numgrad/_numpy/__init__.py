@@ -87,6 +87,10 @@ def _matmul_vjp_x2(dy, _y, x1, x2):
 _register_vjp(np.matmul, _matmul_vjp_x1, _matmul_vjp_x2)
 
 
+# https://numpy.org/doc/stable/reference/routines.logic.html#array-contents
+_register_vjp(np.isnan, lambda *args, **kwargs: None)
+
+
 # https://numpy.org/doc/stable/reference/routines.math.html#trigonometric-functions
 _register_vjp(np.sin, lambda dy, _y, x: dy * np.cos(x))
 _register_vjp(np.cos, lambda dy, _y, x: dy * -np.sin(x))
@@ -135,17 +139,27 @@ _register_vjp(
 )
 _register_vjp(
     np.cumprod,
-    lambda dy, y, x, axis=None, **kwargs: (  # noqa: U100
-        dx := np.flip(np.cumsum(np.flip(dy * y, axis), axis), axis) / x,
-        np.take(dx, 0) if x.ndim == 0 else dx,
-    )[1],
+    lambda dy, y, x, axis=None, **kwargs: np.nan_to_num(  # noqa: U100
+        np.take(dy, 0) if x.ndim == 0 else np.flip(
+            np.cumsum(np.flip((dy * y).reshape(*x.shape), axis), axis).reshape(
+                *x.shape), axis) / x,
+    ),
 )
 _register_vjp(
     np.cumsum,
     lambda dy, _y, x, axis=None, **kwargs: (
-        dx := np.flip(np.cumsum(np.flip(dy, axis), axis), axis),
-        np.take(dx, 0) if x.ndim == 0 else dx,
-    )[1],
+        np.take(dy, 0) if x.ndim == 0 else np.flip(
+            np.cumsum(np.flip(dy.reshape(*x.shape), axis), axis).reshape(
+                *x.shape), axis)
+    ),
+)
+_register_vjp(
+    np.nancumprod,
+    lambda dy, y, x, axis=None, **kwargs: np.nan_to_num(
+        (np.nan if np.isnan(x) is np.True_ else np.take(dy, 0))
+        if x.ndim == 0 else np.flip(np.cumsum(np.flip((dy * y).reshape(
+            *x.shape), axis), axis).reshape(*x.shape), axis) / x,
+    ),
 )
 
 # https://numpy.org/doc/stable/reference/routines.math.html#exponents-and-logarithms
