@@ -96,5 +96,5 @@ class Graph(object):
                 if id(x) in tensor_id_to_grad:
                     tensor_id_to_grad[id(x)] = tensor_id_to_grad[id(x)] + dx
                 else:
-                    tensor_id_to_grad[id(x)] = +dx
+                    tensor_id_to_grad[id(x)] = +np.where(np.isnan(x), 0, dx)
         return tuple(tensor_id_to_grad.get(id(s), None) for s in sources)
