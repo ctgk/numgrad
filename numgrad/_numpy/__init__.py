@@ -161,6 +161,14 @@ _register_vjp(
             *x.shape), axis), axis).reshape(*x.shape), axis) / x,
     ),
 )
+_register_vjp(
+    np.nancumsum,
+    lambda dy, _y, x, axis=None, **kwargs: np.nan_to_num(
+        (np.nan if np.isnan(x) is np.True_ else np.take(dy, 0))
+        if x.ndim == 0 else np.where(np.isnan(x), 0, np.flip(np.cumsum(np.flip(
+            dy.reshape(*x.shape), axis), axis).reshape(*x.shape), axis)),
+    ),
+)
 
 # https://numpy.org/doc/stable/reference/routines.math.html#exponents-and-logarithms
 _register_vjp(np.exp, lambda dy, y, _x: dy * y)

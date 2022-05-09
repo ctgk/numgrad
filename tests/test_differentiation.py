@@ -160,6 +160,12 @@ sum_products_differences = [
     (lambda a: np.nancumprod(a), [np.nan, np.nan]),
     (lambda a: np.nancumprod(a, 1), [[2, np.nan, 3], [np.nan, 4, np.nan]]),
     (lambda a: np.nancumprod(a), [[2, np.nan, 3], [np.nan, 4, np.nan]]),
+    (lambda a: np.nancumsum(a), 1),
+    (lambda a: np.nancumsum(a), np.nan),
+    (lambda a: np.nancumsum(a), [np.nan, -1]),
+    (lambda a: np.nancumsum(a), [np.nan, np.nan]),
+    (lambda a: np.nancumsum(a, 1), [[2, np.nan, 3], [np.nan, 4, np.nan]]),
+    (lambda a: np.nancumsum(a), [[2, np.nan, 3], [np.nan, 4, np.nan]]),
 ]
 exponents_logarithms = [
     (np.exp, [-1, -0.2, 0.5, 2]),
