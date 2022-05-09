@@ -297,13 +297,9 @@ _register_vjp(
 _register_vjp(
     np.nanmean,
     lambda dy, _y, x, axis=None, *, keepdims=False: (
-        nan_mask := np.isnan(x),
-        np.where(
-            nan_mask, 0,
-            _expand_to(dy, x.shape, axis, keepdims) / np.sum(
-                ~nan_mask, axis, keepdims=True),
-        ),
-    )[1],
+        _expand_to(dy, x.shape, axis, keepdims) / np.sum(
+            ~np.isnan(x), axis, keepdims=True)
+    ),
 )
 
 

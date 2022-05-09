@@ -6,6 +6,7 @@ import numpy
 import scipy.special  # noqa: F401
 
 from numgrad._config import config
+from numgrad._utils._isscalar import _isscalar
 from numgrad._variable import Variable
 
 
@@ -92,9 +93,19 @@ class Graph(object):
                     node.result, *node.inputs, **node.kwargs,
                 )
                 if dx is None:
-                    continue
+                    raise ValueError(
+                        f'Cannot compute gradient of {node.function}')
+                dx = self._postprocess_dx(dx, x)
                 if id(x) in tensor_id_to_grad:
                     tensor_id_to_grad[id(x)] = tensor_id_to_grad[id(x)] + dx
                 else:
-                    tensor_id_to_grad[id(x)] = +np.where(np.isnan(x), 0, dx)
+                    tensor_id_to_grad[id(x)] = dx
         return tuple(tensor_id_to_grad.get(id(s), None) for s in sources)
+
+    @staticmethod
+    def _postprocess_dx(dx, x):
+        if np.any(np.isnan(x)):
+            dx = np.where(np.isnan(x), config.dtype(0), dx)
+        if _isscalar(x):
+            dx = +dx
+        return dx
