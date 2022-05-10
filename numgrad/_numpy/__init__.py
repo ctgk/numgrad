@@ -19,12 +19,27 @@ Variable.__getitem__.__doc__ = np.ndarray.__getitem__.__doc__
 
 
 # https://numpy.org/doc/stable/reference/routines.array-creation.html#building-matrices
-_register_vjp(np.diag, lambda dy, _y, x, k=0: _unbroadcast_to(
-    np.diag(dy, k=k), x.shape))
+_register_vjp(
+    np.diag,
+    lambda dy, _y, x, k=0: (
+        dx := np.diag(dy, k=k),
+        dx if x.shape == dx.shape else np.pad(
+            dx, ((0, x.shape[0] - dx.shape[0]), (0, x.shape[1] - dx.shape[1])),
+        ),
+    )[1],
+)
 _register_vjp(np.diagflat, lambda dy, _y, x, k=0: np.diag(dy, k=k).reshape(
     *x.shape))
 _register_vjp(np.tril, lambda dy, _y, _x, k=0: np.tril(dy, k))
 _register_vjp(np.triu, lambda dy, _y, _x, k=0: np.triu(dy, k))
+_register_vjp(
+    np.vander,
+    lambda dy, y, x, N=None, increasing=False: (
+        N := len(x) if N is None else N,
+        np.sum(dy[:, 1:] * y[:, :-1] * range(1, N), -1) if increasing
+        else np.sum(dy[:, :-1] * y[:, 1:] * range(1, N)[::-1], -1),
+    )[1],
+)
 
 
 # https://numpy.org/doc/stable/reference/routines.array-manipulation.html#changing-array-shape

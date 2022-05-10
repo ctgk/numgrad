@@ -37,6 +37,11 @@ array_creation = [
     (lambda a: np.triu(a, k=-2), np.random.rand(3, 3)),
     (lambda a: np.triu(a), np.random.rand(3, 5)),
     (lambda a: np.triu(a), np.random.rand(5, 3)),
+    (lambda a: np.vander(a), np.array([-1, 2, -3])),
+    (lambda a: np.vander(a, 0), np.array([-1, 2, -3])),
+    (lambda a: np.vander(a, 1), np.array([-1, 2, -3])),
+    (lambda a: np.vander(a, 2), np.array([-1, 2, -3])),
+    (lambda a: np.vander(a, 4, True), np.array([-1, 2, -3])),
 ]
 array_manipulation = [
     (lambda a: a.reshape(2, 3), np.arange(6)),
@@ -334,6 +339,7 @@ scipy_specials = [
             *indexings,
         ),
         *(  # routines
+            *array_creation,
             *array_manipulation,
             *linear_algebra,
             *(  # mathematical functions
