@@ -84,6 +84,14 @@ _register_vjp(np.rot90, lambda dy, _y, _x, k=1, axes=(0, 1): np.rot90(
 
 
 # https://numpy.org/doc/stable/reference/routines.linalg.html
+_register_vjp(
+    np.outer,
+    lambda dy, _y, x1, x2: np.sum(dy * np.ravel(x2), -1).reshape(x1.shape),
+    lambda dy, _y, x1, x2: np.sum(dy * np.ravel(x1)[None, ...], -1).reshape(
+        x2.shape),
+)
+
+
 def _matmul_vjp_x1(dy, _y, x1, x2):
     x1, x2 = np.asarray(x1), np.asarray(x2)
     if x2.ndim == 1:

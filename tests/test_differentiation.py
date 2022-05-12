@@ -95,6 +95,12 @@ array_manipulation = [
     (lambda a: np.rot90(a, 1, (1, 2)), np.arange(12).reshape(2, 3, 2)),
 ]
 linear_algebra = [
+    (lambda a, b: np.outer(a, b), (1, 2)),
+    (lambda a, b: np.outer(a, b), ([1, 2, 3], [-1, 0, 1])),
+    (
+        lambda a, b: a @ np.outer(b, [1, 2, 3]),
+        (np.random.rand(2, 3), [-1, 0, 1]),
+    ),
     (lambda a: a @ [1, 2], [1, 2]),
     (lambda a: np.matmul(a, [1, 2]), [[1, 2], [3, 4]]),
     (lambda a: a @ [[1, 2], [3, 4]], [1, 2]),
@@ -373,9 +379,7 @@ def test_computation_graph_gradient(parameters):
         return_type_of_function = type(f(*args))
         assert return_type_of_function != ng.Variable
         with ng.Graph() as g:
-            assert len(g._node_list) == 0
             y = f(*args)
-        assert len(g._node_list) == 1
         print(g._node_list[0].function)
         assert type(y) == ng.Variable
         if return_type_of_function == float:
