@@ -139,6 +139,11 @@ _register_vjp(
     )[-1],
 )
 _register_vjp(
+    np.vdot,
+    lambda dy, _y, x1, x2: (dy * x2).reshape(x1.shape),
+    lambda dy, _y, x1, x2: (dy * x1).reshape(x2.shape),
+)
+_register_vjp(
     np.outer,
     lambda dy, _y, x1, x2: np.sum(dy * np.ravel(x2), -1).reshape(x1.shape),
     lambda dy, _y, x1, x2: np.sum(dy * np.ravel(x1)[None, ...], -1).reshape(
