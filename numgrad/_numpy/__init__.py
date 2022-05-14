@@ -200,6 +200,13 @@ _register_vjp(
     )[-1],
 )
 
+# https://numpy.org/doc/stable/reference/routines.linalg.html#norms-and-other-numbers
+_register_vjp(
+    np.linalg.det,
+    lambda dy, y, x: (dy * y)[..., None, None] * np.linalg.inv(
+        np.swapaxes(x, -1, -2)),
+)
+
 
 # https://numpy.org/doc/stable/reference/routines.logic.html#array-contents
 _register_vjp(np.isnan, lambda *args, **kwargs: None)

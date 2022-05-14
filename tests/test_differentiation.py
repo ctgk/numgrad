@@ -132,6 +132,8 @@ linear_algebra = [
     (lambda a, b: a @ b, ([[1, 2], [3, 4]], [1, 2])),
     (lambda a, b: np.matmul(a, b), ([[1, 2], [3, 4]], [[1, 2], [3, 4]])),
     (lambda a, b: a @ b, (np.random.rand(3, 4, 2), [[1, 2], [3, 4]])),
+    (lambda a: np.linalg.det(a), np.eye(2)),
+    (lambda a: np.linalg.det(a), np.random.rand(2, 3, 3) + np.eye(3) * 10),
 ]
 trigonometrics = [
     (np.cos, np.random.uniform(-10, 10, (3, 2))),
