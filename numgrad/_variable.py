@@ -83,7 +83,7 @@ class Variable(object):
             *_ndarray_args(*inputs), **_ndarray_kwargs(**kwargs))
         if result is NotImplemented:
             return NotImplemented
-        if config._graph is not None:
+        if config._graph is not None and ufunc in config._func2vjps:
             result = Variable(result)
             config._graph._add_node(
                 result,
@@ -97,7 +97,7 @@ class Variable(object):
         if config._verbosity > 0:
             print('inputs of __array_function__:', func, types, args, kwargs)
         result = func(*_ndarray_args(*args), **_ndarray_kwargs(**kwargs))
-        if config._graph is not None:
+        if config._graph is not None and func in config._func2vjps:
             result = Variable(result)
             config._graph._add_node(result, func, *args, **kwargs)
         return result

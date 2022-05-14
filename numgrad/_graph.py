@@ -14,7 +14,30 @@ Node = namedtuple('Node', ('result', 'function', 'inputs', 'kwargs'))
 
 
 class Graph(object):
-    """Computational graph."""
+    """Computational graph that stores forward path to backprop through.
+
+    Examples
+    --------
+    >>> x = ng.Variable(1)
+    >>> with ng.Graph() as g:
+    ...     # Here, numpy and scipy functions are differentiable
+    ...     y = np.tanh(x)
+    ...
+    >>> y
+    0.7615941559557649
+    >>> g.gradient(y, [x])
+    (0.41997434161402614,)
+    >>>
+    >>> with ng.Graph() as g:
+    ...     y = np.isnan(x)
+    ...
+    >>> y
+    False
+    >>> g.gradient(y, [x])  # fails to differentiate through `np.isnan`
+    Traceback (most recent call last):
+    ...
+    TypeError: `target` of `numgrad.Graph.gradient()` must ...
+    """
 
     def __init__(self):
         """Construct computational graph."""
@@ -113,11 +136,6 @@ class Graph(object):
     def _get_grads(vjp: callable, node: Node, id2grad: dict):
         dx = vjp(
             id2grad[id(node.result)], node.result, *node.inputs, **node.kwargs)
-        if dx is None:
-            specifier = f'{vjp._nth}th' if hasattr(vjp, '_nth') else 'an'
-            raise ValueError(
-                f'Failed to backprop through {node.function} for '
-                f'{specifier} argument')
         return dx
 
     @staticmethod

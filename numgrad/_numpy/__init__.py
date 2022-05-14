@@ -207,11 +207,6 @@ _register_vjp(
         np.swapaxes(x, -1, -2)),
 )
 
-
-# https://numpy.org/doc/stable/reference/routines.logic.html#array-contents
-_register_vjp(np.isnan, lambda *args, **kwargs: None)
-
-
 # https://numpy.org/doc/stable/reference/routines.math.html#trigonometric-functions
 _register_vjp(np.sin, lambda dy, _y, x: dy * np.cos(x))
 _register_vjp(np.cos, lambda dy, _y, x: dy * -np.sin(x))
