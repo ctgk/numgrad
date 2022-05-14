@@ -65,47 +65,73 @@ class Graph(object):
             Target to be differentiated.
         sources : tp.Union[tp.List[Variable], tp.Tuple[Variable, ...]]
             Source tensors to differentiated against.
+
         Returns
         -------
         tp.Tuple[np.ndarray]
             Gradients of target with respect to each source.
         """
-        if not isinstance(target, Variable):
-            raise TypeError(
-                '`target` must be an instance of `ng.Variable`, '
-                f'not {type(target)}')
-        tensor_id_to_grad: tp.Dict[int, np.ndarray] = {}
-        tensor_id_to_grad[id(target)] = np.ones_like(target._data)
+        self._check_type_of_target_and_sources(target, sources)
+        id2grad = {id(target): np.ones_like(target._data)}
         for node in reversed(self._node_list):
-            if id(node.result) not in tensor_id_to_grad:
-                continue
-            if node.function not in config._registered_vjp_funcs:
-                raise NotImplementedError(
-                    f'VJP of {node.function} is not registered yet.')
-            for x, vjp in zip(
-                node.inputs,
-                config._registered_vjp_funcs[node.function],
-            ):
+            self._can_backprop_node(node, id2grad)
+            for x, vjp in zip(node.inputs, config._func2vjps[node.function]):
                 if not isinstance(x, Variable):
                     continue
-                dx = vjp(
-                    tensor_id_to_grad[id(node.result)],
-                    node.result, *node.inputs, **node.kwargs,
-                )
-                if dx is None:
-                    raise ValueError(
-                        f'Differentiation error in {node.function}')
-                dx = self._postprocess_dx(dx, x)
-                if id(x) in tensor_id_to_grad:
-                    tensor_id_to_grad[id(x)] = tensor_id_to_grad[id(x)] + dx
-                else:
-                    tensor_id_to_grad[id(x)] = dx
-        return tuple(tensor_id_to_grad.get(id(s), None) for s in sources)
+                dx = self._get_grads(vjp, node, id2grad)
+                self._accumulate_grad(id2grad, dx, x)
+        return tuple(id2grad.get(id(s), None) for s in sources)
 
     @staticmethod
-    def _postprocess_dx(dx, x):
+    def _check_type_of_target_and_sources(target, sources):
+        if not isinstance(target, Variable):
+            raise TypeError(
+                '`target` of `numgrad.Graph.gradient()` must be an instance '
+                f'of `ng.Variable`, not {type(target)}')
+        if not isinstance(sources, (tuple, list)):
+            raise TypeError(
+                '`sources` of `numgrad.Graph.gradient()` must be list or '
+                f'tuple of numgrad.Variable, not {type(sources)}')
+        for s in sources:
+            if not isinstance(s, Variable):
+                raise TypeError(
+                    '`sources` of `numgrad.Graph.gradient()` must be list or '
+                    'tuple of numgrad.Variable, '
+                    f'but contained an instance of {type(s)}')
+
+    @staticmethod
+    def _can_backprop_node(node: Node, id2grad: dict):
+        if id(node.result) not in id2grad:
+            return False
+        if node.function not in config._func2vjps:
+            raise NotImplementedError(
+                f'Cannot backprop through {node.function}, '
+                'VJP of the function is not registered yet.')
+        return True
+
+    @staticmethod
+    def _get_grads(vjp: callable, node: Node, id2grad: dict):
+        dx = vjp(
+            id2grad[id(node.result)], node.result, *node.inputs, **node.kwargs)
+        if dx is None:
+            specifier = f'{vjp._nth}th' if hasattr(vjp, '_nth') else 'an'
+            raise ValueError(
+                f'Failed to backprop through {node.function} for '
+                f'{specifier} argument')
+        return dx
+
+    @staticmethod
+    def _postprocess_nan_and_type(dx, x):
         if np.any(np.isnan(x)):
             dx = np.where(np.isnan(x), config.dtype(0), dx)
         if _isscalar(x):
             dx = np.take(dx, 0)
         return dx
+
+    @classmethod
+    def _accumulate_grad(cls, id2grad: dict, dx, x):
+        dx = cls._postprocess_nan_and_type(dx, x)
+        if id(x) in id2grad:
+            id2grad[id(x)] = id2grad[id(x)] + dx
+        else:
+            id2grad[id(x)] = dx

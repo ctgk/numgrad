@@ -36,7 +36,7 @@ def _register_vjp(
             patched,
         )
 
-    config._registered_vjp_funcs[forward] = vjp_funcs
+    config._func2vjps[forward] = vjp_funcs
 
 
 def differentiable(*vjp_funcs: callable) -> callable:
@@ -75,7 +75,7 @@ def differentiable(*vjp_funcs: callable) -> callable:
     """
 
     def decorator(forward):
-        config._registered_vjp_funcs[forward] = vjp_funcs
+        config._func2vjps[forward] = vjp_funcs
 
         @functools.wraps(forward)
         def wrapped_forward(*args, **kwargs):

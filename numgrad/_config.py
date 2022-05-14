@@ -21,8 +21,7 @@ class Config(_Singleton):
         self._verbosity: int = 0
         self._patched_function: tp.Dict[
             callable, tp.Tuple[str, str, callable]] = {}
-        self._registered_vjp_funcs: tp.Dict[
-            tp.Callable, tp.Tuple[tp.Callable, ...]] = {}
+        self._func2vjps: tp.Dict[tp.Callable, tp.Tuple[tp.Callable, ...]] = {}
 
     @property
     def dtype(self) -> type:
