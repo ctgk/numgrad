@@ -84,6 +84,60 @@ _register_vjp(np.rot90, lambda dy, _y, _x, k=1, axes=(0, 1): np.rot90(
 
 
 # https://numpy.org/doc/stable/reference/routines.linalg.html
+_matmul_0d_0d_vjp_x1 = lambda dy, _x1, x2: dy * x2  # noqa: E731
+_matmul_0d_0d_vjp_x2 = lambda dy, x1, _x2: dy * x1  # noqa: E731
+
+_matmul_1d_1d_vjp_x1 = lambda dy, _x1, x2: dy * x2  # noqa: E731
+_matmul_1d_1d_vjp_x2 = lambda dy, x1, _x2: dy * x1  # noqa: E731
+_matmul_1d_nd_vjp_x1 = lambda dy, x1, x2: _unbroadcast_to(  # noqa: E731
+    (dy[..., None, :] * x2).sum(-1), x1.shape)
+_matmul_1d_nd_vjp_x2 = lambda dy, x1, x2: np.broadcast_to(  # noqa: E731
+    dy[..., None, :], x2.shape) * x1[:, None]
+
+_matmul_nd_1d_vjp_x1 = lambda dy, x1, x2: np.broadcast_to(  # noqa: E731
+    dy[..., None] * x2, x1.shape)
+_matmul_nd_1d_vjp_x2 = lambda dy, x1, x2: _unbroadcast_to(  # noqa: E731
+    dy[..., None] * x1, x2.shape)
+_matmul_nd_nd_vjp_x1 = lambda dy, x1, x2: _unbroadcast_to(  # noqa: E731
+    dy @ np.swapaxes(x2, -1, -2), x1.shape)
+_matmul_nd_nd_vjp_x2 = lambda dy, x1, x2: _unbroadcast_to(  # noqa: E731
+    np.swapaxes(x1, -1, -2) @ dy, x2.shape)
+
+_dot_0d_0d_vjp_x1 = _matmul_0d_0d_vjp_x1
+_dot_0d_0d_vjp_x2 = _matmul_0d_0d_vjp_x2
+_dot_1d_1d_vjp_x1 = _matmul_1d_1d_vjp_x1
+_dot_1d_1d_vjp_x2 = _matmul_1d_1d_vjp_x2
+_dot_1d_nd_vjp_x1 = _matmul_1d_nd_vjp_x1
+_dot_1d_nd_vjp_x2 = _matmul_1d_nd_vjp_x2
+_dot_nd_1d_vjp_x1 = _matmul_nd_1d_vjp_x1
+_dot_nd_1d_vjp_x2 = _matmul_nd_1d_vjp_x2
+_dot_nd_nd_vjp_x1 = lambda dy, _x1, x2: (  # noqa: E731
+    dy[..., None] * np.moveaxis(x2, -2, -1)).sum(
+        tuple(-i - 2 for i in range(x2.ndim - 1)))
+_dot_nd_nd_vjp_x2 = lambda dy, x1, x2: np.swapaxes(  # noqa: E731
+    np.tensordot(
+        dy, x1,
+        [range(-x1.ndim - x2.ndim + 2, -x2.ndim + 1), range(x1.ndim - 1)],
+    ), -1, -2,
+)
+
+_register_vjp(
+    np.dot,
+    lambda dy, _y, x1, x2: (
+        x1 := np.asarray(x1),
+        x2 := np.asarray(x2),
+        d1 := 'n' if (x1.ndim > 1) else x1.ndim,
+        d2 := 'n' if (x2.ndim > 1) else x2.ndim,
+        eval(f'_dot_{d1}d_{d2}d_vjp_x1')(dy, x1, x2),
+    )[-1],
+    lambda dy, _y, x1, x2: (
+        x1 := np.asarray(x1),
+        x2 := np.asarray(x2),
+        d1 := 'n' if (x1.ndim > 1) else x1.ndim,
+        d2 := 'n' if (x2.ndim > 1) else x2.ndim,
+        eval(f'_dot_{d1}d_{d2}d_vjp_x2')(dy, x1, x2),
+    )[-1],
+)
 _register_vjp(
     np.outer,
     lambda dy, _y, x1, x2: np.sum(dy * np.ravel(x2), -1).reshape(x1.shape),
@@ -92,25 +146,23 @@ _register_vjp(
 )
 
 
-def _matmul_vjp_x1(dy, _y, x1, x2):
-    x1, x2 = np.asarray(x1), np.asarray(x2)
-    if x2.ndim == 1:
-        return np.broadcast_to(dy[..., None], x1.shape) * x2
-    if x1.ndim == 1:
-        return _unbroadcast_to((dy[..., None, :] * x2).sum(-1), x1.shape)
-    return _unbroadcast_to(dy @ np.swapaxes(x2, -1, -2), x1.shape)
-
-
-def _matmul_vjp_x2(dy, _y, x1, x2):
-    x1, x2 = np.asarray(x1), np.asarray(x2)
-    if x2.ndim == 1:
-        return _unbroadcast_to(dy[..., None] * x1, x2.shape)
-    if x1.ndim == 1:
-        return np.broadcast_to(dy[..., None, :], x2.shape) * x1[:, None]
-    return _unbroadcast_to(np.swapaxes(x1, -1, -2) @ dy, x2.shape)
-
-
-_register_vjp(np.matmul, _matmul_vjp_x1, _matmul_vjp_x2)
+_register_vjp(
+    np.matmul,
+    lambda dy, _y, x1, x2: (
+        x1 := np.asarray(x1),
+        x2 := np.asarray(x2),
+        d1 := 'n' if (x1.ndim > 1) else x1.ndim,
+        d2 := 'n' if (x2.ndim > 1) else x2.ndim,
+        eval(f'_matmul_{d1}d_{d2}d_vjp_x1')(dy, x1, x2),
+    )[-1],
+    lambda dy, _y, x1, x2: (
+        x1 := np.asarray(x1),
+        x2 := np.asarray(x2),
+        d1 := 'n' if (x1.ndim > 1) else x1.ndim,
+        d2 := 'n' if (x2.ndim > 1) else x2.ndim,
+        eval(f'_matmul_{d1}d_{d2}d_vjp_x2')(dy, x1, x2),
+    )[-1],
+)
 
 
 # https://numpy.org/doc/stable/reference/routines.logic.html#array-contents

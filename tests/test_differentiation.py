@@ -95,6 +95,14 @@ array_manipulation = [
     (lambda a: np.rot90(a, 1, (1, 2)), np.arange(12).reshape(2, 3, 2)),
 ]
 linear_algebra = [
+    (lambda a, b: np.dot(a, b), (1, 2)),
+    (lambda a, b: np.dot(a, b), ([1, 2], [-1, 1])),
+    (lambda a, b: np.dot(a, b), ([1, 2], np.random.rand(4, 2, 3))),
+    (lambda a, b: np.dot(a, b), (np.random.rand(3, 2), [1, 2])),
+    (
+        lambda a, b: np.dot(a, b),
+        (np.random.rand(3, 2, 4), np.random.rand(5, 4, 1)),
+    ),
     (lambda a, b: np.outer(a, b), (1, 2)),
     (lambda a, b: np.outer(a, b), ([1, 2, 3], [-1, 0, 1])),
     (
