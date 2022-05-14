@@ -121,6 +121,20 @@ _dot_nd_nd_vjp_x2 = lambda dy, x1, x2: np.swapaxes(  # noqa: E731
     ), -1, -2,
 )
 
+_inner_0d_0d_vjp_x1 = _matmul_0d_0d_vjp_x1
+_inner_0d_0d_vjp_x2 = _matmul_0d_0d_vjp_x2
+_inner_1d_1d_vjp_x1 = _matmul_1d_1d_vjp_x1
+_inner_1d_1d_vjp_x2 = _matmul_1d_1d_vjp_x2
+_inner_1d_nd_vjp_x1 = lambda dy, x1, x2: _unbroadcast_to(  # noqa: E731
+    dy[..., None] * x2, x1.shape)
+_inner_1d_nd_vjp_x2 = lambda dy, x1, _x2: dy[..., None] * x1  # noqa: E731
+_inner_nd_1d_vjp_x1 = _matmul_nd_1d_vjp_x1
+_inner_nd_1d_vjp_x2 = _matmul_nd_1d_vjp_x2
+_inner_nd_nd_vjp_x1 = lambda dy, _x1, x2: (  # noqa: E731
+    dy[..., None] * x2).sum(tuple(-i - 2 for i in range(x2.ndim - 1)))
+_inner_nd_nd_vjp_x2 = lambda dy, x1, x2: np.tensordot(  # noqa: E731
+    dy, x1, [range(-x1.ndim - x2.ndim + 2, -x2.ndim + 1), range(x1.ndim - 1)])
+
 _register_vjp(
     np.dot,
     lambda dy, _y, x1, x2: (
@@ -142,6 +156,23 @@ _register_vjp(
     np.vdot,
     lambda dy, _y, x1, x2: (dy * x2).reshape(x1.shape),
     lambda dy, _y, x1, x2: (dy * x1).reshape(x2.shape),
+)
+_register_vjp(
+    np.inner,
+    lambda dy, _y, x1, x2: (
+        x1 := np.asarray(x1),
+        x2 := np.asarray(x2),
+        d1 := 'n' if (x1.ndim > 1) else x1.ndim,
+        d2 := 'n' if (x2.ndim > 1) else x2.ndim,
+        eval(f'_inner_{d1}d_{d2}d_vjp_x1')(dy, x1, x2),
+    )[-1],
+    lambda dy, _y, x1, x2: (
+        x1 := np.asarray(x1),
+        x2 := np.asarray(x2),
+        d1 := 'n' if (x1.ndim > 1) else x1.ndim,
+        d2 := 'n' if (x2.ndim > 1) else x2.ndim,
+        eval(f'_inner_{d1}d_{d2}d_vjp_x2')(dy, x1, x2),
+    )[-1],
 )
 _register_vjp(
     np.outer,

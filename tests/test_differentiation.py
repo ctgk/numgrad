@@ -108,6 +108,14 @@ linear_algebra = [
     (lambda a, b: np.vdot(a, b), (1, 2)),
     (lambda a, b: np.vdot(a, b), ([1, 2], [2, 3])),
     (lambda a, b: np.vdot(a, b), (np.random.rand(2, 6), np.random.rand(4, 3))),
+    (lambda a, b: np.inner(a, b), (2, 3)),
+    (lambda a, b: np.inner(a, b), ([2, 3], [-1, 2])),
+    (lambda a, b: np.inner(a, b), (np.random.rand(4, 3, 2), [-1, 2])),
+    (lambda a, b: np.inner(a, b), ([-1, 2], np.random.rand(4, 3, 2))),
+    (
+        lambda a, b: np.inner(a, b),
+        (np.random.rand(2, 3, 2), np.random.rand(4, 2)),
+    ),
     (lambda a, b: np.outer(a, b), (1, 2)),
     (lambda a, b: np.outer(a, b), ([1, 2, 3], [-1, 0, 1])),
     (
