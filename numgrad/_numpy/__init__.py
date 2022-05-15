@@ -74,6 +74,16 @@ _register_vjp(np.squeeze, lambda dy, _y, x, axis=None: (
 
 # https://numpy.org/doc/stable/reference/routines.array-manipulation.html#splitting-arrays
 _register_vjp(
+    np.split,
+    lambda dy, _y, _x, indices_or_sections, axis=0: (  # noqa: U100
+        np.concatenate(dy, axis=axis)),
+)
+_register_vjp(
+    np.array_split,
+    lambda dy, _y, _x, indices_or_sections, axis=0: (  # noqa: U100
+        np.concatenate(dy, axis=axis)),
+)
+_register_vjp(
     np.dsplit,
     lambda dy, _y, _x, indices_or_sections: (  # noqa: U100
         np.concatenate(dy, axis=2)),

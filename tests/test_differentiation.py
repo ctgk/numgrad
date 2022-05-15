@@ -75,6 +75,18 @@ array_manipulation = [
     (lambda a: a.squeeze(0), np.random.rand(1, 3, 1)),
     (lambda a: np.squeeze(a, 2), np.random.rand(1, 3, 1)),
     (lambda a: a.squeeze(), np.random.rand(1, 1)),
+    (lambda a: sum(np.split(a, 2)), np.random.rand(2, 3, 4)),
+    (
+        lambda a: sum(r.prod() for r in np.split(a, [3, 6], 2)),
+        np.random.rand(2, 2, 4),
+    ),
+    (lambda a: sum(np.split(a, 3, axis=-1)), np.random.rand(2, 2, 4, 6)),
+    (lambda a: sum(np.array_split(a, 1)), np.random.rand(2, 3, 4)),
+    (
+        lambda a: sum(r.prod() for r in np.array_split(a, [3, 6], 2)),
+        np.random.rand(2, 2, 4),
+    ),
+    (lambda a: sum(np.array_split(a, 3, axis=-1)), np.random.rand(2, 2, 4, 6)),
     (lambda a: sum(np.dsplit(a, 2)), np.random.rand(2, 3, 4)),
     (
         lambda a: sum(r.prod() for r in np.dsplit(a, np.array([3, 6]))),
