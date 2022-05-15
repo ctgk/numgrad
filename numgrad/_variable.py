@@ -74,7 +74,7 @@ class Variable(object):
             )
         if ufunc.nout != 1:
             raise NotImplementedError
-        if method not in ('__call__', 'reduce'):
+        if method not in ('__call__',):
             raise NotImplementedError
 
         if out:
@@ -83,29 +83,32 @@ class Variable(object):
             *_ndarray_args(*inputs), **_ndarray_kwargs(**kwargs))
         if result is NotImplemented:
             return NotImplemented
-        if config._graph is not None:
-            result = Variable(result)
-            config._graph._add_node(
-                result,
-                ufunc if method == '__call__' else getattr(ufunc, method),
-                *inputs, **kwargs,
-            )
-        return result
+        return self._postprocess(result, ufunc, *inputs, **kwargs)
 
     def __array_function__(self, func, types, args, kwargs):  # noqa: D105
         # https://numpy.org/devdocs/user/basics.dispatch.html
         if config._verbosity > 0:
             print('inputs of __array_function__:', func, types, args, kwargs)
         result = func(*_ndarray_args(*args), **_ndarray_kwargs(**kwargs))
-        if config._graph is not None:
-            result = Variable(result)
+        return self._postprocess(result, func, *args, **kwargs)
+
+    @staticmethod
+    def _postprocess(result, func, *args, **kwargs):
+        if config._graph is not None and func in config._func2vjps:
+            if isinstance(result, (tuple, list)):
+                result = tuple(
+                    Variable(r) if r.dtype == config.dtype else r
+                    for r in result
+                )
+            else:
+                result = Variable(result)
             config._graph._add_node(result, func, *args, **kwargs)
         return result
 
 
-def _inplace(self, inplace_op, other):
+def _inplace(self, inplace_op, *other):
     if config._graph is None:
-        getattr(self._data, inplace_op)(other)
+        getattr(self._data, inplace_op)(*other)
         return self
     else:
         raise ValueError(
@@ -126,6 +129,7 @@ for method, func in (
         lambda self: repr(self._data.view(
             type('Variable', (np.ndarray,), {}))),
     ),
+    ('__setitem__', functools.partialmethod(_inplace, '__setitem__')),
     ('__iadd__', functools.partialmethod(_inplace, '__iadd__')),
     ('__isub__', functools.partialmethod(_inplace, '__isub__')),
     ('__imul__', functools.partialmethod(_inplace, '__imul__')),
@@ -192,8 +196,23 @@ for method, func in (
             self, *args, **kwargs),
     ),
     (
+        'prod',
+        lambda self, *args, **kwargs: getattr(np, 'prod')(
+            self, *args, **kwargs),
+    ),
+    (
         'sum',
         lambda self, *args, **kwargs: getattr(np, 'sum')(
+            self, *args, **kwargs),
+    ),
+    (
+        'cumprod',
+        lambda self, *args, **kwargs: getattr(np, 'cumprod')(
+            self, *args, **kwargs),
+    ),
+    (
+        'cumsum',
+        lambda self, *args, **kwargs: getattr(np, 'cumsum')(
             self, *args, **kwargs),
     ),
 ):

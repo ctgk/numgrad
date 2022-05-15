@@ -72,6 +72,7 @@ def test_method_and_property(function, expect):
     (ng.Variable([1, -1]), '__isub__', 1),
     (ng.Variable([1, -1]), '__imul__', 2),
     (ng.Variable([1, -1]), '__itruediv__', 2),
+    (ng.Variable([1, -1]), '__setitem__', (0, 2)),
 ])
 def test_inplace(self, method, args):
     if not isinstance(args, tuple):

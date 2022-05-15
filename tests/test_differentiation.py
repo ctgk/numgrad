@@ -37,6 +37,11 @@ array_creation = [
     (lambda a: np.triu(a, k=-2), np.random.rand(3, 3)),
     (lambda a: np.triu(a), np.random.rand(3, 5)),
     (lambda a: np.triu(a), np.random.rand(5, 3)),
+    (lambda a: np.vander(a), np.array([-1, 2, -3])),
+    (lambda a: np.vander(a, 0), np.array([-1, 2, -3])),
+    (lambda a: np.vander(a, 1), np.array([-1, 2, -3])),
+    (lambda a: np.vander(a, 2), np.array([-1, 2, -3])),
+    (lambda a: np.vander(a, 4, True), np.array([-1, 2, -3])),
 ]
 array_manipulation = [
     (lambda a: a.reshape(2, 3), np.arange(6)),
@@ -44,6 +49,7 @@ array_manipulation = [
     (lambda a: np.reshape(a, (3, -1)), np.arange(6)),
     (lambda a: a.ravel(), np.random.rand(2, 3)),
     (lambda a: np.ravel(a), np.random.rand(2, 3)),
+    (lambda a: a.flatten(), np.random.rand(3, 2)),
     (lambda a: np.moveaxis(a, 0, 2), np.random.rand(4, 2, 3)),
     (lambda a: np.moveaxis(a, 0, -1), np.random.rand(4, 2, 3)),
     (lambda a: np.moveaxis(a, 1, 1), np.random.rand(4, 2, 3)),
@@ -69,6 +75,36 @@ array_manipulation = [
     (lambda a: a.squeeze(0), np.random.rand(1, 3, 1)),
     (lambda a: np.squeeze(a, 2), np.random.rand(1, 3, 1)),
     (lambda a: a.squeeze(), np.random.rand(1, 1)),
+    (lambda a: sum(np.split(a, 2)), np.random.rand(2, 3, 4)),
+    (
+        lambda a: sum(r.prod() for r in np.split(a, [3, 6], 2)),
+        np.random.rand(2, 2, 4),
+    ),
+    (lambda a: sum(np.split(a, 3, axis=-1)), np.random.rand(2, 2, 4, 6)),
+    (lambda a: sum(np.array_split(a, 1)), np.random.rand(2, 3, 4)),
+    (
+        lambda a: sum(r.prod() for r in np.array_split(a, [3, 6], 2)),
+        np.random.rand(2, 2, 4),
+    ),
+    (lambda a: sum(np.array_split(a, 3, axis=-1)), np.random.rand(2, 2, 4, 6)),
+    (lambda a: sum(np.dsplit(a, 2)), np.random.rand(2, 3, 4)),
+    (
+        lambda a: sum(r.prod() for r in np.dsplit(a, np.array([3, 6]))),
+        np.random.rand(2, 2, 4),
+    ),
+    (lambda a: sum(np.dsplit(a, 2)), np.random.rand(2, 2, 4, 6)),
+    (lambda a: sum(np.hsplit(a, 2)), np.random.rand(3, 2, 4)),
+    (
+        lambda a: sum(r.prod() for r in np.hsplit(a, np.array([3, 6]))),
+        np.random.rand(2, 4, 2),
+    ),
+    (lambda a: sum(np.hsplit(a, 2)), np.random.rand(2, 2, 4, 6)),
+    (lambda a: sum(np.vsplit(a, 2)), np.random.rand(2, 3, 4)),
+    (
+        lambda a: sum(r.prod() for r in np.vsplit(a, np.array([3, 6]))),
+        np.random.rand(4, 2, 2),
+    ),
+    (lambda a: sum(np.vsplit(a, 2)), np.random.rand(2, 2, 4, 6)),
     (lambda a: np.flip(a), np.random.rand(2, 2, 2)),
     (lambda a: np.flip(a, 0), np.random.rand(2, 2, 2)),
     (lambda a: np.flip(a, 1), np.random.rand(2, 2, 2)),
@@ -85,10 +121,37 @@ array_manipulation = [
     (lambda a: np.roll(a, -1, axis=1), np.arange(10).reshape(2, 5)),
     (lambda a: np.roll(a, (2, 1), axis=(1, 0)), np.arange(10).reshape(2, 5)),
     (lambda a: np.rot90(a), [[1, 2, 3], [3, 4, 5]]),
-    (lambda a: np.rot90(a, 2), [[1, 2, 3], [3, -1, 2]]),
+    (lambda a: np.rot90(a, 2), [[np.nan, 2, 3], [3, -1, 2]]),
     (lambda a: np.rot90(a, 1, (1, 2)), np.arange(12).reshape(2, 3, 2)),
 ]
 linear_algebra = [
+    (lambda a, b: np.dot(a, b), (1, 2)),
+    (lambda a, b: np.dot(a, b), ([1, 2], [-1, 1])),
+    (lambda a, b: np.dot(a, b), ([1, 2], np.random.rand(4, 2, 3))),
+    (lambda a, b: np.dot(a, b), (np.random.rand(3, 2), [1, 2])),
+    (
+        lambda a, b: np.dot(a, b),
+        (np.random.rand(3, 2, 4), np.random.rand(5, 4, 1)),
+    ),
+    (lambda a: np.vdot(a, 2), 1),
+    (lambda a: np.vdot(2, a), 1),
+    (lambda a, b: np.vdot(a, b), (1, 2)),
+    (lambda a, b: np.vdot(a, b), ([1, 2], [2, 3])),
+    (lambda a, b: np.vdot(a, b), (np.random.rand(2, 6), np.random.rand(4, 3))),
+    (lambda a, b: np.inner(a, b), (2, 3)),
+    (lambda a, b: np.inner(a, b), ([2, 3], [-1, 2])),
+    (lambda a, b: np.inner(a, b), (np.random.rand(4, 3, 2), [-1, 2])),
+    (lambda a, b: np.inner(a, b), ([-1, 2], np.random.rand(4, 3, 2))),
+    (
+        lambda a, b: np.inner(a, b),
+        (np.random.rand(2, 3, 2), np.random.rand(4, 2)),
+    ),
+    (lambda a, b: np.outer(a, b), (1, 2)),
+    (lambda a, b: np.outer(a, b), ([1, 2, 3], [-1, 0, 1])),
+    (
+        lambda a, b: a @ np.outer(b, [1, 2, 3]),
+        (np.random.rand(2, 3), [-1, 0, 1]),
+    ),
     (lambda a: a @ [1, 2], [1, 2]),
     (lambda a: np.matmul(a, [1, 2]), [[1, 2], [3, 4]]),
     (lambda a: a @ [[1, 2], [3, 4]], [1, 2]),
@@ -99,11 +162,13 @@ linear_algebra = [
     (lambda a, b: a @ b, ([[1, 2], [3, 4]], [1, 2])),
     (lambda a, b: np.matmul(a, b), ([[1, 2], [3, 4]], [[1, 2], [3, 4]])),
     (lambda a, b: a @ b, (np.random.rand(3, 4, 2), [[1, 2], [3, 4]])),
+    (lambda a: np.linalg.det(a), np.eye(2)),
+    (lambda a: np.linalg.det(a), np.random.rand(2, 3, 3) + np.eye(3) * 10),
 ]
 trigonometrics = [
     (np.cos, np.random.uniform(-10, 10, (3, 2))),
     (np.sin, np.random.uniform(-10, 10, (2, 5))),
-    (np.tan, np.random.uniform(-10, 10, (4, 1))),
+    (np.tan, np.arctan(np.random.uniform(-2, 2, (4, 1)))),
     (np.arcsin, np.random.uniform(-1, 1, (3, 4))),
     (np.arccos, np.random.uniform(-1, 1, (3, 4))),
     (np.arctan, np.random.uniform(-10, 10, (5, 3))),
@@ -120,10 +185,52 @@ hyperbolics = [
     (np.arctanh, np.random.uniform(-0.9, 0.9, (2,))),
 ]
 sum_products_differences = [
+    (lambda a: np.prod(a), 1),
+    (lambda a: a.prod(), [1, -1]),
+    (lambda a: np.prod(a, 1), np.random.rand(2, 3, 2)),
+    (lambda a: a.prod((0, 2), keepdims=True), np.random.rand(2, 3, 2)),
     (lambda a: np.sum(a), -1),
     (lambda a: np.sum(a), [-1, 1]),
     (lambda a: a.sum(axis=1), np.random.rand(3, 2)),
     (lambda a: np.sum(a, (0, 2), keepdims=True), np.random.rand(4, 2, 3)),
+    (lambda a: np.nanprod(a), 1),
+    (lambda a: np.nanprod(a), np.nan),
+    (lambda a: np.nanprod(a), [np.nan, -1]),
+    (lambda a: np.nanprod(a, 1), [[1, 2, np.nan], [np.nan, np.nan, np.nan]]),
+    (
+        lambda a: np.nanprod(a, 0, keepdims=True),
+        [[1, 2, np.nan], [np.nan, np.nan, np.nan]],
+    ),
+    (lambda a: np.nanprod(a, (0, 2), keepdims=True), np.random.rand(2, 3, 2)),
+    (lambda a: np.nansum(a), 1),
+    (lambda a: np.nansum(a), np.nan),
+    (lambda a: np.nansum(a), [np.nan, -1]),
+    (lambda a: np.nansum(a, 1), [[1, 2, np.nan], [np.nan, np.nan, np.nan]]),
+    (
+        lambda a: np.nansum(a, 0, keepdims=True),
+        [[1, 2, np.nan], [np.nan, np.nan, np.nan]],
+    ),
+    (lambda a: np.nansum(a, (0, 2), keepdims=True), np.random.rand(2, 3, 2)),
+    (lambda a: np.cumprod(a), 1),
+    (lambda a: a.cumprod(), [1, -1]),
+    (lambda a: np.cumprod(a), np.random.rand(2, 3, 2)),
+    (lambda a: a.cumprod(0), np.random.rand(2, 3, 2)),
+    (lambda a: np.cumsum(a), 1),
+    (lambda a: a.cumsum(), [1, -1]),
+    (lambda a: np.cumsum(a), np.random.rand(2, 3, 2)),
+    (lambda a: a.cumsum(0), np.random.rand(2, 3, 2)),
+    (lambda a: np.nancumprod(a), 1),
+    (lambda a: np.nancumprod(a), np.nan),
+    (lambda a: np.nancumprod(a), [np.nan, -1]),
+    (lambda a: np.nancumprod(a), [np.nan, np.nan]),
+    (lambda a: np.nancumprod(a, 1), [[2, np.nan, 3], [np.nan, 4, np.nan]]),
+    (lambda a: np.nancumprod(a), [[2, np.nan, 3], [np.nan, 4, np.nan]]),
+    (lambda a: np.nancumsum(a), 1),
+    (lambda a: np.nancumsum(a), np.nan),
+    (lambda a: np.nancumsum(a), [np.nan, -1]),
+    (lambda a: np.nancumsum(a), [np.nan, np.nan]),
+    (lambda a: np.nancumsum(a, 1), [[2, np.nan, 3], [np.nan, 4, np.nan]]),
+    (lambda a: np.nancumsum(a), [[2, np.nan, 3], [np.nan, 4, np.nan]]),
 ]
 exponents_logarithms = [
     (np.exp, [-1, -0.2, 0.5, 2]),
@@ -292,6 +399,7 @@ scipy_specials = [
             *indexings,
         ),
         *(  # routines
+            *array_creation,
             *array_manipulation,
             *linear_algebra,
             *(  # mathematical functions
@@ -324,9 +432,7 @@ def test_computation_graph_gradient(parameters):
         return_type_of_function = type(f(*args))
         assert return_type_of_function != ng.Variable
         with ng.Graph() as g:
-            assert len(g._node_list) == 0
             y = f(*args)
-        assert len(g._node_list) == 1
         print(g._node_list[0].function)
         assert type(y) == ng.Variable
         if return_type_of_function == float:
