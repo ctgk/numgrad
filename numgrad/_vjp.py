@@ -14,29 +14,36 @@ def _register_vjp(
     module_name: str = None,
     func_name: str = None,
 ):
-    if not isinstance(forward, np.ufunc):
-
-        def patched(*args, **kwargs):
-            result = forward(
-                *_ndarray_args(*args), **_ndarray_kwargs(**kwargs))
-            if any(
-                isinstance(a, Variable) for a
-                in itertools.chain(args, kwargs.values())
-            ) and config._graph is not None:
-                result = Variable(result)
-                config._graph._add_node(result, forward, *args, **kwargs)
-            return result
-
-        config._patched_function[forward] = (
-            module_name if module_name is not None else '.'.join(
-                m for m in forward.__module__.split('.')
-                if not m.startswith('_')
-            ),
-            forward.__name__ if func_name is None else func_name,
-            patched,
-        )
 
     config._func2vjps[forward] = vjp_funcs
+
+    if isinstance(forward, np.ufunc):
+        return
+    if (
+        hasattr(forward, '__code__')
+        and '__array_function__' in repr(forward.__code__)
+    ):
+        return
+
+    def patched(*args, **kwargs):
+        result = forward(
+            *_ndarray_args(*args), **_ndarray_kwargs(**kwargs))
+        if any(
+            isinstance(a, Variable) for a
+            in itertools.chain(args, kwargs.values())
+        ) and config._graph is not None:
+            result = Variable(result)
+            config._graph._add_node(result, forward, *args, **kwargs)
+        return result
+
+    config._patched_function[forward] = (
+        module_name if module_name is not None else '.'.join(
+            m for m in forward.__module__.split('.')
+            if not m.startswith('_')
+        ),
+        forward.__name__ if func_name is None else func_name,
+        patched,
+    )
 
 
 def differentiable(*vjp_funcs: callable) -> callable:
