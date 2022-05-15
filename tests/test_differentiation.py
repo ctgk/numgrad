@@ -81,6 +81,12 @@ array_manipulation = [
         np.random.rand(2, 2, 4),
     ),
     (lambda a: sum(np.dsplit(a, 2)), np.random.rand(2, 2, 4, 6)),
+    (lambda a: sum(np.hsplit(a, 2)), np.random.rand(3, 2, 4)),
+    (
+        lambda a: sum(r.prod() for r in np.hsplit(a, np.array([3, 6]))),
+        np.random.rand(2, 4, 2),
+    ),
+    (lambda a: sum(np.hsplit(a, 2)), np.random.rand(2, 2, 4, 6)),
     (lambda a: np.flip(a), np.random.rand(2, 2, 2)),
     (lambda a: np.flip(a, 0), np.random.rand(2, 2, 2)),
     (lambda a: np.flip(a, 1), np.random.rand(2, 2, 2)),

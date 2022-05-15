@@ -78,6 +78,11 @@ _register_vjp(
     lambda dy, _y, _x, indices_or_sections: (  # noqa: U100
         np.concatenate(dy, axis=2)),
 )
+_register_vjp(
+    np.hsplit,
+    lambda dy, _y, _x, indices_or_sections: (  # noqa: U100
+        np.concatenate(dy, axis=1)),
+)
 
 # https://numpy.org/doc/stable/reference/routines.array-manipulation.html#rearranging-elements
 _register_vjp(np.flip, lambda dy, _y, _x, axis=None: np.flip(dy, axis))
