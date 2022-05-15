@@ -72,6 +72,12 @@ _register_vjp(np.squeeze, lambda dy, _y, x, axis=None: (
     np.expand_dims(dy, [ax for ax, len_ in enumerate(x.shape) if len_ == 1])
     if axis is None else np.expand_dims(dy, axis)))
 
+# https://numpy.org/doc/stable/reference/routines.array-manipulation.html#splitting-arrays
+_register_vjp(
+    np.dsplit,
+    lambda dy, _y, _x, indices_or_sections: (  # noqa: U100
+        np.concatenate(dy, axis=2)),
+)
 
 # https://numpy.org/doc/stable/reference/routines.array-manipulation.html#rearranging-elements
 _register_vjp(np.flip, lambda dy, _y, _x, axis=None: np.flip(dy, axis))

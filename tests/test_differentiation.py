@@ -75,6 +75,12 @@ array_manipulation = [
     (lambda a: a.squeeze(0), np.random.rand(1, 3, 1)),
     (lambda a: np.squeeze(a, 2), np.random.rand(1, 3, 1)),
     (lambda a: a.squeeze(), np.random.rand(1, 1)),
+    (lambda a: sum(np.dsplit(a, 2)), np.random.rand(2, 3, 4)),
+    (
+        lambda a: sum(r.prod() for r in np.dsplit(a, np.array([3, 6]))),
+        np.random.rand(2, 2, 4),
+    ),
+    (lambda a: sum(np.dsplit(a, 2)), np.random.rand(2, 2, 4, 6)),
     (lambda a: np.flip(a), np.random.rand(2, 2, 2)),
     (lambda a: np.flip(a, 0), np.random.rand(2, 2, 2)),
     (lambda a: np.flip(a, 1), np.random.rand(2, 2, 2)),
@@ -138,7 +144,7 @@ linear_algebra = [
 trigonometrics = [
     (np.cos, np.random.uniform(-10, 10, (3, 2))),
     (np.sin, np.random.uniform(-10, 10, (2, 5))),
-    (np.tan, np.random.uniform(-10, 10, (4, 1))),
+    (np.tan, np.arctan(np.random.uniform(-2, 2, (4, 1)))),
     (np.arcsin, np.random.uniform(-1, 1, (3, 4))),
     (np.arccos, np.random.uniform(-1, 1, (3, 4))),
     (np.arctan, np.random.uniform(-10, 10, (5, 3))),
