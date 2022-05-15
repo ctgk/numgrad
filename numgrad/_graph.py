@@ -134,8 +134,11 @@ class Graph(object):
 
     @staticmethod
     def _get_grads(vjp: callable, node: Node, id2grad: dict):
-        dx = vjp(
-            id2grad[id(node.result)], node.result, *node.inputs, **node.kwargs)
+        if isinstance(node.result, tuple):
+            dy = tuple(id2grad.get(id(r), None) for r in node.result)
+        else:
+            dy = id2grad[id(node.result)]
+        dx = vjp(dy, node.result, *node.inputs, **node.kwargs)
         return dx
 
     @staticmethod

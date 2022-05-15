@@ -74,7 +74,7 @@ class Variable(object):
             )
         if ufunc.nout != 1:
             raise NotImplementedError
-        if method not in ('__call__', 'reduce'):
+        if method not in ('__call__',):
             raise NotImplementedError
 
         if out:
@@ -83,22 +83,25 @@ class Variable(object):
             *_ndarray_args(*inputs), **_ndarray_kwargs(**kwargs))
         if result is NotImplemented:
             return NotImplemented
-        if config._graph is not None and ufunc in config._func2vjps:
-            result = Variable(result)
-            config._graph._add_node(
-                result,
-                ufunc if method == '__call__' else getattr(ufunc, method),
-                *inputs, **kwargs,
-            )
-        return result
+        return self._postprocess(result, ufunc, *inputs, **kwargs)
 
     def __array_function__(self, func, types, args, kwargs):  # noqa: D105
         # https://numpy.org/devdocs/user/basics.dispatch.html
         if config._verbosity > 0:
             print('inputs of __array_function__:', func, types, args, kwargs)
         result = func(*_ndarray_args(*args), **_ndarray_kwargs(**kwargs))
+        return self._postprocess(result, func, *args, **kwargs)
+
+    @staticmethod
+    def _postprocess(result, func, *args, **kwargs):
         if config._graph is not None and func in config._func2vjps:
-            result = Variable(result)
+            if isinstance(result, (tuple, list)):
+                result = tuple(
+                    Variable(r) if r.dtype == config.dtype else r
+                    for r in result
+                )
+            else:
+                result = Variable(result)
             config._graph._add_node(result, func, *args, **kwargs)
         return result
 

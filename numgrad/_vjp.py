@@ -31,9 +31,8 @@ def _register_vjp(
         if any(
             isinstance(a, Variable) for a
             in itertools.chain(args, kwargs.values())
-        ) and config._graph is not None:
-            result = Variable(result)
-            config._graph._add_node(result, forward, *args, **kwargs)
+        ):
+            result = Variable._postprocess(result, forward, *args, **kwargs)
         return result
 
     config._patched_function[forward] = (
