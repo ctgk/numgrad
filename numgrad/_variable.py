@@ -187,6 +187,11 @@ for method, func in (
             a, *({0: tuple(), 1: args}.get(len(args), (args,))), **kwargs),
     ),
     (
+        'clip',
+        lambda a, min=None, max=None, **kwargs: getattr(np, 'clip')(
+            a, min, max, **kwargs),
+    ),
+    (
         'max',
         lambda self, *args, **kwargs: getattr(np, 'max')(
             self, *args, **kwargs),

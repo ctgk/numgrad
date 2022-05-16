@@ -454,6 +454,15 @@ _register_vjp(
 )
 
 # https://numpy.org/doc/stable/reference/routines.math.html#miscellaneous
+_register_vjp(
+    np.clip,
+    lambda dy, y, a, a_min, a_max: _unbroadcast_to(
+        dy * np.logical_and(y != a_min, y != a_max), a.shape),
+    lambda dy, y, a, a_min, a_max: _unbroadcast_to(
+        dy * (y == a_min), a_min.shape),
+    lambda dy, y, a, a_min, a_max: _unbroadcast_to(
+        dy * (y == a_max), a_max.shape),
+)
 _register_vjp(np.sqrt, lambda dy, y, x: dy * 0.5 / y)
 _register_vjp(np.cbrt, lambda dy, y, x: dy / (3 * y ** 2))
 _register_vjp(np.square, lambda dy, y, x: dy * 2 * x)

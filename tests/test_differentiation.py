@@ -320,6 +320,15 @@ extrema_finding = [
     (lambda a: np.nanmin(a, axis=0, keepdims=True), [np.nan, 1]),
 ]
 miscellaneous = [
+    (lambda a: a.clip(4.5), np.arange(10)),
+    (lambda a: a.clip(np.arange(20).reshape(2, 10) - 0.1), np.random.rand(10)),
+    (lambda a: a.clip(max=7.5), np.arange(10)),
+    (lambda a, b, c: a.clip(b, c), (np.arange(10), 1.2, 8.8)),
+    (lambda a, b, c: a.clip(min=b, max=c), (np.arange(10), 7.7, 2.1)),
+    (lambda a: np.clip(a, 2.8, None), np.arange(10)),
+    (lambda a: np.clip(a, None, 8.2), np.arange(10)),
+    (lambda a, b: np.clip(range(10), a, b), (1.5, 4.4)),
+    (lambda a, b, c: np.clip(a, b, c), (np.arange(10), 8.2, 1.8)),
     (np.sqrt, [3, 0.5]),
     (np.cbrt, [3, 0.5]),
     (np.square, [2, -1]),
