@@ -129,6 +129,12 @@ for method, func in (
         lambda self: repr(self._data.view(
             type('Variable', (np.ndarray,), {}))),
     ),
+    ('__eq__', lambda self, other: np.equal(self, other)),
+    ('__ne__', lambda self, other: np.not_equal(self, other)),
+    ('__ge__', lambda self, other: np.greater_equal(self, other)),
+    ('__gt__', lambda self, other: np.greater(self, other)),
+    ('__le__', lambda self, other: np.less_equal(self, other)),
+    ('__lt__', lambda self, other: np.less(self, other)),
     ('__setitem__', functools.partialmethod(_inplace, '__setitem__')),
     ('__iadd__', functools.partialmethod(_inplace, '__iadd__')),
     ('__isub__', functools.partialmethod(_inplace, '__isub__')),
