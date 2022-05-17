@@ -204,11 +204,6 @@ for method, func in (
             self, *args, **kwargs),
     ),
     (
-        'mean',
-        lambda self, *args, **kwargs: getattr(np, 'mean')(
-            self, *args, **kwargs),
-    ),
-    (
         'prod',
         lambda self, *args, **kwargs: getattr(np, 'prod')(
             self, *args, **kwargs),
@@ -228,6 +223,11 @@ for method, func in (
         lambda self, *args, **kwargs: getattr(np, 'cumsum')(
             self, *args, **kwargs),
     ),
+    (
+        'mean',
+        lambda a, *args, **kwargs: getattr(np, 'mean')(a, *args, **kwargs),
+    ),
+    ('var', lambda a, *args, **kwargs: getattr(np, 'var')(a, *args, **kwargs)),
 ):
     setattr(Variable, method, func)
     setattr(
