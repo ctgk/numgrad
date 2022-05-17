@@ -521,6 +521,14 @@ _register_vjp(
     ),
 )
 _register_vjp(
+    np.std,
+    lambda dy, y, a, axis=None, ddof=0, keepdims=False: (
+        np.zeros_like(a) if a.size <= 1 else
+        _expand_to(dy / y, a.ndim, axis, keepdims) * (
+            a - a.mean(axis, keepdims=True)) / (a.size / y.size - ddof)
+    ),
+)
+_register_vjp(
     np.var,
     lambda dy, y, a, axis=None, ddof=0, keepdims=False: (
         np.zeros_like(a) if a.size <= 1 else

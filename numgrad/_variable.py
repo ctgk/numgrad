@@ -227,6 +227,7 @@ for method, func in (
         'mean',
         lambda a, *args, **kwargs: getattr(np, 'mean')(a, *args, **kwargs),
     ),
+    ('std', lambda a, *args, **kwargs: np.std(a, *args, **kwargs)),
     ('var', lambda a, *args, **kwargs: getattr(np, 'var')(a, *args, **kwargs)),
 ):
     setattr(Variable, method, func)
