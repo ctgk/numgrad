@@ -544,6 +544,15 @@ _register_vjp(
     ),
 )
 _register_vjp(
+    np.nanstd,
+    lambda dy, y, a, axis=None, ddof=0, keepdims=False: (
+        np.zeros_like(a) if a.size <= 1 else
+        np.nan_to_num(_expand_to(dy / y, a.ndim, axis, keepdims) * (
+            a - np.nanmean(a, axis, keepdims=True)) / (
+                np.sum(~np.isnan(a), axis, keepdims=True) - ddof))
+    ),
+)
+_register_vjp(
     np.nanvar,
     lambda dy, y, a, axis=None, ddof=0, keepdims=False: (
         np.zeros_like(a) if a.size <= 1 else
