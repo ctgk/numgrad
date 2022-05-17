@@ -247,6 +247,11 @@ _register_vjp(
     lambda dy, y, x: (dy * y)[..., None, None] * np.linalg.inv(
         np.swapaxes(x, -1, -2)),
 )
+_register_vjp(
+    np.linalg.slogdet,
+    lambda dy, y, a: dy[1][..., None, None] * np.linalg.inv(
+        np.swapaxes(a, -1, -2)),
+)
 
 # https://numpy.org/doc/stable/reference/routines.math.html#trigonometric-functions
 _register_vjp(np.sin, lambda dy, y, x: dy * np.cos(x))

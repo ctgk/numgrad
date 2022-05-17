@@ -95,7 +95,9 @@ class Variable(object):
     @staticmethod
     def _postprocess(result, func, *args, **kwargs):
         if config._graph is not None and func in config._func2vjps:
-            if isinstance(result, (tuple, list)):
+            if func == np.linalg.slogdet:
+                result = (result[0], Variable(result[1]))
+            elif isinstance(result, (tuple, list)):
                 result = tuple(
                     Variable(r) if r.dtype == config.dtype else r
                     for r in result
