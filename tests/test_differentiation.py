@@ -393,6 +393,11 @@ statistics = [
     (lambda a: np.nanmean(a), [1, np.nan, -3]),
     (lambda a: np.nanmean(a), [[1, np.nan, -3], [np.nan, np.nan, 5]]),
     (lambda a: np.nanmean(a, 1), [[1, np.nan, -3], [np.nan, np.nan, 5]]),
+    (lambda a: np.nanvar(a), 1),
+    (lambda a: np.nanvar(a), np.nan),
+    (lambda a: np.nanvar(a), [1, np.nan, -3]),
+    (lambda a: np.nanvar(a), [[1, np.nan, -3], [np.nan, np.nan, 5]]),
+    (lambda a: np.nanvar(a, 1), [[1, np.nan, -3], [np.nan, np.nan, 5]]),
 ]
 scipy_specials = [
     (sp.gamma, [1, 0.5, 3.3]),

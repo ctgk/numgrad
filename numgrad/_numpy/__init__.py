@@ -543,6 +543,15 @@ _register_vjp(
             ~np.isnan(x), axis, keepdims=True)
     ),
 )
+_register_vjp(
+    np.nanvar,
+    lambda dy, y, a, axis=None, ddof=0, keepdims=False: (
+        np.zeros_like(a) if a.size <= 1 else
+        2 * _expand_to(dy, a.ndim, axis, keepdims) * (
+            a - np.nanmean(a, axis, keepdims=True)) / (
+                np.sum(~np.isnan(a), axis, keepdims=True) - ddof)
+    ),
+)
 
 
 __all__ = []
