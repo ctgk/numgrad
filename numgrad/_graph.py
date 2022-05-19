@@ -84,6 +84,8 @@ class Graph(object):
         vjps = config._func2vjps[function](*inputs, **kwargs)
         if not isinstance(vjps, tuple):
             vjps = (vjps,)
+        if config._verbosity > 0:
+            print(f'Node: {vjps}, {result}, {function}, {inputs}, {kwargs}')
         self._node_list.append(Node(vjps, result, function, inputs, kwargs))
 
     def gradient(
