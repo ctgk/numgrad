@@ -75,6 +75,8 @@ array_manipulation = [
     (lambda a: a.squeeze(0), np.random.rand(1, 3, 1)),
     (lambda a: np.squeeze(a, 2), np.random.rand(1, 3, 1)),
     (lambda a: a.squeeze(), np.random.rand(1, 1)),
+    (lambda a: np.asarray(a), 0),
+    (lambda a: np.asarray(a), [0]),
     (lambda a: np.asanyarray(a), 0),
     (lambda a: np.asanyarray(a), [0]),
     (lambda a: sum(np.split(a, 2)), np.random.rand(2, 3, 4)),
@@ -471,7 +473,7 @@ def test_computation_graph_gradient(parameters):
         assert return_type_of_function != ng.Variable
         with ng.Graph() as g:
             y = f(*args)
-        print(g._node_list[0].function)
+        print([node.function for node in g._node_list])
         assert type(y) == ng.Variable
         if return_type_of_function == float:
             assert type(y._data) == ng.config.dtype
