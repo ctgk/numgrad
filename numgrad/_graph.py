@@ -10,7 +10,10 @@ from numgrad._utils._isscalar import _isscalar
 from numgrad._variable import Variable
 
 
-Node = namedtuple('Node', ('result', 'function', 'inputs', 'kwargs'))
+Node = namedtuple(
+    'Node',
+    ('vjps', 'result', 'function', 'inputs', 'kwargs'),
+)
 
 
 class Graph(object):
@@ -71,9 +74,17 @@ class Graph(object):
             setattr(eval(module), func, original)
 
     def _add_node(self, result, function, *inputs, **kwargs):
+        if function not in config._func2vjps:
+            raise NotImplementedError(
+                f'Cannot backprop through {function}, '
+                'VJP of the function is not registered yet.')
         if any(result is node.result for node in self._node_list):
             raise ValueError('The result already exists in the graph')
-        self._node_list.append(Node(result, function, inputs, kwargs))
+
+        vjps = config._func2vjps[function](*inputs, **kwargs)
+        if not isinstance(vjps, tuple):
+            vjps = (vjps,)
+        self._node_list.append(Node(vjps, result, function, inputs, kwargs))
 
     def gradient(
         self,
@@ -98,7 +109,7 @@ class Graph(object):
         id2grad = {id(target): np.ones_like(target._data)}
         for node in reversed(self._node_list):
             self._can_backprop_node(node, id2grad)
-            for x, vjp in zip(node.inputs, config._func2vjps[node.function]):
+            for x, vjp in zip(node.inputs, node.vjps):
                 if not isinstance(x, Variable):
                     continue
                 dx = self._get_grads(vjp, node, id2grad)
@@ -138,7 +149,7 @@ class Graph(object):
             dy = tuple(id2grad.get(id(r), None) for r in node.result)
         else:
             dy = id2grad[id(node.result)]
-        dx = vjp(dy, node.result, *node.inputs, **node.kwargs)
+        dx = vjp(dy, node.result)
         return dx
 
     @staticmethod

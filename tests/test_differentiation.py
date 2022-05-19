@@ -415,7 +415,7 @@ scipy_specials = [
     ),
     (lambda a: sp.log_softmax(a, axis=(0, 2)), np.random.rand(2, 3, 4)),
     (lambda a: sp.logsumexp(a), -1),
-    (lambda a: sp.logsumexp(a), [-1, 1]),
+    (lambda a: np.multiply(*sp.logsumexp(a, return_sign=True)), [-1, 1]),
     (lambda a: sp.logsumexp(a, axis=1), np.random.rand(3, 2)),
     (
         lambda a: sp.logsumexp(a, axis=(0, 2), keepdims=True),
