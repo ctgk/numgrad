@@ -88,6 +88,9 @@ _register_vjp(np.squeeze, lambda a, axis=None: lambda g, r: (
     np.expand_dims(g, [ax for ax, len_ in enumerate(a.shape) if len_ == 1])
     if axis is None else np.expand_dims(g, axis)))
 
+# https://numpy.org/doc/stable/reference/routines.array-manipulation.html#changing-kind-of-array
+_register_vjp(np.asanyarray, lambda a: lambda g, r: +g)
+
 # https://numpy.org/doc/stable/reference/routines.array-manipulation.html#splitting-arrays
 _register_vjp(
     np.split,
@@ -393,24 +396,16 @@ _register_vjp(
 _register_vjp(
     np.maximum,
     lambda x1, x2: (
-        x1 := np.asarray(x1),
-        x2 := np.asarray(x2),
-        (
-            lambda g, r: _unbroadcast_to(np.where(x1 != r, 0, g), x1.shape),
-            lambda g, r: _unbroadcast_to(np.where(x2 != r, 0, g), x2.shape),
-        ),
-    )[-1],
+        lambda g, r: _unbroadcast_to(np.where(x1 != r, 0, g), x1.shape),
+        lambda g, r: _unbroadcast_to(np.where(x2 != r, 0, g), x2.shape),
+    ),
 )
 _register_vjp(
     np.fmax,
     lambda x1, x2: (
-        x1 := np.asarray(x1),
-        x2 := np.asarray(x2),
-        (
-            lambda g, r: _unbroadcast_to(np.where(x1 != r, 0, g), x1.shape),
-            lambda g, r: _unbroadcast_to(np.where(x2 != r, 0, g), x2.shape),
-        ),
-    )[-1],
+        lambda g, r: _unbroadcast_to(np.where(x1 != r, 0, g), x1.shape),
+        lambda g, r: _unbroadcast_to(np.where(x2 != r, 0, g), x2.shape),
+    ),
 )
 _register_vjp(
     np.amax,
@@ -429,24 +424,16 @@ _register_vjp(
 _register_vjp(
     np.minimum,
     lambda x1, x2: (
-        x1 := np.asarray(x1),
-        x2 := np.asarray(x2),
-        (
-            lambda g, r: _unbroadcast_to(np.where(x1 != r, 0, g), x1.shape),
-            lambda g, r: _unbroadcast_to(np.where(x2 != r, 0, g), x2.shape),
-        ),
-    )[-1],
+        lambda g, r: _unbroadcast_to(np.where(x1 != r, 0, g), x1.shape),
+        lambda g, r: _unbroadcast_to(np.where(x2 != r, 0, g), x2.shape),
+    ),
 )
 _register_vjp(
     np.fmin,
     lambda x1, x2: (
-        x1 := np.asarray(x1),
-        x2 := np.asarray(x2),
-        (
-            lambda g, r: _unbroadcast_to(np.where(x1 != r, 0, g), x1.shape),
-            lambda g, r: _unbroadcast_to(np.where(x2 != r, 0, g), x2.shape),
-        ),
-    )[-1],
+        lambda g, r: _unbroadcast_to(np.where(x1 != r, 0, g), x1.shape),
+        lambda g, r: _unbroadcast_to(np.where(x2 != r, 0, g), x2.shape),
+    ),
 )
 _register_vjp(
     np.amin,
