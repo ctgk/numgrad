@@ -45,8 +45,8 @@ def _register_vjp(
     )
 
 
-def differentiable(func_to_vjp: callable) -> callable:
-    """Return wrapper function to make a function differentiable.
+def custom_vjp(func_to_vjp: callable) -> callable:
+    """Return wrapper function to make a custom differentiable function.
 
     Parameters
     ----------
@@ -61,7 +61,7 @@ def differentiable(func_to_vjp: callable) -> callable:
     Examples
     --------
     >>> # note that this is a custom gradient
-    >>> @differentiable(lambda x: lambda g, r: g * 3)
+    >>> @custom_vjp(lambda x: lambda g, r: g * 3)
     ... def twice(x):
     ...     return 2 * x
     ...

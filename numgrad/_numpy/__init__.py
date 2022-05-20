@@ -4,7 +4,7 @@ from numgrad._utils._expand_to import _expand_to
 from numgrad._utils._toarray import _toarray
 from numgrad._utils._unbroadcast import _unbroadcast_to
 from numgrad._variable import Variable
-from numgrad._vjp import _register_vjp, differentiable
+from numgrad._vjp import _register_vjp, custom_vjp
 
 
 # https://numpy.org/doc/stable/reference/arrays.ndarray.html#special-methods
@@ -16,7 +16,7 @@ def _getitem_vjp(x, key):
     return vjp
 
 
-Variable.__getitem__ = differentiable(_getitem_vjp)(
+Variable.__getitem__ = custom_vjp(_getitem_vjp)(
     lambda self, key: self[key])
 Variable.__getitem__.__doc__ = np.ndarray.__getitem__.__doc__
 
@@ -57,7 +57,7 @@ _register_vjp(
     np.ravel,
     lambda x, order=None: lambda g, r: g.reshape(*x.shape, order=order),
 )
-Variable.flatten = differentiable(
+Variable.flatten = custom_vjp(
     lambda x: lambda g, r: g.reshape(x.shape))(lambda a: a.flatten())
 Variable.flatten.__doc__ = np.ndarray.flatten.__doc__
 
