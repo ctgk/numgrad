@@ -95,6 +95,11 @@ array_manipulation = [
     (lambda a: np.asanyarray(a), [0]),
     (lambda *a: np.concatenate(a), ([0], [1])),
     (lambda a: np.concatenate([a, [[1], [2]]], axis=1), np.random.rand(2, 3)),
+    (lambda *a: np.stack(a), ([1], [2])),
+    (
+        lambda *a: np.stack(a, axis=1),
+        tuple(np.random.rand(3, 4) for _ in range(5)),
+    ),
     (lambda a: np.vstack([a, [[4], [5], [6]]]), [[1], [2], [3]]),
     (lambda *a: np.vstack(a), ([1, 2, 3], [4, 5, 6])),
     (lambda *a: np.vstack(a), (np.ones((2, 3, 4)), np.zeros((5, 3, 4)))),
@@ -104,6 +109,9 @@ array_manipulation = [
     (lambda a: np.dstack([a, [[4], [5], [6]]]), [[1], [2], [3]]),
     (lambda *a: np.dstack(a), ([1, 2, 3], np.random.rand(1, 3, 1))),
     (lambda *a: np.dstack(a), (np.ones((2, 3, 4)), np.zeros((2, 3, 1)))),
+    (lambda *a: np.column_stack(a), ([1, 2, 3], [2, 3, 4])),
+    (lambda *a: np.column_stack(a), ([1, 2, 3], [[2], [3], [4]])),
+    (lambda *a: np.row_stack(a), ([1, 2, 3], [[2, 3, 4], [5, 6, 7]])),
     (lambda a: sum(np.split(a, 2)), np.random.rand(2, 3, 4)),
     (
         lambda a: sum(r.prod() for r in np.split(a, [3, 6], 2)),

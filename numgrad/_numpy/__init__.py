@@ -125,6 +125,12 @@ _register_vjp(
     )[-1],
 )
 _register_vjp(
+    np.stack,
+    lambda arrays, axis=0: lambda g, r: [
+        np.squeeze(g_, axis) for g_ in np.split(g, g.shape[axis], axis)
+    ],
+)
+_register_vjp(
     np.vstack,
     lambda tup: lambda g, r: (
         indices := np.cumsum([a.shape[0] for a in np.atleast_2d(*tup)]),
@@ -155,6 +161,28 @@ _register_vjp(
             g_ if g_.ndim == a.ndim else np.squeeze(
                 g_, {1: (0, -1), 2: -1}[a.ndim])
             for g_, a in zip(np.split(g, indices[:-1], axis=2), arys)
+        ],
+    )[-1],
+)
+_register_vjp(
+    np.column_stack,
+    lambda tup: lambda g, r: (
+        arys := [_to_array(a) for a in tup],
+        arys_expanded := [a if a.ndim > 1 else a[..., None] for a in arys],
+        indices := np.cumsum([a.shape[1] for a in arys_expanded]),
+        [
+            g_ if a.ndim == 2 else g_[:, 0] for g_, a in
+            zip(np.split(g, indices[:-1], axis=1), arys)
+        ],
+    )[-1],
+)
+_register_vjp(
+    np.row_stack,
+    lambda tup: lambda g, r: (
+        indices := np.cumsum([a.shape[0] for a in np.atleast_2d(*tup)]),
+        [
+            _unbroadcast_to(g_, _to_array(a).shape) for g_, a in
+            zip(np.split(g, indices[:-1], axis=0), tup)
         ],
     )[-1],
 )

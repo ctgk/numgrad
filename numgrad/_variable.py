@@ -6,6 +6,12 @@ import numpy.typing as npt
 from numgrad._config import config
 
 
+_JOIN_FUNCS = (
+    np.concatenate, np.stack, np.block, np.vstack, np.hstack, np.dstack,
+    np.column_stack, np.row_stack,
+)
+
+
 def _ndarray_args(*args):
     return tuple(
         a._data if isinstance(a, Variable) else a for a in args)
@@ -89,7 +95,7 @@ class Variable(object):
         # https://numpy.org/devdocs/user/basics.dispatch.html
         if config._verbosity > 1:
             print('inputs of __array_function__:', func, types, args, kwargs)
-        if func in (np.concatenate, np.vstack, np.hstack, np.dstack):
+        if func in _JOIN_FUNCS:
             result = func(_ndarray_args(*args[0]), *args[1:], **kwargs)
         else:
             result = func(*_ndarray_args(*args), **_ndarray_kwargs(**kwargs))
