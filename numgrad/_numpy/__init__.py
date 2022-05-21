@@ -86,7 +86,7 @@ def _get_atleast_nd_vjps(*arys):
         (
             lambda g, r, index=i: np.reshape(
                 g[index] if isinstance(g, tuple) else g,
-                np.asarray(arys[index]).shape,
+                arys[index].shape,
             )
         )
         for i, _ in enumerate(arys)
@@ -99,6 +99,13 @@ _register_vjp(np.atleast_3d, _get_atleast_nd_vjps)
 _register_vjp(
     np.broadcast_to,
     lambda array, shape: lambda g, r: _unbroadcast_to(g, array.shape),
+)
+_register_vjp(
+    np.broadcast_arrays,
+    lambda *args: tuple(
+        (lambda g, r, index=i: _unbroadcast_to(g[index], args[index].shape))
+        for i, _ in enumerate(args)
+    ),
 )
 _register_vjp(np.expand_dims, lambda a, axis: lambda g, r: np.squeeze(g, axis))
 _register_vjp(np.squeeze, lambda a, axis=None: lambda g, r: (
