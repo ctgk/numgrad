@@ -535,6 +535,28 @@ def test_grad(function, args, kwargs, expect):
         assert np.allclose(actual, expect)
 
 
+@pytest.mark.parametrize('dfunc, args, kwargs, expect', [
+    (ng.grad(ng.grad(lambda a: a ** 3)), (-2,), {}, -12),
+    (
+        ng.elementwise_grad(ng.elementwise_grad(np.sin)),
+        ([0, 1, 2],), {}, -np.sin([0, 1, 2]),
+    ),
+    (
+        ng.elementwise_grad(ng.elementwise_grad(
+            ng.elementwise_grad(lambda a: a ** 4))),
+        ([0, -1, 2],), {}, [0, -24, 48],
+    ),
+])
+def test_higher_order_derivatives(dfunc, args, kwargs, expect):
+    actual = dfunc(*args, **kwargs)
+    if isinstance(expect, tuple):
+        assert len(actual) == len(expect)
+        for a, e in zip(actual, expect):
+            assert np.allclose(a, e)
+    else:
+        assert np.allclose(actual, expect)
+
+
 @pytest.mark.parametrize('function, args, kwargs, expect', [
     (lambda a=3, b=-4: np.sqrt(a * a + b * b), (), {}, ValueError),
     (lambda a, b=-4: np.sqrt(a * a + b * b), (), dict(a=3), ValueError),

@@ -1,3 +1,4 @@
+from numgrad._config import config
 from numgrad._graph import Graph
 from numgrad._utils._isscalar import _isscalar
 from numgrad._variable import Variable
@@ -12,8 +13,9 @@ def _func_to_grad(
     def _grad_func(*args, **kwargs):
         if len(args) == 0:
             raise ValueError('Please pass at least one positional argument.')
-        args = tuple(Variable(a) for a in args)
-        with Graph() as g:
+        if config._graph is None:
+            args = tuple(Variable(a) for a in args)
+        with Graph(_allow_multiple_graphs=True) as g:
             value: Variable = func(*args, **kwargs)
         if force_scalar_output and (not _isscalar(value)):
             raise ValueError('Cannot compute gradient of non-scalar value.')
