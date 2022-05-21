@@ -7,6 +7,7 @@ import scipy.special  # noqa: F401
 
 from numgrad._config import config
 from numgrad._utils._isscalar import _isscalar
+from numgrad._utils._to_array import _to_array_or_number
 from numgrad._variable import Variable
 
 
@@ -95,18 +96,26 @@ class Graph(object):
         if any(result is node.result for node in self._node_list):
             raise ValueError('The result already exists in the graph')
 
-        vjps = config._func2vjps[function](*inputs, **kwargs)
+        if isinstance(function, np.ufunc):
+            vjps = config._func2vjps[function](*tuple(
+                _to_array_or_number(a) if i < function.nin else a
+                for i, a in enumerate(inputs)
+            ), **kwargs)
+        else:
+            vjps = config._func2vjps[function](*inputs, **kwargs)
         if not isinstance(vjps, tuple):
             vjps = (vjps,)
         node = Node(vjps, result, function, inputs, kwargs)
         if config._verbosity > 0:
-            print('Node:', node)
+            print('Graph:', self, ', Node:', node)
         self._node_list.append(node)
         self._add_node_to_parents(node)
 
     def _add_node_to_parents(self, node: Node):
         if self._parent_graph is None:
             return
+        if config._verbosity > 0:
+            print('Graph:', self._parent_graph, ', Node:', node)
         self._parent_graph._node_list.append(node)
         self._parent_graph._add_node_to_parents(node)
 
@@ -137,7 +146,8 @@ class Graph(object):
         target_grad = self._preprocess_target_grad(target_grad, target)
         id2grad = {id(target): target_grad}
         for node in reversed(self._node_list):
-            self._can_backprop_node(node, id2grad)
+            if not self._can_backprop_node(node, id2grad):
+                continue
             for x, vjp in zip(node.inputs, node.vjps):
                 if not isinstance(x, Variable):
                     continue
@@ -175,13 +185,15 @@ class Graph(object):
 
     @staticmethod
     def _can_backprop_node(node: Node, id2grad: dict):
-        if id(node.result) not in id2grad:
-            return False
         if node.function not in config._func2vjps:
             raise NotImplementedError(
                 f'Cannot backprop through {node.function}, '
                 'VJP of the function is not registered yet.')
-        return True
+        if isinstance(node.result, (list, tuple)):
+            return all(
+                id(r) in id2grad for r in node.result
+                if isinstance(r, Variable))
+        return id(node.result) in id2grad
 
     @staticmethod
     def _get_grads(vjp: callable, node: Node, id2grad: dict):
@@ -196,7 +208,7 @@ class Graph(object):
     def _postprocess_nan_and_type(dx, x):
         if np.any(np.isnan(x)):
             dx = np.where(np.isnan(x), config.dtype(0), dx)
-        if _isscalar(x):
+        if _isscalar(x) and not _isscalar(dx):
             dx = np.take(dx, 0)
         return dx
 

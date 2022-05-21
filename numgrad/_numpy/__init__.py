@@ -1,7 +1,7 @@
 import numpy as np
 
 from numgrad._utils._expand_to import _expand_to
-from numgrad._utils._toarray import _toarray
+from numgrad._utils._to_array import _to_array
 from numgrad._utils._unbroadcast import _unbroadcast_to
 from numgrad._variable import Variable
 from numgrad._vjp import _register_vjp, custom_vjp
@@ -182,8 +182,8 @@ _inner_nd_nd_vjp_b = lambda dy, x1, x2: np.tensordot(
 _register_vjp(
     np.dot,
     lambda a, b: (
-        a := _toarray(a),
-        b := _toarray(b),
+        a := _to_array(a),
+        b := _to_array(b),
         d1 := 'n' if (a.ndim > 1) else a.ndim,
         d2 := 'n' if (b.ndim > 1) else b.ndim,
         (
@@ -202,8 +202,8 @@ _register_vjp(
 _register_vjp(
     np.inner,
     lambda a, b: (
-        a := _toarray(a),
-        b := _toarray(b),
+        a := _to_array(a),
+        b := _to_array(b),
         d1 := 'n' if (a.ndim > 1) else a.ndim,
         d2 := 'n' if (b.ndim > 1) else b.ndim,
         (
@@ -222,8 +222,8 @@ _register_vjp(
 _register_vjp(
     np.matmul,
     lambda x1, x2: (
-        x1 := _toarray(x1),
-        x2 := _toarray(x2),
+        x1 := _to_array(x1),
+        x2 := _to_array(x2),
         d1 := 'n' if (x1.ndim > 1) else x1.ndim,
         d2 := 'n' if (x2.ndim > 1) else x2.ndim,
         (
@@ -373,8 +373,8 @@ _register_vjp(
 _register_vjp(
     np.power,
     lambda x1, x2: (
-        lambda dy, y: _unbroadcast_to(dy * x2 * y / x1, x1.shape),
-        lambda dy, y: None if np.any(_toarray(x1) < 0) else _unbroadcast_to(
+        lambda dy, y: _unbroadcast_to(dy * x2 * (x1 ** (x2 - 1)), x1.shape),
+        lambda dy, y: None if np.any(x1 < 0) else _unbroadcast_to(
             dy * y * np.log(x1), x2.shape),
     ),
 )
@@ -388,8 +388,8 @@ _register_vjp(
 _register_vjp(
     np.float_power,
     lambda x1, x2: (
-        lambda dy, y: _unbroadcast_to(dy * x2 * y / x1, x1.shape),
-        lambda dy, y: None if np.any(_toarray(x1) < 0) else _unbroadcast_to(
+        lambda dy, y: _unbroadcast_to(dy * x2 * (x1 ** (x2 - 1)), x1.shape),
+        lambda dy, y: None if np.any(x1 < 0) else _unbroadcast_to(
             dy * y * np.log(x1), x2.shape),
     ),
 )
