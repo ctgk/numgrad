@@ -42,10 +42,13 @@ class Graph(object):
     TypeError: `target` of `numgrad.Graph.gradient()` must ...
     """
 
-    def __init__(self):
+    def __init__(self, **kwargs):
         """Construct computational graph."""
         super().__init__()
         self._node_list: tp.List[Node] = []
+        self._parent_graph: tp.Optional[Graph] = None
+        self._allow_multiple_graphs: bool = kwargs.get(
+            '_allow_multiple_graphs', False)
 
     def __enter__(self) -> 'Graph':
         """Return new computation graph to construct.
@@ -61,17 +64,28 @@ class Graph(object):
             Another graph is under construction.
         """
         if config._graph is not None:
-            raise ValueError('There is already a graph under construction')
+            if (
+                not self._allow_multiple_graphs
+                or not config._graph._allow_multiple_graphs
+            ):
+                raise ValueError('There is already a graph under construction')
+            self._parent_graph = config._graph
+            # should be no need to patch functions here.
+        else:
+            for module, func, patched in config._patched_function.values():
+                setattr(eval(module), func, patched)
         config._graph = self
-        for module, func, patched in config._patched_function.values():
-            setattr(eval(module), func, patched)
         return self
 
     def __exit__(self, *args, **kwargs):
         """Exit from the graph under construction."""
-        config._graph = None
-        for original, (module, func, _) in config._patched_function.items():
-            setattr(eval(module), func, original)
+        config._graph = self._parent_graph
+        if config._graph is None:
+            for (
+                original,
+                (module, func, _),
+            ) in config._patched_function.items():
+                setattr(eval(module), func, original)
 
     def _add_node(self, result, function, *inputs, **kwargs):
         if function not in config._func2vjps:
@@ -84,9 +98,17 @@ class Graph(object):
         vjps = config._func2vjps[function](*inputs, **kwargs)
         if not isinstance(vjps, tuple):
             vjps = (vjps,)
+        node = Node(vjps, result, function, inputs, kwargs)
         if config._verbosity > 0:
-            print(f'Node: {vjps}, {result}, {function}, {inputs}, {kwargs}')
-        self._node_list.append(Node(vjps, result, function, inputs, kwargs))
+            print('Node:', node)
+        self._node_list.append(node)
+        self._add_node_to_parents(node)
+
+    def _add_node_to_parents(self, node: Node):
+        if self._parent_graph is None:
+            return
+        self._parent_graph._node_list.append(node)
+        self._parent_graph._add_node_to_parents(node)
 
     def backward(
         self,
