@@ -149,7 +149,7 @@ class Graph(object):
             if not self._can_backprop_node(node, id2grad):
                 continue
             for x, vjp in zip(node.inputs, node.vjps):
-                if not isinstance(x, Variable):
+                if not self._is_variable_or_tuple_of_variable(x):
                     continue
                 dx = self._get_grads(vjp, node, id2grad)
                 self._accumulate_grad(id2grad, dx, x)
@@ -196,6 +196,15 @@ class Graph(object):
         return id(node.result) in id2grad
 
     @staticmethod
+    def _is_variable_or_tuple_of_variable(x):
+        if isinstance(x, Variable):
+            return True
+        if isinstance(x, (tuple, list)) and any(
+                isinstance(a, Variable) for a in x):
+            return True
+        return False
+
+    @staticmethod
     def _get_grads(vjp: callable, node: Node, id2grad: dict):
         if isinstance(node.result, tuple):
             dy = tuple(id2grad.get(id(r), None) for r in node.result)
@@ -214,8 +223,13 @@ class Graph(object):
 
     @classmethod
     def _accumulate_grad(cls, id2grad: dict, dx, x):
-        dx = cls._postprocess_nan_and_type(dx, x)
-        if id(x) in id2grad:
-            id2grad[id(x)] = id2grad[id(x)] + dx
+        if isinstance(dx, (tuple, list)) and isinstance(x, (tuple, list)):
+            for x_, dx_ in zip(x, dx):
+                if isinstance(x_, Variable):
+                    cls._accumulate_grad(id2grad, dx_, x_)
         else:
-            id2grad[id(x)] = dx
+            dx = cls._postprocess_nan_and_type(dx, x)
+            if id(x) in id2grad:
+                id2grad[id(x)] = id2grad[id(x)] + dx
+            else:
+                id2grad[id(x)] = dx

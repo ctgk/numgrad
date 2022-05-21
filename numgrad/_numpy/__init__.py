@@ -116,6 +116,15 @@ _register_vjp(np.squeeze, lambda a, axis=None: lambda g, r: (
 _register_vjp(np.asarray, lambda a: lambda g, r: +g)
 _register_vjp(np.asanyarray, lambda a: lambda g, r: +g)
 
+# https://numpy.org/doc/stable/reference/routines.array-manipulation.html#joining-arrays
+_register_vjp(
+    np.concatenate,
+    lambda arrays, axis=0: lambda g, r: (
+        indices := np.cumsum([_to_array(a).shape[axis] for a in arrays]),
+        np.split(g, indices[:-1], axis=axis),
+    )[-1],
+)
+
 # https://numpy.org/doc/stable/reference/routines.array-manipulation.html#splitting-arrays
 _register_vjp(
     np.split,
