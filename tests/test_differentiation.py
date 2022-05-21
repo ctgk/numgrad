@@ -349,6 +349,9 @@ miscellaneous = [
     (np.abs, [2, -1]),
     (np.absolute, [2, -1]),
     (np.fabs, [2, -1]),
+    (np.nan_to_num, 1),
+    (np.nan_to_num, np.nan),
+    (np.nan_to_num, [1, np.nan]),
 ]
 random = [
     (lambda a: (np.random.seed(0), np.random.exponential(a))[1], [1, 10]),

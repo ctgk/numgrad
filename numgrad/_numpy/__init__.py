@@ -467,6 +467,11 @@ _register_vjp(np.cbrt, lambda x: lambda g, r: g / (3 * r ** 2))
 _register_vjp(np.square, lambda x: lambda g, r: g * 2 * x)
 _register_vjp(np.absolute, lambda x: lambda g, r: g * np.sign(x))
 _register_vjp(np.fabs, lambda x: lambda g, r: g * np.sign(x))
+_register_vjp(
+    np.nan_to_num,
+    lambda x, copy=True, nan=0., posinf=None, neginf=None: (
+        lambda g, r: np.where(np.isfinite(x), g, 0)),
+)
 
 # https://numpy.org/doc/stable/reference/random/legacy.html#functions-in-numpy-random
 _register_vjp(
