@@ -79,7 +79,23 @@ _register_vjp(
     ),
 )
 
+
 # https://numpy.org/doc/stable/reference/routines.array-manipulation.html#changing-number-of-dimensions
+def _get_atleast_nd_vjps(*arys):
+    return tuple(
+        (
+            lambda g, r, index=i: np.reshape(
+                g[index] if isinstance(g, tuple) else g,
+                np.asarray(arys[index]).shape,
+            )
+        )
+        for i, _ in enumerate(arys)
+    )
+
+
+_register_vjp(np.atleast_1d, _get_atleast_nd_vjps)
+_register_vjp(np.atleast_2d, _get_atleast_nd_vjps)
+_register_vjp(np.atleast_3d, _get_atleast_nd_vjps)
 _register_vjp(
     np.broadcast_to,
     lambda array, shape: lambda g, r: _unbroadcast_to(g, array.shape),

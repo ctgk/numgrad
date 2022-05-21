@@ -103,7 +103,7 @@ class Graph(object):
             ), **kwargs)
         else:
             vjps = config._func2vjps[function](*inputs, **kwargs)
-        if not isinstance(vjps, tuple):
+        if callable(vjps):
             vjps = (vjps,)
         node = Node(vjps, result, function, inputs, kwargs)
         if config._verbosity > 0:
