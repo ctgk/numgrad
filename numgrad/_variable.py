@@ -89,7 +89,7 @@ class Variable(object):
         # https://numpy.org/devdocs/user/basics.dispatch.html
         if config._verbosity > 1:
             print('inputs of __array_function__:', func, types, args, kwargs)
-        if func == np.concatenate:
+        if func in (np.concatenate, np.vstack, np.hstack, np.dstack):
             result = func(_ndarray_args(*args[0]), *args[1:], **kwargs)
         else:
             result = func(*_ndarray_args(*args), **_ndarray_kwargs(**kwargs))

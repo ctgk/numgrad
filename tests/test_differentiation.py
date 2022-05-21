@@ -95,6 +95,15 @@ array_manipulation = [
     (lambda a: np.asanyarray(a), [0]),
     (lambda *a: np.concatenate(a), ([0], [1])),
     (lambda a: np.concatenate([a, [[1], [2]]], axis=1), np.random.rand(2, 3)),
+    (lambda a: np.vstack([a, [[4], [5], [6]]]), [[1], [2], [3]]),
+    (lambda *a: np.vstack(a), ([1, 2, 3], [4, 5, 6])),
+    (lambda *a: np.vstack(a), (np.ones((2, 3, 4)), np.zeros((5, 3, 4)))),
+    (lambda a: np.hstack([a, [[4], [5], [6]]]), [[1, 1], [2, 2], [3, 3]]),
+    (lambda *a: np.hstack(a), ([1, 2, 3], [4, 5])),
+    (lambda *a: np.hstack(a), (np.ones((2, 3, 4)), np.zeros((2, 5, 4)))),
+    (lambda a: np.dstack([a, [[4], [5], [6]]]), [[1], [2], [3]]),
+    (lambda *a: np.dstack(a), ([1, 2, 3], np.random.rand(1, 3, 1))),
+    (lambda *a: np.dstack(a), (np.ones((2, 3, 4)), np.zeros((2, 3, 1)))),
     (lambda a: sum(np.split(a, 2)), np.random.rand(2, 3, 4)),
     (
         lambda a: sum(r.prod() for r in np.split(a, [3, 6], 2)),
@@ -504,6 +513,8 @@ def test_computational_graph_backward(parameters):
         dargs_expected = _numerical_grad(f, *args)
         for arg, actual, expected in zip(args, dargs_actual, dargs_expected):
             assert type(arg._data) == type(actual)
+            if isinstance(actual, np.ndarray):
+                assert arg.shape == actual.shape
             assert np.allclose(expected, actual)
 
         dy = np.random.uniform(-10, 10)

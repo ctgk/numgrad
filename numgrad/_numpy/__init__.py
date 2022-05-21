@@ -124,6 +124,40 @@ _register_vjp(
         np.split(g, indices[:-1], axis=axis),
     )[-1],
 )
+_register_vjp(
+    np.vstack,
+    lambda tup: lambda g, r: (
+        indices := np.cumsum([a.shape[0] for a in np.atleast_2d(*tup)]),
+        [
+            _unbroadcast_to(g_, _to_array(a).shape) for g_, a in
+            zip(np.split(g, indices[:-1], axis=0), tup)
+        ],
+    )[-1],
+)
+_register_vjp(
+    np.hstack,
+    lambda tup: lambda g, r: (
+        axis := 0 if all(_to_array(a).ndim == 1 for a in tup) else 1,
+        indices := np.cumsum([_to_array(a).shape[axis] for a in tup]),
+        np.split(g, indices[:-1], axis=axis),
+    )[-1],
+)
+_register_vjp(
+    np.dstack,
+    lambda tup: lambda g, r: (
+        arys := [_to_array(a) for a in tup],
+        arys_expanded := [
+            a if a.ndim >= 3 else np.expand_dims(a, -1) if a.ndim == 2
+            else np.expand_dims(a, (0, -1)) for a in arys
+        ],
+        indices := np.cumsum([a.shape[2] for a in arys_expanded]),
+        [
+            g_ if g_.ndim == a.ndim else np.squeeze(
+                g_, {1: (0, -1), 2: -1}[a.ndim])
+            for g_, a in zip(np.split(g, indices[:-1], axis=2), arys)
+        ],
+    )[-1],
+)
 
 # https://numpy.org/doc/stable/reference/routines.array-manipulation.html#splitting-arrays
 _register_vjp(
