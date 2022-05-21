@@ -69,7 +69,7 @@ class Differentiable:
         args = tuple(Variable(a) for a in args)
         with Graph() as g:
             value = self._function(*args, **kwargs)
-        grads = g.gradient(value, args)
+        grads = g.backward(value, args)
         return (value._data, (grads[0] if len(grads) == 1 else grads))
 
     def grad(

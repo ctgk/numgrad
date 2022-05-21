@@ -28,7 +28,7 @@ class Graph(object):
     ...
     >>> y
     0.7615941559557649
-    >>> g.gradient(y, [x])
+    >>> g.backward(y, [x])
     (0.41997434161402614,)
     >>>
     >>> with ng.Graph() as g:
@@ -36,7 +36,7 @@ class Graph(object):
     ...
     >>> y
     False
-    >>> g.gradient(y, [x])  # fails to differentiate through `np.isnan`
+    >>> g.backward(y, [x])  # fails to differentiate through `np.isnan`
     Traceback (most recent call last):
     ...
     TypeError: `target` of `numgrad.Graph.gradient()` must ...
@@ -88,12 +88,14 @@ class Graph(object):
             print(f'Node: {vjps}, {result}, {function}, {inputs}, {kwargs}')
         self._node_list.append(Node(vjps, result, function, inputs, kwargs))
 
-    def gradient(
+    def backward(
         self,
         target: Variable,
         sources: tp.Union[tp.List[Variable], tp.Tuple[Variable, ...]],
+        *,
+        target_grad: tp.Optional[tp.Union[np.number, np.ndarray]] = None,
     ) -> tp.Tuple[np.ndarray]:
-        """Return gradients of target with respect to each source.
+        """Return gradients propagated backward from target to each source.
 
         Parameters
         ----------
@@ -101,14 +103,17 @@ class Graph(object):
             Target to be differentiated.
         sources : tp.Union[tp.List[Variable], tp.Tuple[Variable, ...]]
             Source tensors to differentiated against.
+        target_grad : tp.Optional[tp.Union[np.number, np.ndarray]]
+            Gradient to propagate backward from target, by default None.
 
         Returns
         -------
         tp.Tuple[np.ndarray]
-            Gradients of target with respect to each source.
+            Gradients propagated backward from target to each source.
         """
         self._check_type_of_target_and_sources(target, sources)
-        id2grad = {id(target): np.ones_like(target._data)}
+        target_grad = self._preprocess_target_grad(target_grad, target)
+        id2grad = {id(target): target_grad}
         for node in reversed(self._node_list):
             self._can_backprop_node(node, id2grad)
             for x, vjp in zip(node.inputs, node.vjps):
@@ -134,6 +139,17 @@ class Graph(object):
                     '`sources` of `numgrad.Graph.gradient()` must be list or '
                     'tuple of numgrad.Variable, '
                     f'but contained an instance of {type(s)}')
+
+    @staticmethod
+    def _preprocess_target_grad(target_grad, target):
+        if target_grad is None:
+            return np.ones_like(target)
+        g = np.asarray(target_grad, dtype=config.dtype) * np.ones_like(target)
+        if g.shape != target.shape:
+            raise ValueError(
+                f'Incompatible target_grad.shape {target_grad.shape} '
+                f'with target.shape {target.shape}')
+        return g
 
     @staticmethod
     def _can_backprop_node(node: Node, id2grad: dict):

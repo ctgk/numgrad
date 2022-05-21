@@ -461,7 +461,7 @@ def parameters(request):
     return request.param
 
 
-def test_computation_graph_gradient(parameters):
+def test_computational_graph_backward(parameters):
     f = parameters[0]
     args = parameters[1] if isinstance(
         parameters[1], tuple) else (parameters[1],)
@@ -481,26 +481,25 @@ def test_computation_graph_gradient(parameters):
             assert type(y._data) == return_type_of_function
 
         assert type(f(*args)) == return_type_of_function
-        dargs_actual = g.gradient(y, args)
+        dargs_actual = g.backward(y, args)
         dargs_expected = _numerical_grad(f, *args)
         for arg, actual, expected in zip(args, dargs_actual, dargs_expected):
             assert type(arg._data) == type(actual)
             assert np.allclose(expected, actual)
 
-        with ng.Graph() as g:
-            y = np.nanmean(f(*args))
-        dargs_actual = g.gradient(y, args)
-        dargs_expected = _numerical_grad(lambda *a: np.nanmean(f(*a)), *args)
-        for actual, expected in zip(dargs_actual, dargs_expected):
-            assert np.allclose(expected, actual)
+        dy = np.random.uniform(-10, 10)
+        dargs_with_dy = g.backward(y, args, target_grad=dy)
+        for arg, actual, expected in zip(args, dargs_with_dy, dargs_expected):
+            assert type(arg._data) == type(actual)
+            assert np.allclose(dy * expected, actual)
 
 
-def test_computational_graph_gradient_error():
+def test_computational_graph_backward_error():
     a = ng.Variable([0, 0.5])
     with ng.Graph() as g:
         b = np.argsort(a)
     with pytest.raises(Exception):
-        g.gradient(b, [a])[0]
+        g.backward(b, [a])[0]
 
 
 @pytest.mark.parametrize('function, args, kwargs, expect', [

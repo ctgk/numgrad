@@ -73,7 +73,7 @@ def custom_vjp(func_to_vjp: callable) -> callable:
     ...
     >>> b
     Variable([8., 4.])
-    >>> g.gradient(b, [a])[0]  # custom gradient is used
+    >>> g.backward(b, [a])[0]  # custom gradient is used
     array([3., 3.])
     """
 

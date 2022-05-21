@@ -24,7 +24,7 @@ Inspired by [tensorflow](https://www.tensorflow.org/), `numgrad` supports [autom
 ...     # numgrad patches numpy functions automatically here
 ...     y = tanh(x)
 ...
->>> g.gradient(y, [x])
+>>> g.backward(y, [x])
 (0.419974341614026,)
 >>> (tanh(1.0001) - tanh(0.9999)) / 0.0002
 0.41997434264973155

@@ -40,7 +40,7 @@ if __name__ == '__main__':
                 logits = mlp(x, w1, b1, w2, b2)
                 log_probas = sp.log_softmax(logits, axis=-1)
                 nll = np.mean(-log_probas[range(len(log_probas)), y])
-            grads = g.gradient(nll, (w1, b1, w2, b2))
+            grads = g.backward(nll, (w1, b1, w2, b2))
             for p, g in zip((w1, b1, w2, b2), grads):
                 p -= g * 0.01
 
