@@ -535,6 +535,7 @@ def test_grad(function, args, kwargs, expect):
 @pytest.mark.parametrize('function, args, kwargs, expect', [
     (lambda a=3, b=-4: np.sqrt(a * a + b * b), (), {}, ValueError),
     (lambda a, b=-4: np.sqrt(a * a + b * b), (), dict(a=3), ValueError),
+    (lambda a, b: np.sqrt(a * a + b * b), ([1, 2], 3), {}, ValueError),
 ])
 def test_grad_error(function, args, kwargs, expect):
     with pytest.raises(expect):

@@ -1,5 +1,6 @@
 import typing as tp
 
+import numpy as np
 import numpy.typing as npt
 
 from numgrad._graph import Graph
@@ -68,7 +69,9 @@ class Differentiable:
             raise ValueError('Please pass at least one positional argument.')
         args = tuple(Variable(a) for a in args)
         with Graph() as g:
-            value = self._function(*args, **kwargs)
+            value: Variable = self._function(*args, **kwargs)
+        if not np.isscalar(value._data):
+            raise ValueError('Cannot compute gradient of non-scalar target')
         grads = g.backward(value, args)
         return (value._data, (grads[0] if len(grads) == 1 else grads))
 
@@ -92,7 +95,7 @@ def grad(function: callable) -> callable:
     Parameters
     ----------
     function : callable
-        Function to compute gradient of.
+        Function to compute gradient of. The function must return scalar value.
 
     Returns
     -------
@@ -115,7 +118,7 @@ def grad(function: callable) -> callable:
     ValueError: Please pass at least one positional argument.
     >>>
     >>> def hypot(a, b):
-    ...     return np.sqrt(a * a + b * b)
+    ...     return np.sum(np.sqrt(a * a + b * b))
     ...
     >>> grad(hypot)([-3, 3], b=4)  # returns gradient wrt `a`
     array([-0.6,  0.6])
@@ -131,7 +134,8 @@ def value_and_grad(function: callable) -> callable:
     Parameters
     ----------
     function : callable
-        Function to compute its resulting value and gradients of.
+        Function to compute its resulting value and gradients of. The function
+        must return scalar value.
 
     Returns
     -------
@@ -154,11 +158,11 @@ def value_and_grad(function: callable) -> callable:
     ValueError: Please pass at least one positional argument.
     >>>
     >>> def hypot(a, b):
-    ...     return np.sqrt(a * a + b * b)
+    ...     return np.sum(np.sqrt(a * a + b * b))
     ...
     >>> value_and_grad(hypot)([-3, 3], b=4)
-    (array([5., 5.]), array([-0.6,  0.6]))
+    (10.0, array([-0.6,  0.6]))
     >>> value_and_grad(hypot)([-3, 3], 4)
-    (array([5., 5.]), (array([-0.6,  0.6]), 1.6))
+    (10.0, (array([-0.6,  0.6]), 1.6))
     """
     return Differentiable(function).value_and_grad
