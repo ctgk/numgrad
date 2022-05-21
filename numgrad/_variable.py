@@ -67,7 +67,7 @@ class Variable(object):
     def __array_ufunc__(  # noqa: D105
         self, ufunc, method, *inputs, out=None, **kwargs,
     ):
-        if config._verbosity > 0:
+        if config._verbosity > 1:
             print(
                 'inputs of __array_ufunc__',
                 ufunc, method, inputs, out, kwargs,
@@ -87,7 +87,7 @@ class Variable(object):
 
     def __array_function__(self, func, types, args, kwargs):  # noqa: D105
         # https://numpy.org/devdocs/user/basics.dispatch.html
-        if config._verbosity > 0:
+        if config._verbosity > 1:
             print('inputs of __array_function__:', func, types, args, kwargs)
         result = func(*_ndarray_args(*args), **_ndarray_kwargs(**kwargs))
         return self._postprocess(result, func, *args, **kwargs)
