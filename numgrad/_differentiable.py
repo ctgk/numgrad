@@ -1,164 +1,125 @@
-import typing as tp
-
-import numpy.typing as npt
-
+from numgrad._config import config
 from numgrad._graph import Graph
+from numgrad._utils._isscalar import _isscalar
 from numgrad._variable import Variable
 
 
-class Differentiable:
-    """Differentiable function.
+def _func_to_grad(
+    func,
+    return_value: bool,
+    force_scalar_output: bool,
+) -> callable:
 
-    Examples
-    --------
-    >>> def tanh(a):
-    ...     a = np.exp(-2 * a)
-    ...     return (1 - a) / (1 + a)
-    ...
-    >>> f = Differentiable(tanh)
-    >>> f.grad(1)
-    0.419974341614026
-    >>> f.grad(a=1)
-    Traceback (most recent call last):
-    ...
-    ValueError: Please pass at least one positional argument.
-    >>> f.value_and_grad(1)
-    (0.7615941559557649, 0.419974341614026)
-    >>> f.value_and_grad(a=1)
-    Traceback (most recent call last):
-    ...
-    ValueError: Please pass at least one positional argument.
-    """
-
-    def __init__(self, function: callable) -> None:
-        """Construct a differentiable function.
-
-        Parameters
-        ----------
-        function : callable
-            Original function.
-        """
-        if not callable(function):
-            raise TypeError('`function` must be callable')
-        self._function = function
-
-    def __call__(self, *args, **kwargs):
-        """Call original function."""
-        return self._function(*args, **kwargs)
-
-    def value_and_grad(
-        self,
-        *args: npt.ArrayLike,
-        **kwargs,
-    ) -> tp.Tuple[
-        npt.ArrayLike, tp.Union[npt.ArrayLike, tp.Tuple[npt.ArrayLike, ...]],
-    ]:
-        """Return resulting value of the original function and gradients.
-
-        Note that this function computes gradient with respect to all
-        positional arguments.
-
-        Returns
-        -------
-        Tuple[ArrayLike, Union[ArrayLike, Tuple[ArrayLike, ...]]]:
-            Tuple of resulting value of the original function and gradient(s)
-            with respect to positional argument(s).
-        """
+    def _grad_func(*args, **kwargs):
         if len(args) == 0:
             raise ValueError('Please pass at least one positional argument.')
-        args = tuple(Variable(a) for a in args)
-        with Graph() as g:
-            value = self._function(*args, **kwargs)
-        grads = g.gradient(value, args)
-        return (value._data, (grads[0] if len(grads) == 1 else grads))
+        if config._graph is None:
+            args = tuple(Variable(a) for a in args)
+        with Graph(_allow_multiple_graphs=True) as g:
+            value: Variable = func(*args, **kwargs)
+        if force_scalar_output and (not _isscalar(value)):
+            raise ValueError('Cannot compute gradient of non-scalar value.')
+        grads = g.backward(value, args)
+        if len(grads) == 1:
+            grads = grads[0]
+        if return_value:
+            return (value._data, grads)
+        return grads
 
-    def grad(
-        self, *args: npt.ArrayLike, **kwargs,
-    ) -> tp.Union[npt.ArrayLike, tp.Tuple[npt.ArrayLike, ...]]:
-        """Return gradients of the original function with respect to args.
-
-        Returns
-        -------
-        tp.Union[npt.ArrayLike, tp.Tuple[npt.ArrayLike, ...]]
-            Gradient(s) of the original function with respect to positional
-            argument(s)
-        """
-        return self.value_and_grad(*args, **kwargs)[1]
+    return _grad_func
 
 
-def grad(function: callable) -> callable:
-    """Return gradient function of the given function.
+def grad(forward_func: callable) -> callable:
+    """Return a function that returns gradients of forward function.
 
     Parameters
     ----------
-    function : callable
-        Function to compute gradient of.
+    forward_func : callable
+        Input forward function. Note that the forward function must return
+        scalar value.
 
     Returns
     -------
     callable
-        Gradient function that returns gradients with respect to positional
-        arguments.
+        Gradient function that returns gradients of the forward function with
+        respect to given positional arguments.
 
     Examples
     --------
-    >>> def tanh(a):
-    ...     a = np.exp(-2 * a)
-    ...     return (1 - a) / (1 + a)
-    ...
-    >>> tanh_grad = grad(tanh)
-    >>> tanh_grad(1)
-    0.419974341614026
-    >>> tanh_grad(a=1)
+    >>> grad(np.tanh)(1)  # doctest: +ELLIPSIS
+    0.4199...
+    >>>
+    >>> # returns tuple of gradients if you pass multiple positional args.
+    >>> grad(np.hypot)(-3, 4)
+    (-0.6, 0.8)
+    >>>
+    >>> # raises an error because `np.tanh([0, 1])` is not scalar.
+    >>> grad(np.tanh)([0, 1])
     Traceback (most recent call last):
     ...
-    ValueError: Please pass at least one positional argument.
+    ValueError: Cannot compute gradient of non-scalar value.
+    """
+    return _func_to_grad(
+        forward_func, return_value=False, force_scalar_output=True)
+
+
+def value_and_grad(forward_func: callable) -> callable:
+    """Return a function that returns value and gradients of forward function.
+
+    Parameters
+    ----------
+    forward_func : callable
+        Input forward function. Note that the forward function must return
+        scalar value.
+
+    Returns
+    -------
+    callable
+        Function that returns the resulting value of the forward function and
+        its gradients with respect to given positional arguments.
+
+    Examples
+    --------
+    >>> value_and_grad(np.tanh)(1)  # doctest: +ELLIPSIS
+    (0.7615..., 0.4199...)
     >>>
-    >>> def hypot(a, b):
-    ...     return np.sqrt(a * a + b * b)
+    >>> # returns tuple of gradients if you pass multiple positional args.
+    >>> value_and_grad(np.hypot)(-3, 4)
+    (5.0, (-0.6, 0.8))
+    >>>
+    >>> # raises an error because `np.tanh([0, 1])` is not scalar.
+    >>> value_and_grad(np.tanh)([0, 1])
+    Traceback (most recent call last):
     ...
-    >>> grad(hypot)([-3, 3], b=4)  # returns gradient wrt `a`
-    array([-0.6,  0.6])
-    >>> grad(hypot)([-3, 3], 4)    # returns gradient wrt `a` and `b`
+    ValueError: Cannot compute gradient of non-scalar value.
+    """
+    return _func_to_grad(
+        forward_func, return_value=True, force_scalar_output=True)
+
+
+def elementwise_grad(forward_func: callable) -> callable:
+    """Return function that returns element-wise gradients of forward function.
+
+    Parameters
+    ----------
+    forward_func : callable
+        Input forward function. The return value does not have to be scalar
+        unlike `grad`.
+
+    Returns
+    -------
+    callable
+        Function that returns element-wise gradient for given positional args.
+
+    Examples
+    --------
+    >>> # this does not raise an error unlike `grad`.
+    >>> elementwise_grad(np.tanh)([0, 1])
+    array([1.        , 0.41997434])
+    >>>
+    >>> # returns tuple of gradients if you pass multiple positional args.
+    >>> elementwise_grad(np.hypot)([-3, 3], 4)
     (array([-0.6,  0.6]), 1.6)
     """
-    return Differentiable(function).grad
-
-
-def value_and_grad(function: callable) -> callable:
-    """Return function that returns the resulting value and gradients.
-
-    Parameters
-    ----------
-    function : callable
-        Function to compute its resulting value and gradients of.
-
-    Returns
-    -------
-    callable
-        Function that raeturns the resulting value of the original function and
-        its gradients with respect to positional arguments.
-
-    Examples
-    --------
-    >>> def tanh(a):
-    ...     a = np.exp(-2 * a)
-    ...     return (1 - a) / (1 + a)
-    ...
-    >>> tanh_value_and_grad = value_and_grad(tanh)
-    >>> tanh_value_and_grad(1)
-    (0.7615941559557649, 0.419974341614026)
-    >>> tanh_value_and_grad(a=1)
-    Traceback (most recent call last):
-    ...
-    ValueError: Please pass at least one positional argument.
-    >>>
-    >>> def hypot(a, b):
-    ...     return np.sqrt(a * a + b * b)
-    ...
-    >>> value_and_grad(hypot)([-3, 3], b=4)
-    (array([5., 5.]), array([-0.6,  0.6]))
-    >>> value_and_grad(hypot)([-3, 3], 4)
-    (array([5., 5.]), (array([-0.6,  0.6]), 1.6))
-    """
-    return Differentiable(function).value_and_grad
+    return _func_to_grad(
+        forward_func, return_value=False, force_scalar_output=False)

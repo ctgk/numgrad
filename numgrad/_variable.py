@@ -6,6 +6,12 @@ import numpy.typing as npt
 from numgrad._config import config
 
 
+_JOIN_FUNCS = (
+    np.concatenate, np.stack, np.block, np.vstack, np.hstack, np.dstack,
+    np.column_stack, np.row_stack,
+)
+
+
 def _ndarray_args(*args):
     return tuple(
         a._data if isinstance(a, Variable) else a for a in args)
@@ -67,7 +73,7 @@ class Variable(object):
     def __array_ufunc__(  # noqa: D105
         self, ufunc, method, *inputs, out=None, **kwargs,
     ):
-        if config._verbosity > 0:
+        if config._verbosity > 1:
             print(
                 'inputs of __array_ufunc__',
                 ufunc, method, inputs, out, kwargs,
@@ -87,15 +93,20 @@ class Variable(object):
 
     def __array_function__(self, func, types, args, kwargs):  # noqa: D105
         # https://numpy.org/devdocs/user/basics.dispatch.html
-        if config._verbosity > 0:
+        if config._verbosity > 1:
             print('inputs of __array_function__:', func, types, args, kwargs)
-        result = func(*_ndarray_args(*args), **_ndarray_kwargs(**kwargs))
+        if func in _JOIN_FUNCS:
+            result = func(_ndarray_args(*args[0]), *args[1:], **kwargs)
+        else:
+            result = func(*_ndarray_args(*args), **_ndarray_kwargs(**kwargs))
         return self._postprocess(result, func, *args, **kwargs)
 
     @staticmethod
     def _postprocess(result, func, *args, **kwargs):
         if config._graph is not None and func in config._func2vjps:
-            if isinstance(result, (tuple, list)):
+            if func == np.linalg.slogdet:
+                result = (result[0], Variable(result[1]))
+            elif isinstance(result, (tuple, list)):
                 result = tuple(
                     Variable(r) if r.dtype == config.dtype else r
                     for r in result
@@ -129,6 +140,12 @@ for method, func in (
         lambda self: repr(self._data.view(
             type('Variable', (np.ndarray,), {}))),
     ),
+    ('__eq__', lambda self, other: np.equal(self, other)),
+    ('__ne__', lambda self, other: np.not_equal(self, other)),
+    ('__ge__', lambda self, other: np.greater_equal(self, other)),
+    ('__gt__', lambda self, other: np.greater(self, other)),
+    ('__le__', lambda self, other: np.less_equal(self, other)),
+    ('__lt__', lambda self, other: np.less(self, other)),
     ('__setitem__', functools.partialmethod(_inplace, '__setitem__')),
     ('__iadd__', functools.partialmethod(_inplace, '__iadd__')),
     ('__isub__', functools.partialmethod(_inplace, '__isub__')),
@@ -181,6 +198,11 @@ for method, func in (
             a, *({0: tuple(), 1: args}.get(len(args), (args,))), **kwargs),
     ),
     (
+        'clip',
+        lambda a, min=None, max=None, **kwargs: getattr(np, 'clip')(
+            a, min, max, **kwargs),
+    ),
+    (
         'max',
         lambda self, *args, **kwargs: getattr(np, 'max')(
             self, *args, **kwargs),
@@ -188,11 +210,6 @@ for method, func in (
     (
         'min',
         lambda self, *args, **kwargs: getattr(np, 'min')(
-            self, *args, **kwargs),
-    ),
-    (
-        'mean',
-        lambda self, *args, **kwargs: getattr(np, 'mean')(
             self, *args, **kwargs),
     ),
     (
@@ -215,6 +232,12 @@ for method, func in (
         lambda self, *args, **kwargs: getattr(np, 'cumsum')(
             self, *args, **kwargs),
     ),
+    (
+        'mean',
+        lambda a, *args, **kwargs: getattr(np, 'mean')(a, *args, **kwargs),
+    ),
+    ('std', lambda a, *args, **kwargs: np.std(a, *args, **kwargs)),
+    ('var', lambda a, *args, **kwargs: getattr(np, 'var')(a, *args, **kwargs)),
 ):
     setattr(Variable, method, func)
     setattr(

@@ -61,10 +61,24 @@ array_manipulation = [
     (lambda a: np.transpose(a, (0, 2, 1)), np.random.rand(2, 3, 4)),
     (lambda a: a.transpose(0, 2, 1), np.random.rand(2, 3, 4)),
     (lambda a: a.T, np.random.rand(2, 3)),
+    (lambda *a: np.atleast_1d(*a), 5),
+    (lambda *a: sum(np.atleast_1d(*a)), (0, 5)),
+    (lambda *a: sum(np.atleast_1d(*a)), ([1], 5)),
+    (lambda *a: sum(np.atleast_1d(*a)), ([1], [[5, 2]])),
+    (lambda *a: np.atleast_2d(*a), 5),
+    (lambda *a: sum(np.atleast_2d(*a)), (0, 5)),
+    (lambda *a: sum(np.atleast_2d(*a)), ([1], 5)),
+    (lambda *a: sum(np.atleast_2d(*a)), ([1], [[5, 2]])),
+    (lambda *a: np.atleast_3d(*a), 5),
+    (lambda *a: sum(np.atleast_3d(*a)), (0, 5)),
+    (lambda *a: sum(np.atleast_3d(*a)), ([1], 5)),
+    (lambda *a: sum(np.atleast_3d(*a)), ([1], [[5, 2]])),
     (lambda a: np.broadcast_to(a, 4), 5),
     (lambda a: np.broadcast_to(a, 4), np.array([5])),
     (lambda a: np.broadcast_to(a, (4, 2)), np.array([5])),
     (lambda a: np.broadcast_to(a, (4, 2)), np.array([[5], [4], [3], [2]])),
+    (lambda a: np.multiply(*np.broadcast_arrays(a, [[0, 1]])), [[2], [3]]),
+    (lambda *a: np.multiply(*np.broadcast_arrays(*a)), ([[2], [3]], [[0, 1]])),
     (lambda a: np.expand_dims(a, 0), 1),
     (lambda a: np.expand_dims(a, 0), np.array([1, 2])),
     (lambda a: np.expand_dims(a, 1), np.array([1, 2])),
@@ -75,6 +89,29 @@ array_manipulation = [
     (lambda a: a.squeeze(0), np.random.rand(1, 3, 1)),
     (lambda a: np.squeeze(a, 2), np.random.rand(1, 3, 1)),
     (lambda a: a.squeeze(), np.random.rand(1, 1)),
+    (lambda a: np.asarray(a), 0),
+    (lambda a: np.asarray(a), [0]),
+    (lambda a: np.asanyarray(a), 0),
+    (lambda a: np.asanyarray(a), [0]),
+    (lambda *a: np.concatenate(a), ([0], [1])),
+    (lambda a: np.concatenate([a, [[1], [2]]], axis=1), np.random.rand(2, 3)),
+    (lambda *a: np.stack(a), ([1], [2])),
+    (
+        lambda *a: np.stack(a, axis=1),
+        tuple(np.random.rand(3, 4) for _ in range(5)),
+    ),
+    (lambda a: np.vstack([a, [[4], [5], [6]]]), [[1], [2], [3]]),
+    (lambda *a: np.vstack(a), ([1, 2, 3], [4, 5, 6])),
+    (lambda *a: np.vstack(a), (np.ones((2, 3, 4)), np.zeros((5, 3, 4)))),
+    (lambda a: np.hstack([a, [[4], [5], [6]]]), [[1, 1], [2, 2], [3, 3]]),
+    (lambda *a: np.hstack(a), ([1, 2, 3], [4, 5])),
+    (lambda *a: np.hstack(a), (np.ones((2, 3, 4)), np.zeros((2, 5, 4)))),
+    (lambda a: np.dstack([a, [[4], [5], [6]]]), [[1], [2], [3]]),
+    (lambda *a: np.dstack(a), ([1, 2, 3], np.random.rand(1, 3, 1))),
+    (lambda *a: np.dstack(a), (np.ones((2, 3, 4)), np.zeros((2, 3, 1)))),
+    (lambda *a: np.column_stack(a), ([1, 2, 3], [2, 3, 4])),
+    (lambda *a: np.column_stack(a), ([1, 2, 3], [[2], [3], [4]])),
+    (lambda *a: np.row_stack(a), ([1, 2, 3], [[2, 3, 4], [5, 6, 7]])),
     (lambda a: sum(np.split(a, 2)), np.random.rand(2, 3, 4)),
     (
         lambda a: sum(r.prod() for r in np.split(a, [3, 6], 2)),
@@ -162,14 +199,44 @@ linear_algebra = [
     (lambda a, b: a @ b, ([[1, 2], [3, 4]], [1, 2])),
     (lambda a, b: np.matmul(a, b), ([[1, 2], [3, 4]], [[1, 2], [3, 4]])),
     (lambda a, b: a @ b, (np.random.rand(3, 4, 2), [[1, 2], [3, 4]])),
+    (
+        lambda a: np.linalg.cholesky(0.5 * (a + np.swapaxes(a, -1, -2))),
+        np.eye(2),
+    ),
+    (
+        lambda a: np.linalg.cholesky(0.5 * (a + np.swapaxes(a, -1, -2))),
+        np.random.rand(2, 3, 3) + np.eye(3),
+    ),
     (lambda a: np.linalg.det(a), np.eye(2)),
     (lambda a: np.linalg.det(a), np.random.rand(2, 3, 3) + np.eye(3) * 10),
+    (lambda a: np.linalg.slogdet(a)[1], np.eye(2)),
+    (
+        lambda a: np.linalg.slogdet(a)[1],
+        np.random.rand(2, 3, 3) + np.eye(3) * 10,
+    ),
+    (
+        lambda a: np.multiply(*np.linalg.slogdet(a)),
+        np.random.rand(2, 3, 3) + np.eye(3) * -10,
+    ),
+    (lambda a: np.trace(a), np.eye(2)),
+    (lambda a: np.trace(a, 1, 1, 2), np.random.rand(2, 3, 4)),
+    (lambda a, b: np.linalg.solve(a, b), (np.eye(2), np.eye(2))),
+    (lambda a, b: np.linalg.solve(a, b), (np.eye(2), np.ones(2))),
+    (
+        lambda a, b: np.linalg.solve(a, b),
+        (np.random.rand(2, 3, 3) + np.eye(3), np.random.rand(2, 3)),
+    ),
+    (
+        lambda a, b: np.linalg.solve(a, b),
+        (np.random.rand(2, 3, 3) + np.eye(3), np.random.rand(2, 3, 5)),
+    ),
+    (lambda a: np.linalg.inv(a), np.random.rand(2, 3, 3) + np.eye(3)),
 ]
 trigonometrics = [
     (np.cos, np.random.uniform(-10, 10, (3, 2))),
     (np.sin, np.random.uniform(-10, 10, (2, 5))),
     (np.tan, np.arctan(np.random.uniform(-2, 2, (4, 1)))),
-    (np.arcsin, np.random.uniform(-1, 1, (3, 4))),
+    (np.arcsin, np.random.uniform(-0.9, 0.9, (3, 4))),
     (np.arccos, np.random.uniform(-1, 1, (3, 4))),
     (np.arctan, np.random.uniform(-10, 10, (5, 3))),
     (lambda a: np.hypot(a, 4), 3),
@@ -320,6 +387,15 @@ extrema_finding = [
     (lambda a: np.nanmin(a, axis=0, keepdims=True), [np.nan, 1]),
 ]
 miscellaneous = [
+    (lambda a: a.clip(4.5), np.arange(10)),
+    (lambda a: a.clip(np.arange(20).reshape(2, 10) - 0.1), np.random.rand(10)),
+    (lambda a: a.clip(max=7.5), np.arange(10)),
+    (lambda a, b, c: a.clip(b, c), (np.arange(10), 1.2, 8.8)),
+    (lambda a, b, c: a.clip(min=b, max=c), (np.arange(10), 7.7, 2.1)),
+    (lambda a: np.clip(a, 2.8, None), np.arange(10)),
+    (lambda a: np.clip(a, None, 8.2), np.arange(10)),
+    (lambda a, b: np.clip(range(10), a, b), (1.5, 4.4)),
+    (lambda a, b, c: np.clip(a, b, c), (np.arange(10), 8.2, 1.8)),
     (np.sqrt, [3, 0.5]),
     (np.cbrt, [3, 0.5]),
     (np.square, [2, -1]),
@@ -327,6 +403,9 @@ miscellaneous = [
     (np.abs, [2, -1]),
     (np.absolute, [2, -1]),
     (np.fabs, [2, -1]),
+    (np.nan_to_num, 1),
+    (np.nan_to_num, np.nan),
+    (np.nan_to_num, [1, np.nan]),
 ]
 random = [
     (lambda a: (np.random.seed(0), np.random.exponential(a))[1], [1, 10]),
@@ -362,11 +441,29 @@ statistics = [
     (lambda a: np.mean(a), [-1, 1]),
     (lambda a: a.mean(axis=1), np.random.rand(3, 2)),
     (lambda a: np.mean(a, (0, 2), keepdims=True), np.random.rand(4, 2, 3)),
+    (lambda a: np.std(a), -1),
+    (lambda a: np.std(a), [-1, 1]),
+    (lambda a: a.std(axis=1), np.random.rand(3, 2)),
+    (lambda a: np.std(a, (0, 2), keepdims=True), np.random.rand(4, 2, 3)),
+    (lambda a: np.var(a), -1),
+    (lambda a: np.var(a), [-1, 1]),
+    (lambda a: a.var(axis=1), np.random.rand(3, 2)),
+    (lambda a: np.var(a, (0, 2), keepdims=True), np.random.rand(4, 2, 3)),
     (lambda a: np.nanmean(a), 1),
     (lambda a: np.nanmean(a), np.nan),
     (lambda a: np.nanmean(a), [1, np.nan, -3]),
     (lambda a: np.nanmean(a), [[1, np.nan, -3], [np.nan, np.nan, 5]]),
     (lambda a: np.nanmean(a, 1), [[1, np.nan, -3], [np.nan, np.nan, 5]]),
+    (lambda a: np.nanstd(a), 1),
+    (lambda a: np.nanstd(a), np.nan),
+    (lambda a: np.nanstd(a), [1, np.nan, -3]),
+    (lambda a: np.nanstd(a), [[1, np.nan, -3], [np.nan, np.nan, 5]]),
+    (lambda a: np.nanstd(a, 1), [[1, np.nan, -3], [np.nan, np.nan, 5]]),
+    (lambda a: np.nanvar(a), 1),
+    (lambda a: np.nanvar(a), np.nan),
+    (lambda a: np.nanvar(a), [1, np.nan, -3]),
+    (lambda a: np.nanvar(a), [[1, np.nan, -3], [np.nan, np.nan, 5]]),
+    (lambda a: np.nanvar(a, 1), [[1, np.nan, -3], [np.nan, np.nan, 5]]),
 ]
 scipy_specials = [
     (sp.gamma, [1, 0.5, 3.3]),
@@ -379,7 +476,7 @@ scipy_specials = [
     ),
     (lambda a: sp.log_softmax(a, axis=(0, 2)), np.random.rand(2, 3, 4)),
     (lambda a: sp.logsumexp(a), -1),
-    (lambda a: sp.logsumexp(a), [-1, 1]),
+    (lambda a: np.multiply(*sp.logsumexp(a, return_sign=True)), [-1, 1]),
     (lambda a: sp.logsumexp(a, axis=1), np.random.rand(3, 2)),
     (
         lambda a: sp.logsumexp(a, axis=(0, 2), keepdims=True),
@@ -421,7 +518,7 @@ def parameters(request):
     return request.param
 
 
-def test_computation_graph_gradient(parameters):
+def test_computational_graph_backward(parameters):
     f = parameters[0]
     args = parameters[1] if isinstance(
         parameters[1], tuple) else (parameters[1],)
@@ -433,7 +530,7 @@ def test_computation_graph_gradient(parameters):
         assert return_type_of_function != ng.Variable
         with ng.Graph() as g:
             y = f(*args)
-        print(g._node_list[0].function)
+        print([node.function for node in g._node_list])
         assert type(y) == ng.Variable
         if return_type_of_function == float:
             assert type(y._data) == ng.config.dtype
@@ -441,26 +538,27 @@ def test_computation_graph_gradient(parameters):
             assert type(y._data) == return_type_of_function
 
         assert type(f(*args)) == return_type_of_function
-        dargs_actual = g.gradient(y, args)
+        dargs_actual = g.backward(y, args)
         dargs_expected = _numerical_grad(f, *args)
         for arg, actual, expected in zip(args, dargs_actual, dargs_expected):
             assert type(arg._data) == type(actual)
+            if isinstance(actual, np.ndarray):
+                assert arg.shape == actual.shape
             assert np.allclose(expected, actual)
 
-        with ng.Graph() as g:
-            y = np.nanmean(f(*args))
-        dargs_actual = g.gradient(y, args)
-        dargs_expected = _numerical_grad(lambda *a: np.nanmean(f(*a)), *args)
-        for actual, expected in zip(dargs_actual, dargs_expected):
-            assert np.allclose(expected, actual)
+        dy = np.random.uniform(-10, 10)
+        dargs_with_dy = g.backward(y, args, target_grad=dy)
+        for arg, actual, expected in zip(args, dargs_with_dy, dargs_expected):
+            assert type(arg._data) == type(actual)
+            assert np.allclose(dy * expected, actual)
 
 
-def test_computational_graph_gradient_error():
+def test_computational_graph_backward_error():
     a = ng.Variable([0, 0.5])
     with ng.Graph() as g:
         b = np.argsort(a)
     with pytest.raises(Exception):
-        g.gradient(b, [a])[0]
+        g.backward(b, [a])[0]
 
 
 @pytest.mark.parametrize('function, args, kwargs, expect', [
@@ -493,9 +591,32 @@ def test_grad(function, args, kwargs, expect):
         assert np.allclose(actual, expect)
 
 
+@pytest.mark.parametrize('dfunc, args, kwargs, expect', [
+    (ng.grad(ng.grad(lambda a: a ** 3)), (-2,), {}, -12),
+    (
+        ng.elementwise_grad(ng.elementwise_grad(np.sin)),
+        ([0, 1, 2],), {}, -np.sin([0, 1, 2]),
+    ),
+    (
+        ng.elementwise_grad(ng.elementwise_grad(
+            ng.elementwise_grad(lambda a: a ** 4))),
+        ([0, -1, 2],), {}, [0, -24, 48],
+    ),
+])
+def test_higher_order_derivatives(dfunc, args, kwargs, expect):
+    actual = dfunc(*args, **kwargs)
+    if isinstance(expect, tuple):
+        assert len(actual) == len(expect)
+        for a, e in zip(actual, expect):
+            assert np.allclose(a, e)
+    else:
+        assert np.allclose(actual, expect)
+
+
 @pytest.mark.parametrize('function, args, kwargs, expect', [
     (lambda a=3, b=-4: np.sqrt(a * a + b * b), (), {}, ValueError),
     (lambda a, b=-4: np.sqrt(a * a + b * b), (), dict(a=3), ValueError),
+    (lambda a, b: np.sqrt(a * a + b * b), ([1, 2], 3), {}, ValueError),
 ])
 def test_grad_error(function, args, kwargs, expect):
     with pytest.raises(expect):

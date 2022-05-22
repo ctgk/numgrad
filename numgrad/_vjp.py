@@ -10,12 +10,12 @@ from numgrad._variable import _ndarray_args, _ndarray_kwargs, Variable
 
 def _register_vjp(
     forward: callable,
-    *vjp_funcs: callable,
+    func_to_vjp: callable,
     module_name: str = None,
     func_name: str = None,
 ):
 
-    config._func2vjps[forward] = vjp_funcs
+    config._func2vjps[forward] = func_to_vjp
 
     if isinstance(forward, np.ufunc):
         return
@@ -45,14 +45,13 @@ def _register_vjp(
     )
 
 
-def differentiable(*vjp_funcs: callable) -> callable:
-    """Return wrapper function to make a function differentiable.
+def custom_vjp(func_to_vjp: callable) -> callable:
+    """Return wrapper function to make a custom differentiable function.
 
     Parameters
     ----------
-    vjp_funcs : callable
-        VJP function(s) whose parameters are parameters of the function
-        followed by gradient_of_output and output.
+    func_to_vjp : callable
+        Function to return vector-jacobian-product function(s).
 
     Returns
     -------
@@ -61,10 +60,8 @@ def differentiable(*vjp_funcs: callable) -> callable:
 
     Examples
     --------
-    >>> def custom_gradient(grad_of_out, output, x):
-    ...     return grad_of_out * 3  # note that this is wrong.
-    ...
-    >>> @differentiable(custom_gradient)
+    >>> # note that this is a custom gradient
+    >>> @custom_vjp(lambda x: lambda g, r: g * 3)
     ... def twice(x):
     ...     return 2 * x
     ...
@@ -76,12 +73,12 @@ def differentiable(*vjp_funcs: callable) -> callable:
     ...
     >>> b
     Variable([8., 4.])
-    >>> g.gradient(b, [a])[0]  # custom gradient is used
+    >>> g.backward(b, [a])[0]  # custom gradient is used
     array([3., 3.])
     """
 
     def decorator(forward):
-        config._func2vjps[forward] = vjp_funcs
+        config._func2vjps[forward] = func_to_vjp
 
         @functools.wraps(forward)
         def wrapped_forward(*args, **kwargs):

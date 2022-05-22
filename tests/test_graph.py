@@ -27,6 +27,20 @@ def test_automatic_operation_storing():
     assert g._node_list[0].inputs[0] is a
 
 
+def test_multiple_graphs():
+    a = ng.Variable(-1)
+    with ng.Graph(_allow_multiple_graphs=True) as g1:
+        b = np.square(a)
+        with ng.Graph(_allow_multiple_graphs=True) as g2:
+            c = np.square(b)
+    assert len(g1._node_list) == 2
+    assert len(g2._node_list) == 1
+    assert g1._node_list[0].result is b
+    assert g1._node_list[0].inputs[0] is a
+    assert g1._node_list[1].result is c
+    assert g1._node_list[1].inputs[0] is b
+
+
 @pytest.mark.parametrize('function, args, expect', [
     (lambda a, b: a + b, (1, 1), int),
     (lambda a, b: a + b, (ng.Variable(1), 1), ng.Variable),
