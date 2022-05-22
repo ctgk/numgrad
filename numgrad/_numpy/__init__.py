@@ -327,16 +327,19 @@ _register_vjp(
     )[-1],
 )
 
+
 # https://numpy.org/doc/stable/reference/routines.linalg.html#norms-and-other-numbers
+def _t(x):
+    return np.swapaxes(x, -1, -2)
+
+
 _register_vjp(
     np.linalg.det,
-    lambda a: lambda g, r: (g * r)[..., None, None] * np.linalg.inv(
-        np.swapaxes(a, -1, -2)),
+    lambda a: lambda g, r: (g * r)[..., None, None] * np.linalg.inv(_t(a)),
 )
 _register_vjp(
     np.linalg.slogdet,
-    lambda a: lambda g, r: g[1][..., None, None] * np.linalg.inv(
-        np.swapaxes(a, -1, -2)),
+    lambda a: lambda g, r: g[1][..., None, None] * np.linalg.inv(_t(a)),
 )
 _register_vjp(
     np.trace,
@@ -348,12 +351,7 @@ _register_vjp(
     ),
 )
 
-
 # https://numpy.org/doc/stable/reference/routines.linalg.html#solving-equations-and-inverting-matrices
-def _t(x):
-    return np.swapaxes(x, -1, -2)
-
-
 _register_vjp(
     np.linalg.solve,
     lambda a, b: (
