@@ -328,11 +328,24 @@ _register_vjp(
 )
 
 
-# https://numpy.org/doc/stable/reference/routines.linalg.html#norms-and-other-numbers
+# https://numpy.org/doc/stable/reference/routines.linalg.html#decompositions
 def _t(x):
     return np.swapaxes(x, -1, -2)
 
 
+_register_vjp(
+    np.linalg.cholesky,
+    lambda a: lambda g, r: (
+        g_lower := np.tril(g),
+        rgt := _t(r) @ g_lower,
+        phi := 0.5 * (np.tril(rgt) + np.tril(rgt, -1)),
+        s := np.linalg.solve(_t(r), phi @ np.linalg.inv(r)),
+        0.5 * (s + _t(s)),
+    )[-1],
+)
+
+
+# https://numpy.org/doc/stable/reference/routines.linalg.html#norms-and-other-numbers
 _register_vjp(
     np.linalg.det,
     lambda a: lambda g, r: (g * r)[..., None, None] * np.linalg.inv(_t(a)),
@@ -371,6 +384,10 @@ _register_vjp(
     np.linalg.inv,
     lambda a: lambda g, r: -_t(
         np.linalg.solve(a, _t(np.linalg.solve(_t(a), g)))),
+)
+_register_vjp(
+    np.linalg.pinv,
+    lambda a, rcond=1e-15, hermitian=False: lambda g, r: None,
 )
 
 # https://numpy.org/doc/stable/reference/routines.math.html#trigonometric-functions

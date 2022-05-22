@@ -199,6 +199,14 @@ linear_algebra = [
     (lambda a, b: a @ b, ([[1, 2], [3, 4]], [1, 2])),
     (lambda a, b: np.matmul(a, b), ([[1, 2], [3, 4]], [[1, 2], [3, 4]])),
     (lambda a, b: a @ b, (np.random.rand(3, 4, 2), [[1, 2], [3, 4]])),
+    (
+        lambda a: np.linalg.cholesky(0.5 * (a + np.swapaxes(a, -1, -2))),
+        np.eye(2),
+    ),
+    (
+        lambda a: np.linalg.cholesky(0.5 * (a + np.swapaxes(a, -1, -2))),
+        np.random.rand(2, 3, 3) + np.eye(3),
+    ),
     (lambda a: np.linalg.det(a), np.eye(2)),
     (lambda a: np.linalg.det(a), np.random.rand(2, 3, 3) + np.eye(3) * 10),
     (lambda a: np.linalg.slogdet(a)[1], np.eye(2)),
@@ -228,7 +236,7 @@ trigonometrics = [
     (np.cos, np.random.uniform(-10, 10, (3, 2))),
     (np.sin, np.random.uniform(-10, 10, (2, 5))),
     (np.tan, np.arctan(np.random.uniform(-2, 2, (4, 1)))),
-    (np.arcsin, np.random.uniform(-1, 1, (3, 4))),
+    (np.arcsin, np.random.uniform(-0.9, 0.9, (3, 4))),
     (np.arccos, np.random.uniform(-1, 1, (3, 4))),
     (np.arctan, np.random.uniform(-10, 10, (5, 3))),
     (lambda a: np.hypot(a, 4), 3),
