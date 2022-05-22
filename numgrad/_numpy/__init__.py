@@ -348,13 +348,31 @@ _register_vjp(
     ),
 )
 
+
 # https://numpy.org/doc/stable/reference/routines.linalg.html#solving-equations-and-inverting-matrices
+def _t(x):
+    return np.swapaxes(x, -1, -2)
+
+
+_register_vjp(
+    np.linalg.solve,
+    lambda a, b: (
+        a := _to_array(a),
+        b := _to_array(b),
+        f := lambda x: x if a.ndim == b.ndim else x[..., None],
+        (
+            lambda g, r: -np.linalg.solve(_t(a), f(g)) @ _t(f(r)),
+            lambda g, r: np.squeeze(
+                np.linalg.solve(_t(a), f(g)),
+                tuple() if a.ndim == b.ndim else -1,
+            ),
+        ),
+    )[-1],
+)
 _register_vjp(
     np.linalg.inv,
-    lambda a: lambda g, r: (
-        t := lambda x: np.swapaxes(x, -1, -2),
-        -t(np.linalg.solve(a, t(np.linalg.solve(t(a), g)))),
-    )[-1],
+    lambda a: lambda g, r: -_t(
+        np.linalg.solve(a, _t(np.linalg.solve(_t(a), g)))),
 )
 
 # https://numpy.org/doc/stable/reference/routines.math.html#trigonometric-functions
