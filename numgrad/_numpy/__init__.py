@@ -348,6 +348,15 @@ _register_vjp(
     ),
 )
 
+# https://numpy.org/doc/stable/reference/routines.linalg.html#solving-equations-and-inverting-matrices
+_register_vjp(
+    np.linalg.inv,
+    lambda a: lambda g, r: (
+        t := lambda x: np.swapaxes(x, -1, -2),
+        -t(np.linalg.solve(a, t(np.linalg.solve(t(a), g)))),
+    )[-1],
+)
+
 # https://numpy.org/doc/stable/reference/routines.math.html#trigonometric-functions
 _register_vjp(np.sin, lambda x: lambda g, r: g * np.cos(x))
 _register_vjp(np.cos, lambda x: lambda g, r: g * -np.sin(x))

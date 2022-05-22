@@ -212,6 +212,7 @@ linear_algebra = [
     ),
     (lambda a: np.trace(a), np.eye(2)),
     (lambda a: np.trace(a, 1, 1, 2), np.random.rand(2, 3, 4)),
+    (lambda a: np.linalg.inv(a), np.random.rand(2, 3, 3) + np.eye(3)),
 ]
 trigonometrics = [
     (np.cos, np.random.uniform(-10, 10, (3, 2))),
