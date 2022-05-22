@@ -338,6 +338,15 @@ _register_vjp(
     lambda a: lambda g, r: g[1][..., None, None] * np.linalg.inv(
         np.swapaxes(a, -1, -2)),
 )
+_register_vjp(
+    np.trace,
+    lambda a, offset=0, axis1=0, axis2=1: lambda g, r: np.multiply(
+        np.expand_dims(
+            np.eye(a.shape[axis1], a.shape[axis2], k=offset),
+            [i for i in range(a.ndim) if i not in (axis1, axis2)]),
+        np.expand_dims(g, (axis1, axis2)),
+    ),
+)
 
 # https://numpy.org/doc/stable/reference/routines.math.html#trigonometric-functions
 _register_vjp(np.sin, lambda x: lambda g, r: g * np.cos(x))
