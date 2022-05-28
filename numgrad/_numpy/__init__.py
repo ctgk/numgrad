@@ -1,4 +1,5 @@
 import numpy as np
+from numpy.lib.stride_tricks import as_strided
 
 from numgrad._utils._expand_to import _expand_to
 from numgrad._utils._to_array import _to_array
@@ -597,7 +598,38 @@ _register_vjp(
     ),
 )
 
+
 # https://numpy.org/doc/stable/reference/routines.math.html#miscellaneous
+def _convolve_vjp_x1(g, a, v, mode):
+    w = {'full': v.size - 1, 'valid': 0, 'same': v.size // 2}[mode]
+    a_pad = np.pad(a, w)
+    s = a_pad.strides[0]
+    a_col = as_strided(a_pad, [g.size, v.size], [s, s])
+    da_col = _matmul_nd_1d_vjp_x1(g, a_col, v[::-1])
+    da_col_pad = np.pad(da_col, ((0,), (g.size,)))
+    da_col_strided = as_strided(
+        da_col_pad.ravel()[g.size + w:],
+        [g.size, a.size], [da_col_pad.strides[0] - s, s])
+    da = da_col_strided.sum(0)
+    return da
+
+
+def _convolve_vjp_x2(g, a, v, mode):
+    w = {'full': v.size - 1, 'valid': 0, 'same': v.size // 2}[mode]
+    a_pad = np.pad(a, w)
+    s = a_pad.strides[0]
+    a_col = as_strided(a_pad, [g.size, v.size], [s, s])
+    dv = _matmul_nd_1d_vjp_x2(g, a_col, v[::-1])[::-1]
+    return dv
+
+
+_register_vjp(
+    np.convolve,
+    lambda a, v, mode='full': (
+        lambda g, r: _convolve_vjp_x1(g, np.asarray(a), np.asarray(v), mode),
+        lambda g, r: _convolve_vjp_x2(g, np.asarray(a), np.asarray(v), mode),
+    ),
+)
 _register_vjp(
     np.clip,
     lambda a, a_min, a_max: (

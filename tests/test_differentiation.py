@@ -387,6 +387,16 @@ extrema_finding = [
     (lambda a: np.nanmin(a, axis=0, keepdims=True), [np.nan, 1]),
 ]
 miscellaneous = [
+    (lambda a: np.convolve(a, [0, 1, 0.5], mode='full'), [1, 2, 3]),
+    (lambda a: np.convolve(a, [0, 1, 0.5], mode='same'), [1, 2, 3]),
+    (lambda a: np.convolve(a, [0, 1, 0.5], mode='valid'), [1, 2, 3]),
+    (lambda a, v: np.convolve(a, v, mode='full'), ([1, 2, 3], [0, 1, 0.5])),
+    (lambda a, v: np.convolve(a, v, mode='same'), ([1, 2, 3], [0, 1, 0.5])),
+    (lambda a, v: np.convolve(a, v, mode='valid'), ([1, 2, 3], [0, 1, 0.5])),
+    (lambda a, v: np.convolve(a, v, mode='valid'), ([1, 2, 3, 4], [0, 1, -1])),
+    (lambda a, v: np.convolve(a, v, mode='full'), ([1, 2, 3], [1, 0.5])),
+    (lambda a, v: np.convolve(a, v, mode='same'), ([1, 2, 3], [1, 0.5])),
+    (lambda a, v: np.convolve(a, v, mode='valid'), ([1, 2, 3], [1, 0.5])),
     (lambda a: a.clip(4.5), np.arange(10)),
     (lambda a: a.clip(np.arange(20).reshape(2, 10) - 0.1), np.random.rand(10)),
     (lambda a: a.clip(max=7.5), np.arange(10)),
