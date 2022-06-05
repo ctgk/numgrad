@@ -726,4 +726,37 @@ _register_vjp(
 )
 
 
+# https://numpy.org/doc/stable/reference/routines.statistics.html#correlating
+def _correlate_vjp_x1(g, a, v, mode):
+    w = {'full': v.size - 1, 'valid': 0, 'same': v.size // 2}[mode]
+    a_pad = np.pad(a, w)
+    s = a_pad.strides[0]
+    a_col = as_strided(a_pad, [g.size, v.size], [s, s])
+    da_col = _matmul_nd_1d_vjp_x1(g, a_col, v)
+    da_col_pad = np.pad(da_col, ((0,), (g.size,)))
+    da_col_strided = as_strided(
+        da_col_pad.ravel()[g.size + w:],
+        [g.size, a.size], [da_col_pad.strides[0] - s, s])
+    da = da_col_strided.sum(0)
+    return da
+
+
+def _correlate_vjp_x2(g, a, v, mode):
+    w = {'full': v.size - 1, 'valid': 0, 'same': v.size // 2}[mode]
+    a_pad = np.pad(a, w)
+    s = a_pad.strides[0]
+    a_col = as_strided(a_pad, [g.size, v.size], [s, s])
+    dv = _matmul_nd_1d_vjp_x2(g, a_col, v)
+    return dv
+
+
+_register_vjp(
+    np.correlate,
+    lambda a, v, mode='valid': (
+        lambda g, r: _correlate_vjp_x1(g, np.asarray(a), np.asarray(v), mode),
+        lambda g, r: _correlate_vjp_x2(g, np.asarray(a), np.asarray(v), mode),
+    ),
+)
+
+
 __all__ = []

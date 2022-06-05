@@ -474,6 +474,16 @@ statistics = [
     (lambda a: np.nanvar(a), [1, np.nan, -3]),
     (lambda a: np.nanvar(a), [[1, np.nan, -3], [np.nan, np.nan, 5]]),
     (lambda a: np.nanvar(a, 1), [[1, np.nan, -3], [np.nan, np.nan, 5]]),
+    (lambda a: np.correlate(a, [0, 1, 0.5], mode='full'), [1, 2, 3]),
+    (lambda a: np.correlate(a, [0, 1, 0.5], mode='same'), [1, 2, 3]),
+    (lambda a: np.correlate(a, [0, 1, 0.5], mode='valid'), [1, 2, 3]),
+    (lambda a, v: np.correlate(a, v, mode='full'), ([1, 2, 3], [0, 1, 0.5])),
+    (lambda a, v: np.correlate(a, v, mode='same'), ([1, 2, 3], [0, 1, 0.5])),
+    (lambda a, v: np.correlate(a, v, mode='valid'), ([1, 2, 3], [0, 1, 0.5])),
+    (lambda a, v: np.correlate(a, v, mode='valid'), ([1, 2, 3, 4], [2, 1, 3])),
+    (lambda a, v: np.correlate(a, v, mode='full'), ([1, 2, 3], [1, 0.5])),
+    (lambda a, v: np.correlate(a, v, mode='same'), ([1, 2, 3], [1, 0.5])),
+    (lambda a, v: np.correlate(a, v, mode='valid'), ([1, 2, 3], [1, 0.5])),
 ]
 scipy_specials = [
     (sp.gamma, [1, 0.5, 3.3]),
