@@ -1,6 +1,7 @@
 import numpy as np
 from numpy.lib.stride_tricks import as_strided
 
+from numgrad._numpy import _linalg, _random  # noqa: F401
 from numgrad._utils._expand_to import _expand_to
 from numgrad._utils._to_array import _to_array
 from numgrad._utils._unbroadcast import _unbroadcast_to
@@ -329,32 +330,7 @@ _register_vjp(
 )
 
 
-# https://numpy.org/doc/stable/reference/routines.linalg.html#decompositions
-def _t(x):
-    return np.swapaxes(x, -1, -2)
-
-
-_register_vjp(
-    np.linalg.cholesky,
-    lambda a: lambda g, r: (
-        g_lower := np.tril(g),
-        rgt := _t(r) @ g_lower,
-        phi := 0.5 * (np.tril(rgt) + np.tril(rgt, -1)),
-        s := np.linalg.solve(_t(r), phi @ np.linalg.inv(r)),
-        0.5 * (s + _t(s)),
-    )[-1],
-)
-
-
 # https://numpy.org/doc/stable/reference/routines.linalg.html#norms-and-other-numbers
-_register_vjp(
-    np.linalg.det,
-    lambda a: lambda g, r: (g * r)[..., None, None] * np.linalg.inv(_t(a)),
-)
-_register_vjp(
-    np.linalg.slogdet,
-    lambda a: lambda g, r: g[1][..., None, None] * np.linalg.inv(_t(a)),
-)
 _register_vjp(
     np.trace,
     lambda a, offset=0, axis1=0, axis2=1: lambda g, r: np.multiply(
@@ -363,32 +339,6 @@ _register_vjp(
             [i for i in range(a.ndim) if i not in (axis1, axis2)]),
         np.expand_dims(g, (axis1, axis2)),
     ),
-)
-
-# https://numpy.org/doc/stable/reference/routines.linalg.html#solving-equations-and-inverting-matrices
-_register_vjp(
-    np.linalg.solve,
-    lambda a, b: (
-        a := _to_array(a),
-        b := _to_array(b),
-        f := lambda x: x if a.ndim == b.ndim else x[..., None],
-        (
-            lambda g, r: -np.linalg.solve(_t(a), f(g)) @ _t(f(r)),
-            lambda g, r: np.squeeze(
-                np.linalg.solve(_t(a), f(g)),
-                tuple() if a.ndim == b.ndim else -1,
-            ),
-        ),
-    )[-1],
-)
-_register_vjp(
-    np.linalg.inv,
-    lambda a: lambda g, r: -_t(
-        np.linalg.solve(a, _t(np.linalg.solve(_t(a), g)))),
-)
-_register_vjp(
-    np.linalg.pinv,
-    lambda a, rcond=1e-15, hermitian=False: lambda g, r: None,
 )
 
 # https://numpy.org/doc/stable/reference/routines.math.html#trigonometric-functions
@@ -648,32 +598,6 @@ _register_vjp(
     np.nan_to_num,
     lambda x, copy=True, nan=0., posinf=None, neginf=None: (
         lambda g, r: np.where(np.isfinite(x), g, 0)),
-)
-
-# https://numpy.org/doc/stable/reference/random/legacy.html#functions-in-numpy-random
-_register_vjp(
-    np.random.exponential,
-    lambda scale, size=None: lambda g, r: (
-        dx := g * r / scale,
-        dx if size is None else _unbroadcast_to(dx, scale.shape),
-    )[1],
-    module_name='numpy.random', func_name='exponential',
-)
-_register_vjp(
-    np.random.normal,
-    lambda loc, scale, size=None: (
-        lambda g, r: _unbroadcast_to(g, loc.shape),
-        lambda g, r: _unbroadcast_to(g * (r - loc) / scale, scale.shape),
-    ),
-    module_name='numpy.random', func_name='normal',
-)
-_register_vjp(
-    np.random.uniform,
-    lambda low, high, size=None: (
-        lambda g, r: _unbroadcast_to(g * (high - r) / (high - low), low.shape),
-        lambda g, r: _unbroadcast_to(g * (r - low) / (high - low), high.shape),
-    ),
-    module_name='numpy.random', func_name='uniform',
 )
 
 # https://numpy.org/doc/stable/reference/routines.statistics.html#averages-and-variances
