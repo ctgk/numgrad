@@ -23,6 +23,34 @@ Variable.__getitem__ = custom_vjp(_getitem_vjp)(
 Variable.__getitem__.__doc__ = np.ndarray.__getitem__.__doc__
 
 
+# https://numpy.org/doc/stable/reference/routines.array-creation.html#numerical-ranges
+_register_vjp(
+    np.linspace,
+    lambda start, stop, num=50, endpoint=True, axis=0: (
+        lambda g, r: _unbroadcast_to(
+            np.sum(
+                g * np.linspace(
+                    np.ones_like(start), np.zeros_like(stop), num,
+                    endpoint=endpoint, axis=axis,
+                ),
+                axis=axis,
+            ),
+            start.shape,
+        ),
+        lambda g, r: _unbroadcast_to(
+            np.sum(
+                g * np.linspace(
+                    np.zeros_like(start), np.ones_like(stop), num,
+                    endpoint=endpoint, axis=axis,
+                ),
+                axis=axis,
+            ),
+            stop.shape,
+        ),
+    ),
+)
+
+
 # https://numpy.org/doc/stable/reference/routines.array-creation.html#building-matrices
 _register_vjp(
     np.diag,

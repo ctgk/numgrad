@@ -17,6 +17,12 @@ indexings = [
     (lambda a: a[np.array([0])], np.random.rand(4, 2, 3)),
 ]
 array_creation = [
+    (lambda a: np.linspace(a, 10), 0),
+    (lambda a: np.linspace(-2, a), 0),
+    (lambda a, b: np.linspace(a, b, 10), ([-2, 3], [4, 5])),
+    (lambda a, b: np.linspace(a, b, 10, endpoint=False), ([-2, 3], [4, 5])),
+    (lambda a, b: np.linspace(a, b, 10, axis=1), ([-2, 3], [[4], [5]])),
+    (lambda a, b: np.linspace(a, b, 10, axis=-1), ([-2, 3], [[4], [5]])),
     (lambda a: np.diag(a), np.array([1, 2])),
     (lambda a: np.diag(a, k=1), np.array([1, 2])),
     (lambda a: np.diag(a, k=-2), np.array([1, 2])),
