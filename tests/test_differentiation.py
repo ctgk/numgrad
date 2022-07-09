@@ -7,6 +7,8 @@ import scipy.special as sp
 import numgrad as ng
 from numgrad._utils._numerical_grad import _numerical_grad
 
+from tests.test_numpy.test_statistics import test_differentiation_statistics  # noqa: I100, I202, E501
+
 
 np.random.seed(0)
 
@@ -452,45 +454,6 @@ random = [
     ),
     (lambda a, b: (np.random.seed(0), np.random.uniform(a, b))[1], (0, 1)),
 ]
-statistics = [
-    (lambda a: np.mean(a), -1),
-    (lambda a: np.mean(a), [-1, 1]),
-    (lambda a: a.mean(axis=1), np.random.rand(3, 2)),
-    (lambda a: np.mean(a, (0, 2), keepdims=True), np.random.rand(4, 2, 3)),
-    (lambda a: np.std(a), -1),
-    (lambda a: np.std(a), [-1, 1]),
-    (lambda a: a.std(axis=1), np.random.rand(3, 2)),
-    (lambda a: np.std(a, (0, 2), keepdims=True), np.random.rand(4, 2, 3)),
-    (lambda a: np.var(a), -1),
-    (lambda a: np.var(a), [-1, 1]),
-    (lambda a: a.var(axis=1), np.random.rand(3, 2)),
-    (lambda a: np.var(a, (0, 2), keepdims=True), np.random.rand(4, 2, 3)),
-    (lambda a: np.nanmean(a), 1),
-    (lambda a: np.nanmean(a), np.nan),
-    (lambda a: np.nanmean(a), [1, np.nan, -3]),
-    (lambda a: np.nanmean(a), [[1, np.nan, -3], [np.nan, np.nan, 5]]),
-    (lambda a: np.nanmean(a, 1), [[1, np.nan, -3], [np.nan, np.nan, 5]]),
-    (lambda a: np.nanstd(a), 1),
-    (lambda a: np.nanstd(a), np.nan),
-    (lambda a: np.nanstd(a), [1, np.nan, -3]),
-    (lambda a: np.nanstd(a), [[1, np.nan, -3], [np.nan, np.nan, 5]]),
-    (lambda a: np.nanstd(a, 1), [[1, np.nan, -3], [np.nan, np.nan, 5]]),
-    (lambda a: np.nanvar(a), 1),
-    (lambda a: np.nanvar(a), np.nan),
-    (lambda a: np.nanvar(a), [1, np.nan, -3]),
-    (lambda a: np.nanvar(a), [[1, np.nan, -3], [np.nan, np.nan, 5]]),
-    (lambda a: np.nanvar(a, 1), [[1, np.nan, -3], [np.nan, np.nan, 5]]),
-    (lambda a: np.correlate(a, [0, 1, 0.5], mode='full'), [1, 2, 3]),
-    (lambda a: np.correlate(a, [0, 1, 0.5], mode='same'), [1, 2, 3]),
-    (lambda a: np.correlate(a, [0, 1, 0.5], mode='valid'), [1, 2, 3]),
-    (lambda a, v: np.correlate(a, v, mode='full'), ([1, 2, 3], [0, 1, 0.5])),
-    (lambda a, v: np.correlate(a, v, mode='same'), ([1, 2, 3], [0, 1, 0.5])),
-    (lambda a, v: np.correlate(a, v, mode='valid'), ([1, 2, 3], [0, 1, 0.5])),
-    (lambda a, v: np.correlate(a, v, mode='valid'), ([1, 2, 3, 4], [2, 1, 3])),
-    (lambda a, v: np.correlate(a, v, mode='full'), ([1, 2, 3], [1, 0.5])),
-    (lambda a, v: np.correlate(a, v, mode='same'), ([1, 2, 3], [1, 0.5])),
-    (lambda a, v: np.correlate(a, v, mode='valid'), ([1, 2, 3], [1, 0.5])),
-]
 scipy_specials = [
     (sp.gamma, [1, 0.5, 3.3]),
     (lambda a: sp.expit(a), [1, 0, -1]),
@@ -535,7 +498,7 @@ scipy_specials = [
                 *miscellaneous,
             ),
             *random,
-            *statistics,
+            *test_differentiation_statistics,
         ),
     ),
     *scipy_specials,
