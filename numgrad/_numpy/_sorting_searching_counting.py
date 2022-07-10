@@ -23,3 +23,8 @@ _register_vjp(
         else _unpermute(g, np.argsort(a, axis), 0).reshape(a.shape)
     ),
 )
+
+_register_vjp(
+    np.msort,
+    lambda a: lambda g, r: _unpermute(g, np.argsort(a, 0), 0),
+)
