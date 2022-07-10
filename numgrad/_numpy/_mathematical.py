@@ -142,6 +142,8 @@ _register_vjp(np.arcsin, lambda x: lambda g, r: g / np.cos(r))
 _register_vjp(np.arccos, lambda x: lambda g, r: g / -np.sin(r))
 _register_vjp(np.arctan, lambda x: lambda g, r: g * (np.cos(r) ** 2))
 _register_vjp(np.hypot, _get_vjp(_hypot_vjp, _hypot_vjp))
+_register_vjp(np.degrees, lambda x: lambda g, r: g * 180 / np.pi)
+_register_vjp(np.rad2deg, lambda x: lambda g, r: g * 180 / np.pi)
 
 # https://numpy.org/doc/stable/reference/routines.math.html#hyperbolic-functions
 _register_vjp(np.sinh, lambda x: lambda g, r: g * np.cosh(x))
