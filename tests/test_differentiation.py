@@ -7,6 +7,7 @@ import scipy.special as sp
 import numgrad as ng
 from numgrad._utils._numerical_grad import _numerical_grad
 
+from tests.test_numpy.test_sorting_searching_counting import test_differentiation_sorting_searching_counting  # noqa: I100, I202, E501
 from tests.test_numpy.test_statistics import test_differentiation_statistics  # noqa: I100, I202, E501
 
 
@@ -498,6 +499,7 @@ scipy_specials = [
                 *miscellaneous,
             ),
             *random,
+            *test_differentiation_sorting_searching_counting,
             *test_differentiation_statistics,
         ),
     ),

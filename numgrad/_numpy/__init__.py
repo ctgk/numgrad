@@ -4,6 +4,7 @@ from numpy.lib.stride_tricks import as_strided
 from numgrad._numpy import (  # noqa: F401
     _linalg,
     _random,
+    _sorting_searching_counting,
     _statistics,
 )
 from numgrad._utils._expand_to import _expand_to
