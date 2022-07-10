@@ -12,7 +12,9 @@ test_differentiation_trigonometrics = [
     (lambda a: np.hypot([2, 1], a), [[1], [-2]]),
     (np.hypot, (np.random.normal(size=(3,)), np.random.normal(size=(4, 1)))),
     (np.degrees, np.random.uniform(-10, 10, (2, 3))),
+    (np.radians, np.random.uniform(-1000, 1000, (5, 2))),
     (np.rad2deg, np.random.uniform(-10, 10, (4, 2))),
+    (np.deg2rad, np.random.uniform(-1000, 1000, (3, 4))),
 ]
 test_differentation_hyperbolics = [
     (np.cosh, np.random.uniform(-10, 10, (3, 4))),
