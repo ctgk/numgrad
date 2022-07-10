@@ -7,6 +7,9 @@ import scipy.special as sp
 import numgrad as ng
 from numgrad._utils._numerical_grad import _numerical_grad
 
+from tests.test_numpy.test_sorting_searching_counting import test_differentiation_sorting_searching_counting  # noqa: I100, I202, E501
+from tests.test_numpy.test_statistics import test_differentiation_statistics  # noqa: I100, I202, E501
+
 
 np.random.seed(0)
 
@@ -17,6 +20,12 @@ indexings = [
     (lambda a: a[np.array([0])], np.random.rand(4, 2, 3)),
 ]
 array_creation = [
+    (lambda a: np.linspace(a, 10), 0),
+    (lambda a: np.linspace(-2, a), 0),
+    (lambda a, b: np.linspace(a, b, 10), ([-2, 3], [4, 5])),
+    (lambda a, b: np.linspace(a, b, 10, endpoint=False), ([-2, 3], [4, 5])),
+    (lambda a, b: np.linspace(a, b, 10, axis=1), ([-2, 3], [[4], [5]])),
+    (lambda a, b: np.linspace(a, b, 10, axis=-1), ([-2, 3], [[4], [5]])),
     (lambda a: np.diag(a), np.array([1, 2])),
     (lambda a: np.diag(a, k=1), np.array([1, 2])),
     (lambda a: np.diag(a, k=-2), np.array([1, 2])),
@@ -387,6 +396,16 @@ extrema_finding = [
     (lambda a: np.nanmin(a, axis=0, keepdims=True), [np.nan, 1]),
 ]
 miscellaneous = [
+    (lambda a: np.convolve(a, [0, 1, 0.5], mode='full'), [1, 2, 3]),
+    (lambda a: np.convolve(a, [0, 1, 0.5], mode='same'), [1, 2, 3]),
+    (lambda a: np.convolve(a, [0, 1, 0.5], mode='valid'), [1, 2, 3]),
+    (lambda a, v: np.convolve(a, v, mode='full'), ([1, 2, 3], [0, 1, 0.5])),
+    (lambda a, v: np.convolve(a, v, mode='same'), ([1, 2, 3], [0, 1, 0.5])),
+    (lambda a, v: np.convolve(a, v, mode='valid'), ([1, 2, 3], [0, 1, 0.5])),
+    (lambda a, v: np.convolve(a, v, mode='valid'), ([1, 2, 3, 4], [0, 1, -1])),
+    (lambda a, v: np.convolve(a, v, mode='full'), ([1, 2, 3], [1, 0.5])),
+    (lambda a, v: np.convolve(a, v, mode='same'), ([1, 2, 3], [1, 0.5])),
+    (lambda a, v: np.convolve(a, v, mode='valid'), ([1, 2, 3], [1, 0.5])),
     (lambda a: a.clip(4.5), np.arange(10)),
     (lambda a: a.clip(np.arange(20).reshape(2, 10) - 0.1), np.random.rand(10)),
     (lambda a: a.clip(max=7.5), np.arange(10)),
@@ -436,35 +455,6 @@ random = [
     ),
     (lambda a, b: (np.random.seed(0), np.random.uniform(a, b))[1], (0, 1)),
 ]
-statistics = [
-    (lambda a: np.mean(a), -1),
-    (lambda a: np.mean(a), [-1, 1]),
-    (lambda a: a.mean(axis=1), np.random.rand(3, 2)),
-    (lambda a: np.mean(a, (0, 2), keepdims=True), np.random.rand(4, 2, 3)),
-    (lambda a: np.std(a), -1),
-    (lambda a: np.std(a), [-1, 1]),
-    (lambda a: a.std(axis=1), np.random.rand(3, 2)),
-    (lambda a: np.std(a, (0, 2), keepdims=True), np.random.rand(4, 2, 3)),
-    (lambda a: np.var(a), -1),
-    (lambda a: np.var(a), [-1, 1]),
-    (lambda a: a.var(axis=1), np.random.rand(3, 2)),
-    (lambda a: np.var(a, (0, 2), keepdims=True), np.random.rand(4, 2, 3)),
-    (lambda a: np.nanmean(a), 1),
-    (lambda a: np.nanmean(a), np.nan),
-    (lambda a: np.nanmean(a), [1, np.nan, -3]),
-    (lambda a: np.nanmean(a), [[1, np.nan, -3], [np.nan, np.nan, 5]]),
-    (lambda a: np.nanmean(a, 1), [[1, np.nan, -3], [np.nan, np.nan, 5]]),
-    (lambda a: np.nanstd(a), 1),
-    (lambda a: np.nanstd(a), np.nan),
-    (lambda a: np.nanstd(a), [1, np.nan, -3]),
-    (lambda a: np.nanstd(a), [[1, np.nan, -3], [np.nan, np.nan, 5]]),
-    (lambda a: np.nanstd(a, 1), [[1, np.nan, -3], [np.nan, np.nan, 5]]),
-    (lambda a: np.nanvar(a), 1),
-    (lambda a: np.nanvar(a), np.nan),
-    (lambda a: np.nanvar(a), [1, np.nan, -3]),
-    (lambda a: np.nanvar(a), [[1, np.nan, -3], [np.nan, np.nan, 5]]),
-    (lambda a: np.nanvar(a, 1), [[1, np.nan, -3], [np.nan, np.nan, 5]]),
-]
 scipy_specials = [
     (sp.gamma, [1, 0.5, 3.3]),
     (lambda a: sp.expit(a), [1, 0, -1]),
@@ -509,7 +499,8 @@ scipy_specials = [
                 *miscellaneous,
             ),
             *random,
-            *statistics,
+            *test_differentiation_sorting_searching_counting,
+            *test_differentiation_statistics,
         ),
     ),
     *scipy_specials,

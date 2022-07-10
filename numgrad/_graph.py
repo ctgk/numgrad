@@ -1,5 +1,6 @@
 from collections import namedtuple
 import typing as tp
+from typing import List, Tuple, Union
 
 import numpy as np
 import numpy
@@ -29,15 +30,15 @@ class Graph(object):
     ...
     >>> y
     0.7615941559557649
-    >>> g.backward(y, [x])
-    (0.41997434161402614,)
+    >>> g.backward(y, x)
+    0.41997434161402614
     >>>
     >>> with ng.Graph() as g:
     ...     y = np.isnan(x)
     ...
     >>> y
     False
-    >>> g.backward(y, [x])  # fails to differentiate through `np.isnan`
+    >>> g.backward(y, x)  # fails to differentiate through `np.isnan`
     Traceback (most recent call last):
     ...
     TypeError: `target` of `numgrad.Graph.gradient()` must ...
@@ -122,26 +123,28 @@ class Graph(object):
     def backward(
         self,
         target: Variable,
-        sources: tp.Union[tp.List[Variable], tp.Tuple[Variable, ...]],
+        sources: Union[Variable, List[Variable], Tuple[Variable, ...]],
         *,
         target_grad: tp.Optional[tp.Union[np.number, np.ndarray]] = None,
-    ) -> tp.Tuple[np.ndarray]:
+    ) -> tp.Union[np.ndarray, tp.Tuple[np.ndarray, ...]]:
         """Return gradients propagated backward from target to each source.
 
         Parameters
         ----------
         target : Variable
             Target to be differentiated.
-        sources : tp.Union[tp.List[Variable], tp.Tuple[Variable, ...]]
-            Source tensors to differentiated against.
+        sources : Union[Variable, List[Variable], Tuple[Variable, ...]]
+            Source variable(s) to differentiated against.
         target_grad : tp.Optional[tp.Union[np.number, np.ndarray]]
             Gradient to propagate backward from target, by default None.
 
         Returns
         -------
-        tp.Tuple[np.ndarray]
-            Gradients propagated backward from target to each source.
+        tp.Union[np.ndarray, tp.Tuple[np.ndarray, ...]]
+            Gradient(s) propagated backward from target to each source.
         """
+        if return_single := isinstance(sources, Variable):
+            sources = (sources,)
         self._check_type_of_target_and_sources(target, sources)
         target_grad = self._preprocess_target_grad(target_grad, target)
         id2grad = {id(target): target_grad}
@@ -153,7 +156,10 @@ class Graph(object):
                     continue
                 dx = self._get_grads(vjp, node, id2grad)
                 self._accumulate_grad(id2grad, dx, x)
-        return tuple(id2grad.get(id(s), None) for s in sources)
+        grads = tuple(id2grad.get(id(s), None) for s in sources)
+        if return_single:
+            return grads[0]
+        return grads
 
     @staticmethod
     def _check_type_of_target_and_sources(target, sources):
@@ -161,10 +167,13 @@ class Graph(object):
             raise TypeError(
                 '`target` of `numgrad.Graph.gradient()` must be an instance '
                 f'of `ng.Variable`, not {type(target)}')
+        if isinstance(sources, Variable):
+            return
         if not isinstance(sources, (tuple, list)):
             raise TypeError(
-                '`sources` of `numgrad.Graph.gradient()` must be list or '
-                f'tuple of numgrad.Variable, not {type(sources)}')
+                '`sources` of `numgrad.Graph.gradient()` must be an instance '
+                'of Variable, list of Variable, or tuple of Variable, '
+                f'not {type(sources)}')
         for s in sources:
             if not isinstance(s, Variable):
                 raise TypeError(

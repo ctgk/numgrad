@@ -1,5 +1,12 @@
 import numpy as np
+from numpy.lib.stride_tricks import as_strided
 
+from numgrad._numpy import (  # noqa: F401
+    _linalg,
+    _random,
+    _sorting_searching_counting,
+    _statistics,
+)
 from numgrad._utils._expand_to import _expand_to
 from numgrad._utils._to_array import _to_array
 from numgrad._utils._unbroadcast import _unbroadcast_to
@@ -19,6 +26,34 @@ def _getitem_vjp(x, key):
 Variable.__getitem__ = custom_vjp(_getitem_vjp)(
     lambda self, key: self[key])
 Variable.__getitem__.__doc__ = np.ndarray.__getitem__.__doc__
+
+
+# https://numpy.org/doc/stable/reference/routines.array-creation.html#numerical-ranges
+_register_vjp(
+    np.linspace,
+    lambda start, stop, num=50, endpoint=True, axis=0: (
+        lambda g, r: _unbroadcast_to(
+            np.sum(
+                g * np.linspace(
+                    np.ones_like(start), np.zeros_like(stop), num,
+                    endpoint=endpoint, axis=axis,
+                ),
+                axis=axis,
+            ),
+            start.shape,
+        ),
+        lambda g, r: _unbroadcast_to(
+            np.sum(
+                g * np.linspace(
+                    np.zeros_like(start), np.ones_like(stop), num,
+                    endpoint=endpoint, axis=axis,
+                ),
+                axis=axis,
+            ),
+            stop.shape,
+        ),
+    ),
+)
 
 
 # https://numpy.org/doc/stable/reference/routines.array-creation.html#building-matrices
@@ -328,32 +363,7 @@ _register_vjp(
 )
 
 
-# https://numpy.org/doc/stable/reference/routines.linalg.html#decompositions
-def _t(x):
-    return np.swapaxes(x, -1, -2)
-
-
-_register_vjp(
-    np.linalg.cholesky,
-    lambda a: lambda g, r: (
-        g_lower := np.tril(g),
-        rgt := _t(r) @ g_lower,
-        phi := 0.5 * (np.tril(rgt) + np.tril(rgt, -1)),
-        s := np.linalg.solve(_t(r), phi @ np.linalg.inv(r)),
-        0.5 * (s + _t(s)),
-    )[-1],
-)
-
-
 # https://numpy.org/doc/stable/reference/routines.linalg.html#norms-and-other-numbers
-_register_vjp(
-    np.linalg.det,
-    lambda a: lambda g, r: (g * r)[..., None, None] * np.linalg.inv(_t(a)),
-)
-_register_vjp(
-    np.linalg.slogdet,
-    lambda a: lambda g, r: g[1][..., None, None] * np.linalg.inv(_t(a)),
-)
 _register_vjp(
     np.trace,
     lambda a, offset=0, axis1=0, axis2=1: lambda g, r: np.multiply(
@@ -362,32 +372,6 @@ _register_vjp(
             [i for i in range(a.ndim) if i not in (axis1, axis2)]),
         np.expand_dims(g, (axis1, axis2)),
     ),
-)
-
-# https://numpy.org/doc/stable/reference/routines.linalg.html#solving-equations-and-inverting-matrices
-_register_vjp(
-    np.linalg.solve,
-    lambda a, b: (
-        a := _to_array(a),
-        b := _to_array(b),
-        f := lambda x: x if a.ndim == b.ndim else x[..., None],
-        (
-            lambda g, r: -np.linalg.solve(_t(a), f(g)) @ _t(f(r)),
-            lambda g, r: np.squeeze(
-                np.linalg.solve(_t(a), f(g)),
-                tuple() if a.ndim == b.ndim else -1,
-            ),
-        ),
-    )[-1],
-)
-_register_vjp(
-    np.linalg.inv,
-    lambda a: lambda g, r: -_t(
-        np.linalg.solve(a, _t(np.linalg.solve(_t(a), g)))),
-)
-_register_vjp(
-    np.linalg.pinv,
-    lambda a, rcond=1e-15, hermitian=False: lambda g, r: None,
 )
 
 # https://numpy.org/doc/stable/reference/routines.math.html#trigonometric-functions
@@ -597,7 +581,38 @@ _register_vjp(
     ),
 )
 
+
 # https://numpy.org/doc/stable/reference/routines.math.html#miscellaneous
+def _convolve_vjp_x1(g, a, v, mode):
+    w = {'full': v.size - 1, 'valid': 0, 'same': v.size // 2}[mode]
+    a_pad = np.pad(a, w)
+    s = a_pad.strides[0]
+    a_col = as_strided(a_pad, [g.size, v.size], [s, s])
+    da_col = _matmul_nd_1d_vjp_x1(g, a_col, v[::-1])
+    da_col_pad = np.pad(da_col, ((0,), (g.size,)))
+    da_col_strided = as_strided(
+        da_col_pad.ravel()[g.size + w:],
+        [g.size, a.size], [da_col_pad.strides[0] - s, s])
+    da = da_col_strided.sum(0)
+    return da
+
+
+def _convolve_vjp_x2(g, a, v, mode):
+    w = {'full': v.size - 1, 'valid': 0, 'same': v.size // 2}[mode]
+    a_pad = np.pad(a, w)
+    s = a_pad.strides[0]
+    a_col = as_strided(a_pad, [g.size, v.size], [s, s])
+    dv = _matmul_nd_1d_vjp_x2(g, a_col, v[::-1])[::-1]
+    return dv
+
+
+_register_vjp(
+    np.convolve,
+    lambda a, v, mode='full': (
+        lambda g, r: _convolve_vjp_x1(g, np.asarray(a), np.asarray(v), mode),
+        lambda g, r: _convolve_vjp_x2(g, np.asarray(a), np.asarray(v), mode),
+    ),
+)
 _register_vjp(
     np.clip,
     lambda a, a_min, a_max: (
@@ -618,78 +633,36 @@ _register_vjp(
         lambda g, r: np.where(np.isfinite(x), g, 0)),
 )
 
-# https://numpy.org/doc/stable/reference/random/legacy.html#functions-in-numpy-random
-_register_vjp(
-    np.random.exponential,
-    lambda scale, size=None: lambda g, r: (
-        dx := g * r / scale,
-        dx if size is None else _unbroadcast_to(dx, scale.shape),
-    )[1],
-    module_name='numpy.random', func_name='exponential',
-)
-_register_vjp(
-    np.random.normal,
-    lambda loc, scale, size=None: (
-        lambda g, r: _unbroadcast_to(g, loc.shape),
-        lambda g, r: _unbroadcast_to(g * (r - loc) / scale, scale.shape),
-    ),
-    module_name='numpy.random', func_name='normal',
-)
-_register_vjp(
-    np.random.uniform,
-    lambda low, high, size=None: (
-        lambda g, r: _unbroadcast_to(g * (high - r) / (high - low), low.shape),
-        lambda g, r: _unbroadcast_to(g * (r - low) / (high - low), high.shape),
-    ),
-    module_name='numpy.random', func_name='uniform',
-)
 
-# https://numpy.org/doc/stable/reference/routines.statistics.html#averages-and-variances
+# https://numpy.org/doc/stable/reference/routines.statistics.html#correlating
+def _correlate_vjp_x1(g, a, v, mode):
+    w = {'full': v.size - 1, 'valid': 0, 'same': v.size // 2}[mode]
+    a_pad = np.pad(a, w)
+    s = a_pad.strides[0]
+    a_col = as_strided(a_pad, [g.size, v.size], [s, s])
+    da_col = _matmul_nd_1d_vjp_x1(g, a_col, v)
+    da_col_pad = np.pad(da_col, ((0,), (g.size,)))
+    da_col_strided = as_strided(
+        da_col_pad.ravel()[g.size + w:],
+        [g.size, a.size], [da_col_pad.strides[0] - s, s])
+    da = da_col_strided.sum(0)
+    return da
+
+
+def _correlate_vjp_x2(g, a, v, mode):
+    w = {'full': v.size - 1, 'valid': 0, 'same': v.size // 2}[mode]
+    a_pad = np.pad(a, w)
+    s = a_pad.strides[0]
+    a_col = as_strided(a_pad, [g.size, v.size], [s, s])
+    dv = _matmul_nd_1d_vjp_x2(g, a_col, v)
+    return dv
+
+
 _register_vjp(
-    np.mean,
-    lambda a, axis=None, *, keepdims=False: lambda g, r: (
-        _expand_to(g, a.shape, axis, keepdims) * g.size / a.size
-    ),
-)
-_register_vjp(
-    np.std,
-    lambda a, axis=None, *, ddof=0, keepdims=False: lambda g, r: (
-        np.zeros_like(a) if a.size <= 1 else
-        _expand_to(g / r, a.ndim, axis, keepdims) * (
-            a - a.mean(axis, keepdims=True)) / (a.size / r.size - ddof)
-    ),
-)
-_register_vjp(
-    np.var,
-    lambda a, axis=None, *, ddof=0, keepdims=False: lambda g, r: (
-        np.zeros_like(a) if a.size <= 1 else
-        2 * _expand_to(g, a.ndim, axis, keepdims) * (
-            a - a.mean(axis, keepdims=True)) / (a.size / r.size - ddof)
-    ),
-)
-_register_vjp(
-    np.nanmean,
-    lambda a, axis=None, *, keepdims=False: lambda g, r: (
-        _expand_to(g, a.shape, axis, keepdims) / np.sum(
-            ~np.isnan(a), axis, keepdims=True)
-    ),
-)
-_register_vjp(
-    np.nanstd,
-    lambda a, axis=None, *, ddof=0, keepdims=False: lambda g, r: (
-        np.zeros_like(a) if a.size <= 1 else
-        np.nan_to_num(_expand_to(g / r, a.ndim, axis, keepdims) * (
-            a - np.nanmean(a, axis, keepdims=True)) / (
-                np.sum(~np.isnan(a), axis, keepdims=True) - ddof))
-    ),
-)
-_register_vjp(
-    np.nanvar,
-    lambda a, axis=None, *, ddof=0, keepdims=False: lambda g, r: (
-        np.zeros_like(a) if a.size <= 1 else
-        2 * _expand_to(g, a.ndim, axis, keepdims) * (
-            a - np.nanmean(a, axis, keepdims=True)) / (
-                np.sum(~np.isnan(a), axis, keepdims=True) - ddof)
+    np.correlate,
+    lambda a, v, mode='valid': (
+        lambda g, r: _correlate_vjp_x1(g, np.asarray(a), np.asarray(v), mode),
+        lambda g, r: _correlate_vjp_x2(g, np.asarray(a), np.asarray(v), mode),
     ),
 )
 
