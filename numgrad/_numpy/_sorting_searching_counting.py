@@ -15,16 +15,14 @@ def _unpermute(a, permutation, axis):
     return np.take_along_axis(a, unpermutation, axis)
 
 
-# https://numpy.org/doc/stable/reference/routines.sort.html#sorting
-_register_vjp(
-    np.sort,
-    lambda a, axis=-1: lambda g, r: (
-        _unpermute(g, np.argsort(a, axis), axis) if axis is not None
-        else _unpermute(g, np.argsort(a, axis), 0).reshape(a.shape)
-    ),
-)
+def _sort_vjp(a, axis=-1):
+    def vjp(g, r):
+        if axis is None:
+            return _unpermute(g, np.argsort(a, axis), 0).reshape(a.shape)
+        return _unpermute(g, np.argsort(a, axis), axis)
+    return vjp
 
-_register_vjp(
-    np.msort,
-    lambda a: lambda g, r: _unpermute(g, np.argsort(a, 0), 0),
-)
+
+# https://numpy.org/doc/stable/reference/routines.sort.html#sorting
+_register_vjp(np.sort, _sort_vjp)
+_register_vjp(np.msort, lambda a: _sort_vjp(a, 0))
