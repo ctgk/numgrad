@@ -184,6 +184,7 @@ _div1_vjp = lambda g, r, x1, x2: g / x2
 _div2_vjp = lambda g, r, x2, x1: g * x1 / -(x2 ** 2)
 _pow1_vjp = lambda g, r, x1, x2: g * x2 * (x1 ** (x2 - 1))
 _pow2_vjp = lambda g, r, x2, x1: None if np.any(x1 < 0) else g * r * np.log(x1)
+_fmod2_vjp = lambda g, r, x2, x1: -g * (x1 - r) / x2
 _register_vjp(np.add, _get_binary_vjps(lambda g: g, lambda g: g))
 _register_vjp(np.reciprocal, lambda x: lambda dy, y: dy * -(y ** 2))
 _register_vjp(np.positive, lambda x: lambda dy, y: +dy)
@@ -193,6 +194,7 @@ _register_vjp(np.divide, _get_vjp(_div1_vjp, _div2_vjp))
 _register_vjp(np.power, _get_vjp(_pow1_vjp, _pow2_vjp))
 _register_vjp(np.subtract, _get_vjp(lambda g: g, lambda g: -g))
 _register_vjp(np.float_power, _get_vjp(_pow1_vjp, _pow2_vjp))
+_register_vjp(np.fmod, _get_vjp(lambda g: g, _fmod2_vjp))
 
 # https://numpy.org/doc/stable/reference/routines.math.html#extrema-finding
 _finding_vjp = lambda g, r, x: np.where(x == r, g, 0)

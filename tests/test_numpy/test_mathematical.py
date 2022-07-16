@@ -122,6 +122,9 @@ test_differentiation_arithmetics = [
     (np.power, ([[1, 2]], [[1], [-2]])),
     (lambda a: np.float_power(a, [[1], [-2]]), [[1, 2]]),
     (np.float_power, ([[1, 2]], [[1], [-2]])),
+    (lambda a: np.fmod(a, 2), [-3, -2.5, -1, 1, 2.5, 3]),
+    (lambda b: np.fmod([-3, -2.5, -1, 1, 2.5, 3], b), 2),
+    (lambda a, b: np.fmod(a, b), ([-3, -2.5, -1, 1, 2.5, 3], 2)),
 ]
 test_differentiation_extrema_finding = [
     (np.maximum, (3, -1)),
