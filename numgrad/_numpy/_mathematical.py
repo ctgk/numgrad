@@ -195,6 +195,7 @@ _register_vjp(np.power, _get_vjp(_pow1_vjp, _pow2_vjp))
 _register_vjp(np.subtract, _get_vjp(lambda g: g, lambda g: -g))
 _register_vjp(np.float_power, _get_vjp(_pow1_vjp, _pow2_vjp))
 _register_vjp(np.fmod, _get_vjp(lambda g: g, _fmod2_vjp))
+_register_vjp(np.remainder, _get_vjp(lambda g: g, _fmod2_vjp))
 
 # https://numpy.org/doc/stable/reference/routines.math.html#extrema-finding
 _finding_vjp = lambda g, r, x: np.where(x == r, g, 0)

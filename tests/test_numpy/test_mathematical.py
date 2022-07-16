@@ -125,6 +125,9 @@ test_differentiation_arithmetics = [
     (lambda a: np.fmod(a, 2), [-3, -2.5, -1, 1, 2.5, 3]),
     (lambda b: np.fmod([-3, -2.5, -1, 1, 2.5, 3], b), 2),
     (lambda a, b: np.fmod(a, b), ([-3, -2.5, -1, 1, 2.5, 3], 2)),
+    (lambda a: np.remainder(a, 2), [-3, -2.5, -1, 1, 2.5, 3]),
+    (lambda b: np.remainder([-3, -2.5, -1, 1, 2.5, 3], b), 2),
+    (lambda a, b: np.remainder(a, b), ([-3, -2.5, -1, 1, 2.5, 3], 2)),
 ]
 test_differentiation_extrema_finding = [
     (np.maximum, (3, -1)),
