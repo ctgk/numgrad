@@ -135,6 +135,8 @@ def _convolve_vjp_x2(g, a, v, mode):
 
 # https://numpy.org/doc/stable/reference/routines.math.html#trigonometric-functions
 _hypot_vjp = lambda g, r, x: g * x / r
+_arctan2_x1_vjp = lambda g, r, x1, x2: g * (np.cos(r) ** 2) / x2
+_arctan2_x2_vjp = lambda g, r, x2, x1: g * (np.cos(r) ** 2) * -x1 / (x2 ** 2)
 _register_vjp(np.sin, lambda x: lambda g, r: g * np.cos(x))
 _register_vjp(np.cos, lambda x: lambda g, r: g * -np.sin(x))
 _register_vjp(np.tan, lambda x: lambda g, r: g * (1 + np.square(r)))
@@ -142,6 +144,7 @@ _register_vjp(np.arcsin, lambda x: lambda g, r: g / np.cos(r))
 _register_vjp(np.arccos, lambda x: lambda g, r: g / -np.sin(r))
 _register_vjp(np.arctan, lambda x: lambda g, r: g * (np.cos(r) ** 2))
 _register_vjp(np.hypot, _get_vjp(_hypot_vjp, _hypot_vjp))
+_register_vjp(np.arctan2, _get_vjp(_arctan2_x1_vjp, _arctan2_x2_vjp))
 _register_vjp(np.degrees, lambda x: lambda g, r: g * 180 / np.pi)
 _register_vjp(np.radians, lambda x: lambda g, r: g * np.pi / 180)
 _register_vjp(np.rad2deg, lambda x: lambda g, r: g * 180 / np.pi)
