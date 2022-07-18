@@ -8,7 +8,7 @@ from numgrad._config import config
 from numgrad._variable import _ndarray_args, _ndarray_kwargs, Variable
 
 
-def _register_vjp(
+def _bind_vjp(
     forward: callable,
     func_to_vjp: callable,
     module_name: str = None,

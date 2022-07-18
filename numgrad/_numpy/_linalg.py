@@ -1,7 +1,7 @@
 import numpy as np
 
 from numgrad._utils._to_array import _to_array
-from numgrad._vjp import _register_vjp
+from numgrad._vjp import _bind_vjp
 
 
 # https://numpy.org/doc/stable/reference/routines.linalg.html#decompositions
@@ -9,7 +9,7 @@ def _t(x):
     return np.swapaxes(x, -1, -2)
 
 
-_register_vjp(
+_bind_vjp(
     np.linalg.cholesky,
     lambda a: lambda g, r: (
         g_lower := np.tril(g),
@@ -22,18 +22,18 @@ _register_vjp(
 
 
 # https://numpy.org/doc/stable/reference/routines.linalg.html#norms-and-other-numbers
-_register_vjp(
+_bind_vjp(
     np.linalg.det,
     lambda a: lambda g, r: (g * r)[..., None, None] * np.linalg.inv(_t(a)),
 )
-_register_vjp(
+_bind_vjp(
     np.linalg.slogdet,
     lambda a: lambda g, r: g[1][..., None, None] * np.linalg.inv(_t(a)),
 )
 
 
 # https://numpy.org/doc/stable/reference/routines.linalg.html#solving-equations-and-inverting-matrices
-_register_vjp(
+_bind_vjp(
     np.linalg.solve,
     lambda a, b: (
         a := _to_array(a),
@@ -48,7 +48,7 @@ _register_vjp(
         ),
     )[-1],
 )
-_register_vjp(
+_bind_vjp(
     np.linalg.inv,
     lambda a: lambda g, r: -_t(
         np.linalg.solve(a, _t(np.linalg.solve(_t(a), g)))),

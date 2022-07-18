@@ -1,7 +1,7 @@
 # https://numpy.org/doc/stable/reference/routines.sort.html
 import numpy as np
 
-from numgrad._vjp import _register_vjp
+from numgrad._vjp import _bind_vjp
 
 
 def _unpermute(a, permutation, axis):
@@ -24,5 +24,5 @@ def _sort_vjp(a, axis=-1):
 
 
 # https://numpy.org/doc/stable/reference/routines.sort.html#sorting
-_register_vjp(np.sort, _sort_vjp)
-_register_vjp(np.msort, lambda a: _sort_vjp(a, 0))
+_bind_vjp(np.sort, _sort_vjp)
+_bind_vjp(np.msort, lambda a: _sort_vjp(a, 0))

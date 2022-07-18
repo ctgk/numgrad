@@ -1,10 +1,10 @@
 import numpy as np
 
 from numgrad._utils._expand_to import _expand_to
-from numgrad._vjp import _register_vjp
+from numgrad._vjp import _bind_vjp
 
 # https://numpy.org/doc/stable/reference/routines.statistics.html#order-statistics
-_register_vjp(
+_bind_vjp(
     np.ptp,
     lambda a, axis=None, *, keepdims=False: lambda g, r: (
         g_expanded := _expand_to(g, a.shape, axis, keepdims),
@@ -14,13 +14,13 @@ _register_vjp(
 )
 
 # https://numpy.org/doc/stable/reference/routines.statistics.html#averages-and-variances
-_register_vjp(
+_bind_vjp(
     np.mean,
     lambda a, axis=None, *, keepdims=False: lambda g, r: (
         _expand_to(g, a.shape, axis, keepdims) * g.size / a.size
     ),
 )
-_register_vjp(
+_bind_vjp(
     np.std,
     lambda a, axis=None, *, ddof=0, keepdims=False: lambda g, r: (
         np.zeros_like(a) if a.size <= 1 else
@@ -31,7 +31,7 @@ _register_vjp(
         )[-1]
     ),
 )
-_register_vjp(
+_bind_vjp(
     np.var,
     lambda a, axis=None, *, ddof=0, keepdims=False: lambda g, r: (
         np.zeros_like(a) if a.size <= 1 else
@@ -42,14 +42,14 @@ _register_vjp(
         )[-1]
     ),
 )
-_register_vjp(
+_bind_vjp(
     np.nanmean,
     lambda a, axis=None, *, keepdims=False: lambda g, r: (
         _expand_to(g, a.shape, axis, keepdims) / np.sum(
             ~np.isnan(a), axis, keepdims=True)
     ),
 )
-_register_vjp(
+_bind_vjp(
     np.nanstd,
     lambda a, axis=None, *, ddof=0, keepdims=False: lambda g, r: (
         np.zeros_like(a) if a.size <= 1 else
@@ -58,7 +58,7 @@ _register_vjp(
                 np.sum(~np.isnan(a), axis, keepdims=True) - ddof))
     ),
 )
-_register_vjp(
+_bind_vjp(
     np.nanvar,
     lambda a, axis=None, *, ddof=0, keepdims=False: lambda g, r: (
         np.zeros_like(a) if a.size <= 1 else

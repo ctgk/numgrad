@@ -6,7 +6,7 @@ from numpy.lib.stride_tricks import as_strided
 
 from numgrad._utils._expand_to import _expand_to
 from numgrad._utils._unbroadcast import _unbroadcast_to
-from numgrad._vjp import _register_vjp
+from numgrad._vjp import _bind_vjp
 
 
 def _get_prod_vjp(a, axis=None, *, keepdims=False, _prod=np.prod):
@@ -137,49 +137,49 @@ def _convolve_vjp_x2(g, a, v, mode):
 _hypot_vjp = lambda g, r, x: g * x / r
 _arctan2_x1_vjp = lambda g, r, x1, x2: g * (np.cos(r) ** 2) / x2
 _arctan2_x2_vjp = lambda g, r, x2, x1: g * (np.cos(r) ** 2) * -x1 / (x2 ** 2)
-_register_vjp(np.sin, lambda x: lambda g, r: g * np.cos(x))
-_register_vjp(np.cos, lambda x: lambda g, r: g * -np.sin(x))
-_register_vjp(np.tan, lambda x: lambda g, r: g * (1 + np.square(r)))
-_register_vjp(np.arcsin, lambda x: lambda g, r: g / np.cos(r))
-_register_vjp(np.arccos, lambda x: lambda g, r: g / -np.sin(r))
-_register_vjp(np.arctan, lambda x: lambda g, r: g * (np.cos(r) ** 2))
-_register_vjp(np.hypot, _get_vjp(_hypot_vjp, _hypot_vjp))
-_register_vjp(np.arctan2, _get_vjp(_arctan2_x1_vjp, _arctan2_x2_vjp))
-_register_vjp(np.degrees, lambda x: lambda g, r: g * 180 / np.pi)
-_register_vjp(np.radians, lambda x: lambda g, r: g * np.pi / 180)
-_register_vjp(np.rad2deg, lambda x: lambda g, r: g * 180 / np.pi)
-_register_vjp(np.deg2rad, lambda x: lambda g, r: g * np.pi / 180)
+_bind_vjp(np.sin, lambda x: lambda g, r: g * np.cos(x))
+_bind_vjp(np.cos, lambda x: lambda g, r: g * -np.sin(x))
+_bind_vjp(np.tan, lambda x: lambda g, r: g * (1 + np.square(r)))
+_bind_vjp(np.arcsin, lambda x: lambda g, r: g / np.cos(r))
+_bind_vjp(np.arccos, lambda x: lambda g, r: g / -np.sin(r))
+_bind_vjp(np.arctan, lambda x: lambda g, r: g * (np.cos(r) ** 2))
+_bind_vjp(np.hypot, _get_vjp(_hypot_vjp, _hypot_vjp))
+_bind_vjp(np.arctan2, _get_vjp(_arctan2_x1_vjp, _arctan2_x2_vjp))
+_bind_vjp(np.degrees, lambda x: lambda g, r: g * 180 / np.pi)
+_bind_vjp(np.radians, lambda x: lambda g, r: g * np.pi / 180)
+_bind_vjp(np.rad2deg, lambda x: lambda g, r: g * 180 / np.pi)
+_bind_vjp(np.deg2rad, lambda x: lambda g, r: g * np.pi / 180)
 
 # https://numpy.org/doc/stable/reference/routines.math.html#hyperbolic-functions
-_register_vjp(np.sinh, lambda x: lambda g, r: g * np.cosh(x))
-_register_vjp(np.cosh, lambda x: lambda g, r: g * np.sinh(x))
-_register_vjp(np.tanh, lambda x: lambda g, r: g * (1 - np.square(r)))
-_register_vjp(np.arcsinh, lambda x: lambda g, r: g / np.cosh(r))
-_register_vjp(np.arccosh, lambda x: lambda g, r: g / np.sinh(r))
-_register_vjp(np.arctanh, lambda x: lambda g, r: g / (1 - np.square(x)))
+_bind_vjp(np.sinh, lambda x: lambda g, r: g * np.cosh(x))
+_bind_vjp(np.cosh, lambda x: lambda g, r: g * np.sinh(x))
+_bind_vjp(np.tanh, lambda x: lambda g, r: g * (1 - np.square(r)))
+_bind_vjp(np.arcsinh, lambda x: lambda g, r: g / np.cosh(r))
+_bind_vjp(np.arccosh, lambda x: lambda g, r: g / np.sinh(r))
+_bind_vjp(np.arctanh, lambda x: lambda g, r: g / (1 - np.square(x)))
 
 # https://numpy.org/doc/stable/reference/routines.math.html#sums-products-differences
-_register_vjp(np.prod, _get_prod_vjp)
-_register_vjp(np.sum, _get_sum_vjp)
-_register_vjp(np.nanprod, partial(_get_prod_vjp, _prod=np.nanprod))
-_register_vjp(np.nansum, _get_sum_vjp)
-_register_vjp(np.cumprod, _get_cumprod_vjp)
-_register_vjp(np.cumsum, _get_cumsum_vjp)
-_register_vjp(np.nancumprod, _get_cumprod_vjp)
-_register_vjp(np.nancumsum, _get_cumsum_vjp)
+_bind_vjp(np.prod, _get_prod_vjp)
+_bind_vjp(np.sum, _get_sum_vjp)
+_bind_vjp(np.nanprod, partial(_get_prod_vjp, _prod=np.nanprod))
+_bind_vjp(np.nansum, _get_sum_vjp)
+_bind_vjp(np.cumprod, _get_cumprod_vjp)
+_bind_vjp(np.cumsum, _get_cumsum_vjp)
+_bind_vjp(np.nancumprod, _get_cumprod_vjp)
+_bind_vjp(np.nancumsum, _get_cumsum_vjp)
 
 # https://numpy.org/doc/stable/reference/routines.math.html#exponents-and-logarithms
 _logaddexp_vjp = lambda g, r, x: g * np.exp(x - r)
 _logaddexp2_vjp = lambda g, r, x: g * np.exp2(x - r)
-_register_vjp(np.exp, lambda x: lambda g, r: g * r)
-_register_vjp(np.expm1, lambda x: lambda g, r: g * (r + 1))
-_register_vjp(np.exp2, lambda x: lambda g, r: g * r * np.log(2))
-_register_vjp(np.log, lambda x: lambda g, r: g / x)
-_register_vjp(np.log10, lambda x: lambda g, r: g / (x * np.log(10)))
-_register_vjp(np.log2, lambda x: lambda g, r: g / (x * np.log(2)))
-_register_vjp(np.log1p, lambda x: lambda g, r: g / (1 + x))
-_register_vjp(np.logaddexp, _get_vjp(_logaddexp_vjp, _logaddexp_vjp))
-_register_vjp(np.logaddexp2, _get_vjp(_logaddexp2_vjp, _logaddexp2_vjp))
+_bind_vjp(np.exp, lambda x: lambda g, r: g * r)
+_bind_vjp(np.expm1, lambda x: lambda g, r: g * (r + 1))
+_bind_vjp(np.exp2, lambda x: lambda g, r: g * r * np.log(2))
+_bind_vjp(np.log, lambda x: lambda g, r: g / x)
+_bind_vjp(np.log10, lambda x: lambda g, r: g / (x * np.log(10)))
+_bind_vjp(np.log2, lambda x: lambda g, r: g / (x * np.log(2)))
+_bind_vjp(np.log1p, lambda x: lambda g, r: g / (1 + x))
+_bind_vjp(np.logaddexp, _get_vjp(_logaddexp_vjp, _logaddexp_vjp))
+_bind_vjp(np.logaddexp2, _get_vjp(_logaddexp2_vjp, _logaddexp2_vjp))
 
 # https://numpy.org/doc/stable/reference/routines.math.html#arithmetic-operations
 _mul_vjp = lambda g, r, x1, x2: g * x2
@@ -190,40 +190,40 @@ _pow2_vjp = lambda g, r, x2, x1: None if np.any(x1 < 0) else g * r * np.log(x1)
 _floordiv1_vjp = lambda g, r, x1, x2: np.zeros_like(x1)
 _floordiv2_vjp = lambda g, r, x2, x1: np.zeros_like(x2)
 _fmod2_vjp = lambda g, r, x2, x1: -g * (x1 - r) / x2
-_register_vjp(np.add, _get_binary_vjps(lambda g: g, lambda g: g))
-_register_vjp(np.reciprocal, lambda x: lambda dy, y: dy * -(y ** 2))
-_register_vjp(np.positive, lambda x: lambda dy, y: +dy)
-_register_vjp(np.negative, lambda x: lambda dy, y: -dy)
-_register_vjp(np.multiply, _get_vjp(_mul_vjp, _mul_vjp))
-_register_vjp(np.divide, _get_vjp(_div1_vjp, _div2_vjp))
-_register_vjp(np.power, _get_vjp(_pow1_vjp, _pow2_vjp))
-_register_vjp(np.subtract, _get_vjp(lambda g: g, lambda g: -g))
-_register_vjp(np.floor_divide, _get_vjp(_floordiv1_vjp, _floordiv2_vjp))
-_register_vjp(np.float_power, _get_vjp(_pow1_vjp, _pow2_vjp))
-_register_vjp(np.fmod, _get_vjp(lambda g: g, _fmod2_vjp))
-_register_vjp(np.mod, _get_vjp(lambda g: g, _fmod2_vjp))
-_register_vjp(np.remainder, _get_vjp(lambda g: g, _fmod2_vjp))
+_bind_vjp(np.add, _get_binary_vjps(lambda g: g, lambda g: g))
+_bind_vjp(np.reciprocal, lambda x: lambda dy, y: dy * -(y ** 2))
+_bind_vjp(np.positive, lambda x: lambda dy, y: +dy)
+_bind_vjp(np.negative, lambda x: lambda dy, y: -dy)
+_bind_vjp(np.multiply, _get_vjp(_mul_vjp, _mul_vjp))
+_bind_vjp(np.divide, _get_vjp(_div1_vjp, _div2_vjp))
+_bind_vjp(np.power, _get_vjp(_pow1_vjp, _pow2_vjp))
+_bind_vjp(np.subtract, _get_vjp(lambda g: g, lambda g: -g))
+_bind_vjp(np.floor_divide, _get_vjp(_floordiv1_vjp, _floordiv2_vjp))
+_bind_vjp(np.float_power, _get_vjp(_pow1_vjp, _pow2_vjp))
+_bind_vjp(np.fmod, _get_vjp(lambda g: g, _fmod2_vjp))
+_bind_vjp(np.mod, _get_vjp(lambda g: g, _fmod2_vjp))
+_bind_vjp(np.remainder, _get_vjp(lambda g: g, _fmod2_vjp))
 
 # https://numpy.org/doc/stable/reference/routines.math.html#extrema-finding
 _finding_vjp = lambda g, r, x: np.where(x == r, g, 0)
-_register_vjp(np.maximum, _get_vjp(_finding_vjp, _finding_vjp))
-_register_vjp(np.fmax, _get_vjp(_finding_vjp, _finding_vjp))
-_register_vjp(np.amax, _get_reduce_finding_vjp)
-_register_vjp(np.nanmax, _get_reduce_finding_vjp)
-_register_vjp(np.minimum, _get_vjp(_finding_vjp, _finding_vjp))
-_register_vjp(np.fmin, _get_vjp(_finding_vjp, _finding_vjp))
-_register_vjp(np.amin, _get_reduce_finding_vjp)
-_register_vjp(np.nanmin, _get_reduce_finding_vjp)
+_bind_vjp(np.maximum, _get_vjp(_finding_vjp, _finding_vjp))
+_bind_vjp(np.fmax, _get_vjp(_finding_vjp, _finding_vjp))
+_bind_vjp(np.amax, _get_reduce_finding_vjp)
+_bind_vjp(np.nanmax, _get_reduce_finding_vjp)
+_bind_vjp(np.minimum, _get_vjp(_finding_vjp, _finding_vjp))
+_bind_vjp(np.fmin, _get_vjp(_finding_vjp, _finding_vjp))
+_bind_vjp(np.amin, _get_reduce_finding_vjp)
+_bind_vjp(np.nanmin, _get_reduce_finding_vjp)
 
 # https://numpy.org/doc/stable/reference/routines.math.html#miscellaneous
-_register_vjp(
+_bind_vjp(
     np.convolve,
     lambda a, v, mode='full': (
         lambda g, r: _convolve_vjp_x1(g, np.asarray(a), np.asarray(v), mode),
         lambda g, r: _convolve_vjp_x2(g, np.asarray(a), np.asarray(v), mode),
     ),
 )
-_register_vjp(
+_bind_vjp(
     np.clip,
     lambda a, a_min, a_max: (
         lambda g, r: _unbroadcast_to(
@@ -232,12 +232,12 @@ _register_vjp(
         lambda g, r: _unbroadcast_to(g * (r == a_max), a_max.shape),
     ),
 )
-_register_vjp(np.sqrt, lambda x: lambda g, r: g * 0.5 / r)
-_register_vjp(np.cbrt, lambda x: lambda g, r: g / (3 * r ** 2))
-_register_vjp(np.square, lambda x: lambda g, r: g * 2 * x)
-_register_vjp(np.absolute, lambda x: lambda g, r: g * np.sign(x))
-_register_vjp(np.fabs, lambda x: lambda g, r: g * np.sign(x))
-_register_vjp(
+_bind_vjp(np.sqrt, lambda x: lambda g, r: g * 0.5 / r)
+_bind_vjp(np.cbrt, lambda x: lambda g, r: g / (3 * r ** 2))
+_bind_vjp(np.square, lambda x: lambda g, r: g * 2 * x)
+_bind_vjp(np.absolute, lambda x: lambda g, r: g * np.sign(x))
+_bind_vjp(np.fabs, lambda x: lambda g, r: g * np.sign(x))
+_bind_vjp(
     np.nan_to_num,
     lambda x, copy=True, nan=0., posinf=None, neginf=None: (
         lambda g, r: np.where(np.isfinite(x), g, 0)),
