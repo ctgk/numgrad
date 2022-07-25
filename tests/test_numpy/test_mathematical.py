@@ -1,7 +1,15 @@
 import numpy as np
+import pytest
+
+from tests.test_differentiation import (  # noqa:I202
+    _test_egrad,
+    _test_graph_backward,
+    _test_graph_backward_custom_grad,
+)
 
 
-test_differentiation_trigonometrics = [
+@pytest.fixture(params=[
+    # https://numpy.org/doc/stable/reference/routines.math.html#trigonometric-functions
     (np.cos, np.random.uniform(-10, 10, (3, 2))),
     (np.sin, np.random.uniform(-10, 10, (2, 5))),
     (np.tan, np.arctan(np.random.uniform(-2, 2, (4, 1)))),
@@ -17,16 +25,16 @@ test_differentiation_trigonometrics = [
     (np.radians, np.random.uniform(-1000, 1000, (5, 2))),
     (np.rad2deg, np.random.uniform(-10, 10, (4, 2))),
     (np.deg2rad, np.random.uniform(-1000, 1000, (3, 4))),
-]
-test_differentation_hyperbolics = [
+
+    # https://numpy.org/doc/stable/reference/routines.math.html#hyperbolic-functions
     (np.cosh, np.random.uniform(-10, 10, (3, 4))),
     (np.sinh, np.random.uniform(-10, 10, (1, 5))),
     (np.tanh, np.random.uniform(-10, 10, (4, 2))),
     (np.arcsinh, np.random.uniform(-10, 10, (4, 2, 3))),
     (np.arccosh, np.random.uniform(1, 10, (5, 2))),
     (np.arctanh, np.random.uniform(-0.9, 0.9, (2,))),
-]
-test_differentiation_sum_products_differences = [
+
+    # https://numpy.org/doc/stable/reference/routines.math.html#sums-products-differences
     (lambda a: np.prod(a), 1),
     (lambda a: a.prod(), [1, -1]),
     (lambda a: np.prod(a, 1), np.random.rand(2, 3, 2)),
@@ -73,8 +81,8 @@ test_differentiation_sum_products_differences = [
     (lambda a: np.nancumsum(a), [np.nan, np.nan]),
     (lambda a: np.nancumsum(a, 1), [[2, np.nan, 3], [np.nan, 4, np.nan]]),
     (lambda a: np.nancumsum(a), [[2, np.nan, 3], [np.nan, 4, np.nan]]),
-]
-test_differentiation_exponents_logarithms = [
+
+    # https://numpy.org/doc/stable/reference/routines.math.html#exponents-and-logarithms
     (np.exp, [-1, -0.2, 0.5, 2]),
     (np.expm1, [-1, -0.2, 0.5, 2]),
     (np.exp2, [-1, -0.2, 0.5, 2]),
@@ -94,21 +102,18 @@ test_differentiation_exponents_logarithms = [
         np.logaddexp2,
         (np.random.normal(size=(3, 4)), np.random.normal(size=(5, 1, 4))),
     ),
-]
-test_differentiation_arithmetics = [
-    (np.positive, -3),
-    (lambda a: +a, -3),
-    (np.negative, -3),
-    (lambda a: -a, -3),
-    (np.reciprocal, [1, -2]),
+
+
+    # https://numpy.org/doc/stable/reference/routines.math.html#arithmetic-operations
     (lambda a: np.add(a, [[1, 2], [3, 4]]), [1, 2]),
     (lambda a: a + [[1, 2], [3, 4]], [1, 2]),
     (lambda a, b: a + b, ([[1, 2]], [[1], [2]])),
     (np.add, ([[1, 2]], [[1], [2]])),
-    (lambda a: np.subtract(a, [[1, 2], [3, 4]]), [1, 2]),
-    (lambda a: a - [[1, 2], [3, 4]], [1, 2]),
-    (lambda a, b: a - b, ([[1, 2]], [[1], [2]])),
-    (np.subtract, ([[1, 2]], [[1], [2]])),
+    (np.reciprocal, [1, -2]),
+    (np.positive, -3),
+    (lambda a: +a, -3),
+    (np.negative, -3),
+    (lambda a: -a, -3),
     (lambda a: np.multiply(a, [[1, 2], [3, 4]]), [1, 2]),
     (lambda a: a * [[1, 2], [3, 4]], [1, 2]),
     (lambda a: np.float64(1) * a, [1, 2]),
@@ -122,11 +127,13 @@ test_differentiation_arithmetics = [
     (lambda a: np.power(a, [[1], [-2]]), [[1, 2]]),
     (lambda a: a ** [[1], [-2]], [[1, 2]]),
     (np.power, ([[1, 2]], [[1], [-2]])),
+    (lambda a: np.subtract(a, [[1, 2], [3, 4]]), [1, 2]),
+    (lambda a: a - [[1, 2], [3, 4]], [1, 2]),
+    (lambda a, b: a - b, ([[1, 2]], [[1], [2]])),
+    (np.subtract, ([[1, 2]], [[1], [2]])),
+    (np.true_divide, ([[1, 2]], [[1], [2]])),
     (lambda a: np.float_power(a, [[1], [-2]]), [[1, 2]]),
     (np.float_power, ([[1, 2]], [[1], [-2]])),
-    (lambda a: np.floor_divide(a, 2), [-3, -2.5, -1, 1, 2.5, 3]),
-    (lambda b: np.floor_divide([-3, -2.5, -1, 1, 2.5, 3], b), 2),
-    (lambda a, b: np.floor_divide(a, b), ([-3, -2.5, -1, 1, 2.5, 3], 2)),
     (lambda a: np.fmod(a, 2), [-3, -2.5, -1, 1, 2.5, 3]),
     (lambda b: np.fmod([-3, -2.5, -1, 1, 2.5, 3], b), 2),
     (lambda a, b: np.fmod(a, b), ([-3, -2.5, -1, 1, 2.5, 3], 2)),
@@ -136,8 +143,8 @@ test_differentiation_arithmetics = [
     (lambda a: np.remainder(a, 2), [-3, -2.5, -1, 1, 2.5, 3]),
     (lambda b: np.remainder([-3, -2.5, -1, 1, 2.5, 3], b), 2),
     (lambda a, b: np.remainder(a, b), ([-3, -2.5, -1, 1, 2.5, 3], 2)),
-]
-test_differentiation_extrema_finding = [
+
+    # https://numpy.org/doc/stable/reference/routines.math.html#extrema-finding
     (np.maximum, (3, -1)),
     (np.maximum, (0.5, np.random.rand(3, 2))),
     (np.maximum, (np.random.rand(4, 3), 0.5)),
@@ -172,8 +179,8 @@ test_differentiation_extrema_finding = [
     (lambda a: np.nanmin(a), np.nan),
     (lambda a: np.nanmin(a), [np.nan, 1]),
     (lambda a: np.nanmin(a, axis=0, keepdims=True), [np.nan, 1]),
-]
-test_differentiation_miscellaneous = [
+
+    # https://numpy.org/doc/stable/reference/routines.math.html#miscellaneous
     (lambda a: np.convolve(a, [0, 1, 0.5], mode='full'), [1, 2, 3]),
     (lambda a: np.convolve(a, [0, 1, 0.5], mode='same'), [1, 2, 3]),
     (lambda a: np.convolve(a, [0, 1, 0.5], mode='valid'), [1, 2, 3]),
@@ -203,13 +210,19 @@ test_differentiation_miscellaneous = [
     (np.nan_to_num, 1),
     (np.nan_to_num, np.nan),
     (np.nan_to_num, [1, np.nan]),
-]
-test_differentiation_mathematical = [
-    *test_differentiation_trigonometrics,
-    *test_differentation_hyperbolics,
-    *test_differentiation_sum_products_differences,
-    *test_differentiation_exponents_logarithms,
-    *test_differentiation_arithmetics,
-    *test_differentiation_extrema_finding,
-    *test_differentiation_miscellaneous,
-]
+])
+def parameters(request):
+    return request.param
+
+
+def test_graph_backward(parameters):
+    f = parameters[0]
+    args = parameters[1] if isinstance(
+        parameters[1], tuple) else (parameters[1],)
+    _test_egrad(f, *args)
+    _test_graph_backward(f, *args)
+    _test_graph_backward_custom_grad(f, *args)
+
+
+if __name__ == '__main__':
+    pytest.main([__file__])

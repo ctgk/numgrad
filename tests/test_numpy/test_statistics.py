@@ -1,7 +1,14 @@
 import numpy as np
+import pytest
+
+from tests.test_differentiation import (  # noqa:I202
+    _test_egrad,
+    _test_graph_backward,
+    _test_graph_backward_custom_grad,
+)
 
 
-test_differentiation_statistics = [
+@pytest.fixture(params=[
     # https://numpy.org/doc/stable/reference/routines.statistics.html#order-statistics
     (lambda a: np.ptp(a), [-1, 1]),
     (lambda a: np.ptp(a, axis=1), [[-1, 1], [-2, 3]]),
@@ -45,4 +52,19 @@ test_differentiation_statistics = [
     (lambda a, v: np.correlate(a, v, mode='full'), ([1, 2, 3], [1, 0.5])),
     (lambda a, v: np.correlate(a, v, mode='same'), ([1, 2, 3], [1, 0.5])),
     (lambda a, v: np.correlate(a, v, mode='valid'), ([1, 2, 3], [1, 0.5])),
-]
+])
+def parameters(request):
+    return request.param
+
+
+def test_differentiation(parameters):
+    f = parameters[0]
+    args = parameters[1] if isinstance(
+        parameters[1], tuple) else (parameters[1],)
+    _test_graph_backward(f, *args)
+    _test_graph_backward_custom_grad(f, *args)
+    _test_egrad(f, *args)
+
+
+if __name__ == '__main__':
+    pytest.main([__file__])

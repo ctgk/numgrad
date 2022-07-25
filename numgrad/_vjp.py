@@ -1,3 +1,4 @@
+from collections.abc import Iterable
 import functools
 import inspect
 import itertools
@@ -8,14 +9,50 @@ from numgrad._config import config
 from numgrad._variable import _ndarray_args, _ndarray_kwargs, Variable
 
 
+def _wrap_vjp(vjp: callable) -> callable:
+    vjp_args = inspect.getfullargspec(vjp).args
+    if 'g' not in vjp_args:
+        vjp = functools.partial(
+            lambda vjp, g, *args, **kwargs: g * vjp(*args, **kwargs),
+            vjp,
+        )
+    if 'r' not in vjp_args:
+        vjp = functools.partial(
+            lambda vjp, g, r, *args, **kwargs: vjp(g, *args, **kwargs),
+            vjp,
+        )
+    return vjp
+
+
+class _VJPIterator:
+
+    def __init__(self, vjp: callable) -> None:
+        self._vjp = vjp
+        self._index = 0
+
+    def __len__(self):
+        return 0
+
+    def __iter__(self):
+        return _VJPIterator(self._vjp)
+
+    def __next__(self):
+        vjp = functools.partial(self._vjp, _nth=self._index)
+        self._index += 1
+        return vjp
+
+
 def _bind_vjp(
     forward: callable,
-    func_to_vjp: callable,
+    *vjps: callable,
     module_name: str = None,
     func_name: str = None,
 ):
 
-    config._func2vjps[forward] = func_to_vjp
+    if len(vjps) == 1 and isinstance(vjps[0], Iterable):
+        config._func2vjps[forward] = vjps[0]
+    else:
+        config._func2vjps[forward] = tuple(_wrap_vjp(vjp) for vjp in vjps)
 
     if isinstance(forward, np.ufunc):
         return
@@ -45,13 +82,13 @@ def _bind_vjp(
     )
 
 
-def custom_vjp(func_to_vjp: callable) -> callable:
+def custom_vjp(*vjps: callable) -> callable:
     """Return wrapper function to make a custom differentiable function.
 
     Parameters
     ----------
-    func_to_vjp : callable
-        Function to return vector-jacobian-product function(s).
+    vjps : callable
+        Function(s) to return vector-jacobian-product for each argument.
 
     Returns
     -------
@@ -61,7 +98,7 @@ def custom_vjp(func_to_vjp: callable) -> callable:
     Examples
     --------
     >>> # note that this is a custom gradient
-    >>> @custom_vjp(lambda x: lambda g, r: g * 3)
+    >>> @custom_vjp(lambda g, r, x: g * 3)
     ... def twice(x):
     ...     return 2 * x
     ...
@@ -78,7 +115,10 @@ def custom_vjp(func_to_vjp: callable) -> callable:
     """
 
     def decorator(forward):
-        config._func2vjps[forward] = func_to_vjp
+        if len(vjps) == 1 and isinstance(vjps[0], Iterable):
+            config._func2vjps[forward] = vjps[0]
+        else:
+            config._func2vjps[forward] = tuple(_wrap_vjp(vjp) for vjp in vjps)
 
         @functools.wraps(forward)
         def wrapped_forward(*args, **kwargs):

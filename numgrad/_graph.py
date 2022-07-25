@@ -8,14 +8,11 @@ import scipy.special  # noqa: F401
 
 from numgrad._config import config
 from numgrad._utils._isscalar import _isscalar
-from numgrad._utils._to_array import _to_array_or_number
+from numgrad._utils._unbroadcast import _unbroadcast_to
 from numgrad._variable import Variable
 
 
-Node = namedtuple(
-    'Node',
-    ('vjps', 'result', 'function', 'inputs', 'kwargs'),
-)
+Node = namedtuple('Node', ('result', 'function', 'inputs', 'kwargs'))
 
 
 class Graph(object):
@@ -97,16 +94,7 @@ class Graph(object):
         if any(result is node.result for node in self._node_list):
             raise ValueError('The result already exists in the graph')
 
-        if isinstance(function, np.ufunc):
-            vjps = config._func2vjps[function](*tuple(
-                _to_array_or_number(a) if i < function.nin else a
-                for i, a in enumerate(inputs)
-            ), **kwargs)
-        else:
-            vjps = config._func2vjps[function](*inputs, **kwargs)
-        if callable(vjps):
-            vjps = (vjps,)
-        node = Node(vjps, result, function, inputs, kwargs)
+        node = Node(result, function, inputs, kwargs)
         if config._verbosity > 0:
             print('Graph:', self, ', Node:', node)
         self._node_list.append(node)
@@ -119,6 +107,10 @@ class Graph(object):
             print('Graph:', self._parent_graph, ', Node:', node)
         self._parent_graph._node_list.append(node)
         self._parent_graph._add_node_to_parents(node)
+
+    @staticmethod
+    def _get_vjps(node):
+        return config._func2vjps[node.function]
 
     def backward(
         self,
@@ -151,10 +143,12 @@ class Graph(object):
         for node in reversed(self._node_list):
             if not self._can_backprop_node(node, id2grad):
                 continue
-            for x, vjp in zip(node.inputs, node.vjps):
+            for x, vjp in zip(node.inputs, self._get_vjps(node)):
                 if not self._is_variable_or_tuple_of_variable(x):
                     continue
                 dx = self._get_grads(vjp, node, id2grad)
+                if hasattr(x, 'shape'):
+                    dx = _unbroadcast_to(dx, x.shape)
                 self._accumulate_grad(id2grad, dx, x)
         grads = tuple(id2grad.get(id(s), None) for s in sources)
         if return_single:
@@ -219,7 +213,7 @@ class Graph(object):
             dy = tuple(id2grad.get(id(r), None) for r in node.result)
         else:
             dy = id2grad[id(node.result)]
-        dx = vjp(dy, node.result)
+        dx = vjp(dy, node.result, *node.inputs, **node.kwargs)
         return dx
 
     @staticmethod

@@ -113,8 +113,28 @@ class Variable(object):
                 )
             else:
                 result = Variable(result)
+            if func not in _JOIN_FUNCS:
+                nin = len(config._func2vjps[func])
+                args = tuple(
+                    a if i >= nin else _to_array_or_number(a)
+                    for i, a in enumerate(args)
+                )
             config._graph._add_node(result, func, *args, **kwargs)
         return result
+
+
+def _to_array(a):
+    if not isinstance(a, (Variable, np.ndarray)):
+        return np.asarray(a, config.dtype)
+    return a
+
+
+def _to_array_or_number(a):
+    if isinstance(a, Variable):
+        return a
+    if np.isscalar(a):
+        return config.dtype(a)
+    return _to_array(a)
 
 
 def _inplace(self, inplace_op, *other):

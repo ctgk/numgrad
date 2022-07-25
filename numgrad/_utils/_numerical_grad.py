@@ -9,7 +9,7 @@ def _numerical_grad(
     epsilon: float = 1e-5,
     **kwargs,
 ) -> Tuple[np.ndarray]:
-    args = tuple(np.asarray(a) for a in args)
+    args = tuple(np.asarray(a, dtype=float) for a in args)
     dargs = tuple(np.zeros_like(a, dtype=float) for a in args)
     for arg, darg in zip(args, dargs):
         for i in range(arg.size):
