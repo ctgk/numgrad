@@ -81,6 +81,14 @@ from tests.test_differentiation import (  # noqa:I202
     (lambda a: np.nancumsum(a), [np.nan, np.nan]),
     (lambda a: np.nancumsum(a, 1), [[2, np.nan, 3], [np.nan, 4, np.nan]]),
     (lambda a: np.nancumsum(a), [[2, np.nan, 3], [np.nan, 4, np.nan]]),
+    (lambda a: np.ediff1d(a), [1, 2, 4, 7, 0]),
+    (lambda a: np.ediff1d(a, to_end=99), [1, 2, 4, 7, 0]),
+    (lambda a: np.ediff1d(a, to_begin=99), [1, 2, 4, 7, 0]),
+    (lambda a: np.ediff1d(a, to_begin=-99, to_end=[88, 99]), [1, 2, 4, 7, 0]),
+    (
+        lambda a, to_begin, to_end: np.ediff1d(a, to_begin, to_end),
+        ([1, 2, 4, 7, 0], np.eye(2), np.eye(3)),
+    ),
 
     # https://numpy.org/doc/stable/reference/routines.math.html#exponents-and-logarithms
     (np.exp, [-1, -0.2, 0.5, 2]),

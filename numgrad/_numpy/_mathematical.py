@@ -39,6 +39,16 @@ def _cumsum_vjp(g, r, a, axis=None):
     return _cumulate_inversely(np.cumsum, g, axis)
 
 
+def _ediff1d_vjp(g, r, ary, to_end=None, to_begin=None):
+    if to_end is None and to_begin is None:
+        return -np.diff(g, append=0, prepend=0)
+    s = slice(
+        None if to_begin is None else np.asarray(to_begin).size,
+        None if to_end is None else -np.asarray(to_end).size,
+    )
+    return -np.diff(g[s], append=0, prepend=0)
+
+
 def _reduce_finding_vjp(g, r, a, axis=None, *, keepdims=False):
     return np.where(
         a == _expand_to(r, a.ndim, axis, keepdims),
@@ -110,6 +120,14 @@ _bind_vjp(np.cumprod, _cumprod_vjp)
 _bind_vjp(np.cumsum, _cumsum_vjp)
 _bind_vjp(np.nancumprod, _cumprod_vjp)
 _bind_vjp(np.nancumsum, _cumsum_vjp)
+_bind_vjp(
+    np.ediff1d,
+    _ediff1d_vjp,
+    lambda g, ary, to_end=None, to_begin=None: g[-to_end.size:].reshape(
+        to_end.shape),
+    lambda g, ary, to_end=None, to_begin=None: g[:to_begin.size].reshape(
+        to_begin.shape),
+)
 
 # https://numpy.org/doc/stable/reference/routines.math.html#exponents-and-logarithms
 _bind_vjp(np.exp, lambda r, _: r)
