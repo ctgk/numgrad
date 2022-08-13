@@ -39,6 +39,30 @@ def _cumsum_vjp(g, r, a, axis=None):
     return _cumulate_inversely(np.cumsum, g, axis)
 
 
+def _diff_vjp(g, r, a, n=1, axis=-1, prepend=None, append=None):
+    for _ in range(n):
+        g = -np.diff(g, n=1, axis=axis, prepend=0, append=0)
+    indices = range(
+        0 if prepend is None else np.asarray(prepend).shape[axis],
+        g.shape[axis] - (
+            0 if append is None else np.asarray(append).shape[axis]),
+    )
+    return g.take(indices, axis)
+
+
+def _diff_vjp_prepend(g, r, a, n=1, axis=-1, prepend=None, append=None):
+    for _ in range(n):
+        g = -np.diff(g, n=1, axis=axis, prepend=0, append=0)
+    return g.take(range(prepend.shape[axis]), axis)
+
+
+def _diff_vjp_append(g, r, a, n=1, axis=-1, prepend=None, append=None):
+    for _ in range(n):
+        g = -np.diff(g, n=1, axis=axis, prepend=0, append=0)
+    return g.take(
+        range(g.shape[axis] - prepend.shape[axis], g.shape[axis]), axis)
+
+
 def _ediff1d_vjp(g, r, ary, to_end=None, to_begin=None):
     if to_end is None and to_begin is None:
         return -np.diff(g, append=0, prepend=0)
@@ -120,6 +144,14 @@ _bind_vjp(np.cumprod, _cumprod_vjp)
 _bind_vjp(np.cumsum, _cumsum_vjp)
 _bind_vjp(np.nancumprod, _cumprod_vjp)
 _bind_vjp(np.nancumsum, _cumsum_vjp)
+_bind_vjp(
+    np.diff,
+    _diff_vjp,
+    lambda: None,  # n
+    lambda: None,  # axis
+    _diff_vjp_prepend,
+    _diff_vjp_append,
+)
 _bind_vjp(
     np.ediff1d,
     _ediff1d_vjp,

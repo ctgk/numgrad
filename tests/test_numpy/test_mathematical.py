@@ -81,6 +81,24 @@ from tests.test_differentiation import (  # noqa:I202
     (lambda a: np.nancumsum(a), [np.nan, np.nan]),
     (lambda a: np.nancumsum(a, 1), [[2, np.nan, 3], [np.nan, 4, np.nan]]),
     (lambda a: np.nancumsum(a), [[2, np.nan, 3], [np.nan, 4, np.nan]]),
+    (lambda a: np.diff(a), [1, 2, 4, 7, 0]),
+    (lambda a: np.diff(a, n=3), [1, 2, 4, 7, 0]),
+    (
+        lambda a: np.diff(a, n=3, prepend=[0, 10], append=[-1, 2, 4, 0]),
+        [1, 2, 4, 7, 0],
+    ),
+    (
+        lambda a: np.diff(
+            a, n=3, axis=0,
+            prepend=[[0.], [10.]], append=[[-1.], [2], [4], [0]],
+        ),
+        [[1.], [2], [4], [7], [0]],
+    ),
+    (lambda a: np.diff(a, n=2, prepend=[0, 1]), [1, 2, 4, 7, 0]),
+    # (
+    #     lambda a, prepend, append: np.diff(a, 1, 0, prepend, append),
+    #     (np.random.rand(5, 3), np.random.rand(2, 3), np.random.rand(4, 3)),
+    # ),
     (lambda a: np.ediff1d(a), [1, 2, 4, 7, 0]),
     (lambda a: np.ediff1d(a, to_end=99), [1, 2, 4, 7, 0]),
     (lambda a: np.ediff1d(a, to_begin=99), [1, 2, 4, 7, 0]),
