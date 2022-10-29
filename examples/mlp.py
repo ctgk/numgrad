@@ -14,6 +14,11 @@ def mlp(x, w1, b1, w2, b2):
     return np.tanh(x @ w1 + b1) @ w2 + b2
 
 
+def softmax_cross_entropy(labels: np.ndarray, logits: np.ndarray):
+    log_probas = sp.log_softmax(logits, axis=-1)
+    return np.mean(-log_probas[range(len(log_probas)), labels])
+
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
     parser.add_argument('-e', '--epoch', type=int, default=50)
@@ -26,21 +31,17 @@ if __name__ == '__main__':
     x_train, x_test, y_train, y_test = train_test_split(
         x, y, test_size=10000, stratify=y)
 
-    w1 = ng.Variable(np.random.normal(scale=0.01, size=(28 * 28 * 1, 200)))
-    b1 = ng.Variable(np.random.normal(scale=0.01, size=200))
-    w2 = ng.Variable(np.random.normal(scale=0.1, size=(200, 10)))
-    b2 = ng.Variable(np.random.normal(scale=0.1, size=10))
+    w1 = np.random.normal(scale=0.01, size=(28 * 28 * 1, 200))
+    b1 = np.random.normal(scale=0.01, size=200)
+    w2 = np.random.normal(scale=0.1, size=(200, 10))
+    b2 = np.random.normal(scale=0.1, size=10)
 
     for e in tqdm(range(1, 1 + args.epoch)):
         for i in range(0, len(x_train), args.batch):
             x = x_train[i: i + args.batch]
             y = y_train[i: i + args.batch]
-
-            with ng.Graph() as g:
-                logits = mlp(x, w1, b1, w2, b2)
-                log_probas = sp.log_softmax(logits, axis=-1)
-                nll = np.mean(-log_probas[range(len(log_probas)), y])
-            grads = g.backward(nll, (w1, b1, w2, b2))
+            nll = lambda *theta: softmax_cross_entropy(y, mlp(x, *theta))
+            grads = ng.grad(nll)(w1, b1, w2, b2)
             for p, g in zip((w1, b1, w2, b2), grads):
                 p -= g * 0.01
 
