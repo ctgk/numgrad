@@ -27,7 +27,7 @@ repos:
     -   id: unittest
         name: Run Python unittests
         language: python
-        entry: pytest --doctest-modules
+        entry: pytest --doctest-modules numgrad/ tests/
         pass_filenames: false
     -   id: documentation
         name: Generate document

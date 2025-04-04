@@ -8,6 +8,9 @@ on:
     branches: [ main, develop ]
   pull_request:
     branches: [ main, develop ]
+  schedule:
+    # run every month on 5th day
+    - cron: '0 0 5 * *'
 
 jobs:
   build:
